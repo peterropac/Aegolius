@@ -36,6 +36,8 @@ In the future it will be possible to run the code on a GPU from within Python, w
 
 I kindly request that you cite the archived repository on Zenodo in any published work for which you used SPOMSO.
 
+[![DOI](https://zenodo.org/badge/655622891.svg)](https://zenodo.org/badge/latestdoi/655622891)
+
 
 ## Documentation
 
