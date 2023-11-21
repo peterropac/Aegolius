@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '1.0.0'
+VERSION = '1.1.0'
 DESCRIPTION = 'SPOMSO'
 LONG_DESCRIPTION = 'Python package for generating geometry in two or three dimensions using SDFs.'
 
@@ -12,7 +12,7 @@ setup(
     author_email="<peter.ropac@fmf.uni-lj.si>",
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    url='https://github.com/peterropac/SPOMSO/tree/master/Scripts',
+    url='https://github.com/peterropac/SPOMSO/tree/master/Code',
     packages=find_packages(),
     install_requires=['numpy', 'scipy'],
     keywords=['python', 'geometry'],
