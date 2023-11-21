@@ -5,9 +5,11 @@
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
+import matplotlib.pyplot as plt
+from spomso.cores.post_processing import conv_averaging
 
 
-def resolution_converison(resolution: int) -> int:
+def resolution_conversion(resolution: int) -> int:
     """
     Converts the given resolution so that there are odd number of points along each axis.
     :param resolution: given resolution along an axis.
@@ -31,19 +33,19 @@ def generate_grid(size: int | float | tuple | list | np.ndarray, resolution: int
     """
     resolution = np.asarray(resolution)
     if resolution.size == 1:
-        co_res_0 = resolution_converison(resolution)
+        co_res_0 = resolution_conversion(resolution)
         co_res_1 = co_res_0
         co_res_2 = co_res_0
 
     if resolution.size == 2:
-        co_res_0 = resolution_converison(resolution[0])
-        co_res_1 = resolution_converison(resolution[1])
+        co_res_0 = resolution_conversion(resolution[0])
+        co_res_1 = resolution_conversion(resolution[1])
         co_res_2 = co_res_0
 
     if resolution.size == 3:
-        co_res_0 = resolution_converison(resolution[0])
-        co_res_1 = resolution_converison(resolution[1])
-        co_res_2 = resolution_converison(resolution[2])
+        co_res_0 = resolution_conversion(resolution[0])
+        co_res_1 = resolution_conversion(resolution[1])
+        co_res_2 = resolution_conversion(resolution[2])
 
     size = np.asarray(size)
     if size.size == 1:
@@ -97,7 +99,7 @@ def smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.ndarray) 
     resolution = np.asarray(resolution)
 
     if resolution.size == 1:
-        res = resolution_converison(resolution)
+        res = resolution_conversion(resolution)
         if n_ele//res == 1:
             return pattern
         elif n_ele//(res**2) == 1:
@@ -108,12 +110,12 @@ def smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.ndarray) 
             raise ValueError(f"Cannot reshape the pattern with shape {pattern.shape}")
 
     if resolution.size == 2:
-        res0 = resolution_converison(resolution[0])
-        res1 = resolution_converison(resolution[1])
+        res0 = resolution_conversion(resolution[0])
+        res1 = resolution_conversion(resolution[1])
 
         div = n_ele//(res0*res1)
         if div == 1:
-            return pattern.reshape( res0, res1)
+            return pattern.reshape(res0, res1)
 
         elif not div == 1:
             if not div%1 == 0:
@@ -125,15 +127,67 @@ def smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.ndarray) 
             raise ValueError(f"Cannot reshape the pattern with shape {pattern.shape}")
 
     if resolution.size == 3:
-        res0 = resolution_converison(resolution[0])
-        res1 = resolution_converison(resolution[1])
-        res2 = resolution_converison(resolution[2])
+        res0 = resolution_conversion(resolution[0])
+        res1 = resolution_conversion(resolution[1])
+        res2 = resolution_conversion(resolution[2])
 
         div = n_ele // (res0 * res1 * res2)
         if div==1:
             return pattern.reshape(res0, res1, res2)
         else:
             raise ValueError(f"Cannot reshape the pattern with shape {pattern.shape}")
+
+
+def vector_smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.ndarray) -> np.ndarray:
+    """
+    Converts a vector field point cloud into a grid.
+    :param pattern: Vector field
+    :param resolution: Resolution of the grid, determining the number of points along each axis.
+    :return: Vector field on a grid.
+    """
+    x = smarter_reshape(pattern[0], resolution)
+    y = smarter_reshape(pattern[1], resolution)
+    z = smarter_reshape(pattern[2], resolution)
+
+    return np.asarray([x, y, z])
+
+
+def n_vector_smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.ndarray) -> np.ndarray:
+    """
+    Converts a vector field point cloud into a grid.
+    :param pattern: Vector field
+    :param resolution: Resolution of the grid, determining the number of points along each axis.
+    :return: Vector field on a grid.
+    """
+    c = smarter_reshape(pattern[0], resolution)
+    out = np.zeros((pattern.shape[0], *c.shape))
+    out[0] = c
+    for i in range(1, pattern.shape[0]):
+        out[i] = smarter_reshape(pattern[i], resolution)
+
+    return out
+
+
+def binning(pattern: np.ndarray, bins: int, equal_width: bool = True) -> np.ndarray:
+    """
+    Map the values in the Signed Distance field/pattern to discrete based on the specified number of bins.
+    :param pattern: Signed Distance field or any field.
+    :param bins: Number of bins - unique discrete values in the final pattern.
+    :param equal_width: All the bins are of equal width. If False the first and the last bin have half the width.
+    :return: Modified field.
+    """
+    max_ = np.amax(pattern)
+    min_ = np.amin(pattern)
+    a = (max_ - min_)
+    v = (pattern - min_)/a
+
+    if equal_width:
+        u = (v * bins).astype(int) / (bins - 1)
+    else:
+        u = np.round(v * (bins - 1), 0) / (bins - 1)
+
+    out = u*a + min_
+    return out
 
 
 def hard_binarization(pattern: np.ndarray, threshold: float) -> np.ndarray:
@@ -147,3 +201,39 @@ def hard_binarization(pattern: np.ndarray, threshold: float) -> np.ndarray:
     out = pattern <= threshold
     out = out.astype(float)
     return out
+
+
+def compute_crossings_2d(sdf_grid: np.ndarray, thr: float = 0.06) -> np.ndarray:
+    """
+    Calculates where boundaries in the SDF and separates the regions by assigning the a +1 or -1 value.
+    :param sdf_grid: Signed Distance field or any scalar field.
+    :param thr: Threshold by which the regions are separated.
+    :return: Modified scalar field.
+    """
+    cross = np.zeros(sdf_grid.shape)
+
+    s = sdf_grid[:, :]
+    min_ = np.amin(s)
+    c1 = np.ones(sdf_grid.shape)
+
+    c1[:, 1:] = np.isclose(s[:, 1:], min_, atol=thr)*(~np.isclose(s[:, :-1], min_, atol=thr))
+
+    for j in range(1, sdf_grid.shape[1]):
+        cross[:, j] = 1*c1[:, j] + cross[:, j-1]
+
+    o = np.mod(cross,2).T
+    o = conv_averaging(o, 5, 2) >= 0.5
+    o = 2 * o.T - 1
+
+    return o
+
+
+
+
+
+
+
+
+
+
+

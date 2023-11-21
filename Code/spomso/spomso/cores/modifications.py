@@ -3,10 +3,22 @@
 # SPOMSO is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
-
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import NearestNDInterpolator
 from typing import Callable
+
+from spomso.cores.vector_modification_functions import add_vectors, subtract_vectors, rescale_vectors
+from spomso.cores.vector_modification_functions import rotate_vectors_phi, rotate_vectors_theta
+from spomso.cores.vector_modification_functions import revolve_field_x, revolve_field_y, revolve_field_z
+from spomso.cores.vector_modification_functions import rotate_vectors_x_axis
+from spomso.cores.vector_modification_functions import rotate_vectors_y_axis
+from spomso.cores.vector_modification_functions import rotate_vectors_z_axis
+from spomso.cores.vector_modification_functions import rotate_vectors_axis
+from spomso.cores.vector_modification_functions import batch_normalize
+
+from spomso.cores.post_processing import conv_averaging
+from spomso.cores.helper_functions import smarter_reshape, vector_smarter_reshape
 
 
 class ModifyObject:
@@ -24,23 +36,23 @@ class ModifyObject:
     def modifications(self) -> list:
         """
         All the modifications which were applied to the geometry in chronological order.
-        :return: List of modifications
+        :return: List of modifications.
         """
         return self._mod
 
     @property
     def modified_object(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        SDF of the modified geometry
-        :return: SDF of the modified geometry
+        SDF of the modified geometry.
+        :return: SDF of the modified geometry.
         """
         return self.geo_object
 
     @property
     def original_object(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        SDF of the unmodified geometry
-        :return: SDF of the unmodified geometry
+        SDF of the unmodified geometry.
+        :return: SDF of the unmodified geometry.
         """
         return self.original_geo_object
 
@@ -117,9 +129,117 @@ class ModifyObject:
         self.geo_object = new_geo_object
         return new_geo_object
 
-    def sign(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
+    def signed_old(self, co_resolution) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Transform an Unsigned Distance Function into a Signed Distance Function.
+        :param co_resolution: Resolution of the coordinate system.
+        :return: Modified SDF.
+        """
+        self._mod.append("signed")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+
+            sp = geo_object(co, *params)
+            if np.amin(sp) < 0:
+                return sp
+
+            s = smarter_reshape(sp, co_resolution)
+            c = vector_smarter_reshape(co, co_resolution)
+
+            seps = tuple(np.abs(c[i, 1*(i==0), 1*(i==1), 1*(i==2)] - c[i, 0, 0, 0]) for i in range(c.shape[0]))
+            boundary = s < np.min(seps)
+
+            mark = np.zeros(s.shape)
+            fmark = np.zeros(s.shape)
+            for i in range(1, s.shape[0]):
+                chu = boundary[i, :, :] * ~boundary[i - 1, :, :]
+                j = s.shape[0] - 1 - i
+                chuu = boundary[j, :, :] * ~boundary[j + 1, :, :]
+                mark[i, :, :] = chu + mark[i-1, :, :]
+                fmark[i, :, :] = chuu + fmark[i - 1, :, :]
+            fmark = np.flip(fmark, axis=0)
+            interior = np.clip((mark % 2 + fmark % 2), 0, 1)
+
+            mark = np.zeros(s.shape)
+            fmark = np.zeros(s.shape)
+            for i in range(1, s.shape[1]):
+                chu = boundary[:, i, :] * ~boundary[:, i - 1, :]
+                j = s.shape[1]-1-i
+                chuu = boundary[:, j, :] * ~boundary[:, j + 1, :]
+                mark[:, i, :] = chu + mark[:, i - 1, :]
+                fmark[:, i, :] = chuu + fmark[:, i - 1, :]
+            fmark = np.flip(fmark, axis=1)
+            interior *= np.clip((mark % 2 + fmark % 2), 0, 1)
+
+            interior = conv_averaging(interior, (2, 2, 1), 1)
+            sign = 1 - 2*(interior > 0.5)
+            sign = sign.flatten()
+
+            return sp*sign
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def signed(self, co_resolution) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Transform an Unsigned Distance Function into a Signed Distance Function.
+        :param co_resolution: Resolution of the coordinate system.
+        :return: Modified SDF.
+        """
+        self._mod.append("signed")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+
+            sp = geo_object(co, *params)
+            if np.amin(sp) < 0:
+                return sp
+
+            s = smarter_reshape(sp, co_resolution)
+            c = vector_smarter_reshape(co, co_resolution)
+
+            seps = tuple(np.abs(c[i, 1*(i==0), 1*(i==1), 1*(i==2)] - c[i, 0, 0, 0]) for i in range(c.shape[0]))
+            boundary = s < np.min(seps)
+
+            chu = np.zeros(s.shape)
+            chuu = np.zeros(s.shape)
+            chu[1:] = boundary[1:, :, :] * ~boundary[:-1, :, :]
+            chuu[:-1] = boundary[:-1, :, :] * ~boundary[1:, :, :]
+            mark = np.cumsum(chu, axis=0)
+            fmark = np.cumsum(chuu, axis=0)
+            fmark = np.flip(fmark, axis=0)
+            interior = np.clip((mark % 2 + fmark % 2), 0, 1)
+
+            chu = np.zeros(s.shape)
+            chuu = np.zeros(s.shape)
+            chu[:, 1:, :] = boundary[:, 1:, :] * ~boundary[:, :-1, :]
+            chuu[:, :-1, :] = boundary[:, :-1, :] * ~boundary[:, 1:, :]
+            mark = np.cumsum(chu, axis=1)
+            fmark = np.cumsum(chuu, axis=1)
+            fmark = np.flip(fmark, axis=1)
+            interior *= np.clip((mark % 2 + fmark % 2), 0, 1)
+
+            interior = conv_averaging(interior, (2, 2, 1), 1)
+
+            interior = interior[1:-1, 1:-1, 1:-1]
+            interior = np.pad(interior, pad_width=1, mode="edge")
+
+            sign = 1 - 2*(interior > 0.5)
+            sign = sign.flatten()
+
+            return sp*sign
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def sign(self, direct: bool = False) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Get the sign of the SDF.
+        :param direct: If True a function which returns the sign of the SDF is returned without modifying the SDF.
+        If False the same happens as described above but the SDF is also modified.
         :return: Modified SDF.
         """
         self._mod.append("sign")
@@ -128,6 +248,9 @@ class ModifyObject:
 
         def new_geo_object(co, *params):
             return np.sign(geo_object(co, *params))
+
+        if not direct:
+            self.geo_object = new_geo_object
 
         return new_geo_object
 
@@ -147,6 +270,7 @@ class ModifyObject:
         def new_geo_object(co, *params):
             return geo_object(co, *params)*interior(co, *params)
 
+        self.geo_object = new_geo_object
         return new_geo_object
 
     def define_volume(self,
@@ -165,6 +289,7 @@ class ModifyObject:
         def new_geo_object(co, *params):
             return geo_object(co, *params)*interior(co, *interior_parameters)
 
+        self.geo_object = new_geo_object
         return new_geo_object
 
     def onion(self, thickness: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
@@ -691,9 +816,9 @@ class ModifyObject:
 
             w = np.zeros(co.shape)
             for i in range(t_range[-1]):
-                v = np.subtract(co.T, va[:, i]).T
-                mask = values==i
-                w[:, mask] = v[:, mask]
+                mask = values == i
+                v = np.subtract(co[:, mask].T, va[:, i]).T
+                w[:, mask] = v[:, :]
 
             return geo_object(w, *params)
 
@@ -750,10 +875,10 @@ class ModifyObject:
 
             w = np.zeros(co.shape)
             for i in range(t_range[-1]):
-                v = np.subtract(co.T, va[:, i]).T
-                v = trot[:,:,i].dot(v)
-                mask = values==i
-                w[:, mask] = v[:, mask]
+                mask = values == i
+                v = np.subtract(co[:, mask].T, va[:, i]).T
+                v = trot[:, :, i].dot(v)
+                w[:, mask] = v[:, :]
 
             return geo_object(w, *params)
 
@@ -816,12 +941,259 @@ class ModifyObject:
 
             w = np.zeros(co.shape)
             for i in range(t_range[-1]):
-                v = np.subtract(co.T, va[:, i]).T
-                v = trot[:,:,i].dot(v)
-                mask = values==i
-                w[:, mask] = v[:, mask]
+                mask = values == i
+                v = np.subtract(co[:, mask].T, va[:, i]).T
+                v = trot[:, :, i].dot(v)
+                w[:, mask] = v[:, :]
 
             return geo_object(w, *params)
 
         self.geo_object = new_geo_object
         return new_geo_object
+
+
+class ModifyVectorObject:
+
+    def __init__(self, vf: Callable[[np.ndarray, tuple], np.ndarray]):
+        """
+        Class containing all the modifications, which can be applied to a vector field.
+        :param vf: SDF of a geometry.
+        """
+        self._mod = []
+        self.original_vf = vf
+        self.vf = vf
+
+    @property
+    def modifications(self) -> list:
+        """
+        All the modifications which were applied to the vector field in chronological order.
+        :return: List of modifications.
+        """
+        return self._mod
+
+    @property
+    def modified_object(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Modified vector field.
+        :return: Modified vector field.
+        """
+        return self.vf
+
+    @property
+    def original_object(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Unmodified vector field.
+        :return: Unmodified vector field.
+        """
+        return self.original_vf
+
+    def add(self, second_field: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Adds a number, vector, or a vector field of the same shape to the vector field.
+        :param second_field: a number, vector, or a vector field to be added.
+        :return: Modified vector field.
+        """
+        self._mod.append("add")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return add_vectors(vf(p, *params), second_field)
+
+        self.vf = new_vf
+        return new_vf
+
+    def subtract(self, second_field: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Subtracts a number, vector, or a vector field of the same shape to the vector field.
+        :param second_field: a number, vector, or a vector field to be subtracted.
+        :return: Modified vector field.
+        """
+        self._mod.append("subtract")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return subtract_vectors(vf(p, *params), second_field)
+
+        self.vf = new_vf
+        return new_vf
+
+    def rescale(self, second_field: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Rescales the lengths of vectors in the vector field by a number, vector, or a vector field of the same shape.
+        :param second_field: a number, vector, or a vector field used for rescaling.
+        :return: Modified vector field.
+        """
+        self._mod.append("rescale")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return rescale_vectors(vf(p, *params), second_field)
+
+        self.vf = new_vf
+        return new_vf
+
+    def rotate_phi(self, phi: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Rotates vectors in a 3D vector field by some azimuthal angle.
+        :param phi: Spatially dependent or independent angle by which to rotate the vectors in the xy-plane.
+        :return: Modified vector field.
+        """
+        self._mod.append("rotate_phi")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return rotate_vectors_phi(vf(p, *params), phi)
+
+        self.vf = new_vf
+        return new_vf
+
+    def rotate_theta(self, theta: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Rotates vectors in a 3D vector field by some polar angle.
+        :param theta: Spatially dependent or independent angle by which to rotate the vectors in the polar direction.
+        :return: Modified vector field.
+        """
+        self._mod.append("rotate_theta")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return rotate_vectors_theta(vf(p, *params), theta)
+
+        self.vf = new_vf
+        return new_vf
+
+    def rotate_x(self, alpha: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Rotates vectors in a 3D vector field by some angle.
+        :param alpha: Spatially dependent or independent angle by which to rotate the vectors around the x axis.
+        :return: Modified vector field.
+        """
+        self._mod.append("rotate_x")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return rotate_vectors_x_axis(vf(p, *params), alpha)
+
+        self.vf = new_vf
+        return new_vf
+
+    def rotate_y(self, alpha: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Rotates vectors in a 3D vector field by some angle.
+        :param alpha: Spatially dependent or independent angle by which to rotate the vectors around the y axis.
+        :return: Modified vector field.
+        """
+        self._mod.append("rotate_y")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return rotate_vectors_y_axis(vf(p, *params), alpha)
+
+        self.vf = new_vf
+        return new_vf
+
+    def rotate_z(self, alpha: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Rotates vectors in a 3D vector field by some angle.
+        :param alpha: Spatially dependent or independent angle by which to rotate the vectors around the z axis.
+        :return: Modified vector field.
+        """
+        self._mod.append("rotate_z")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return rotate_vectors_z_axis(vf(p, *params), alpha)
+
+        self.vf = new_vf
+        return new_vf
+
+    def rotate_axis(self,
+                    axis: tuple | list | np.ndarray,
+                    alpha: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Rotates vectors in a 3D vector field by some angle around some axis.
+        :param axis: A single or an array exes around which the vectors in the vector field will be rotated.
+        :param alpha: Spatially dependent or independent angle by which to rotate the vectors around the specified axis.
+        :return: Modified vector field.
+        """
+        self._mod.append("rotate_axis")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return rotate_vectors_axis(vf(p, *params), axis, alpha)
+
+        self.vf = new_vf
+        return new_vf
+
+    def revolution_x(self, co: np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Revolves a 2D vector field around the x-axis to generate a 3D vector field.
+        :param co: Coordinate system with shape (3, N).
+        :return: Modified vector field.
+        """
+        self._mod.append("revolution_x")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+
+            return revolve_field_x(co, vf(p, *params))
+
+        self.vf = new_vf
+        return new_vf
+
+    def revolution_y(self, co: np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Revolves a 2D vector field around the y-axis to generate a 3D vector field.
+        :param co: Coordinate system with shape (3, N).
+        :return: Modified vector field.
+        """
+        self._mod.append("revolution_y")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return revolve_field_y(co, vf(p, *params))
+
+        self.vf = new_vf
+        return new_vf
+
+    def revolution_z(self, co: np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Revolves a 2D vector field around the z-axis to generate a 3D vector field.
+        :param co: Coordinate system with shape (3, N).
+        :return: Modified vector field.
+        """
+        self._mod.append("revolution_z")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return revolve_field_z(co, vf(p, *params))
+
+        self.vf = new_vf
+        return new_vf
+
+    def normalize(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Normalizes the vector field.
+        :return: Modified vector field.
+        """
+        self._mod.append("normalize")
+
+        vf = self.vf
+
+        def new_vf(p, *params):
+            return batch_normalize(vf(p, *params))
+
+        self.vf = new_vf
+        return new_vf

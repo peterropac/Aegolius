@@ -12,6 +12,7 @@ from spomso.cores.modifications import ModifyObject
 from spomso.cores.sdf_2D import sdf_circle, sdf_box_2d, sdf_segment_2d, sdf_triangle_2d, sdf_rounded_box_2d
 from spomso.cores.sdf_2D import sdf_sector, sdf_inf_sector, sdf_sector_old, sdf_ngon, sdf_arc
 from spomso.cores.sdf_2D import sdf_parametric_curve_2d, sdf_segmented_curve_2d, sdf_segmented_line_2d
+from spomso.cores.sdf_2D import sdf_point_cloud_2d
 
 
 class GenericGeometry2D(EuclideanTransform, ModifyObject):
@@ -92,9 +93,14 @@ class Rectangle(GenericGeometry):
 
 
 class RoundedRectangle(GenericGeometry):
-    # DO NOT USE!
 
-    def __init__(self, a, b, rounding):
+    def __init__(self, a: float, b: float, rounding: tuple | list | np.ndarray):
+        """
+        Rounded rectangle defined by its side lengths and rounding radii for each corner.
+        :param a: Side length along the x-axis.
+        :param b: Side length along the y-axis.
+        :param rounding: rounding radii for each corner.
+        """
         GenericGeometry.__init__(self, sdf_rounded_box_2d, (a/2, b/2), rounding[:4])
         self._a = a/2
         self._b = b/2
@@ -536,6 +542,21 @@ class SegmentedLine(GenericGeometry):
         return new_geo_object
 
 
+class PointCloud2D(GenericGeometry):
 
+    def __init__(self, points: list | tuple | np.ndarray):
+        """
+        SDF of the point cloud.
+        :param points: Positions of the points in an array of shape (2, N-points).
+        """
+        self._points = np.asarray(points)
+        if self._points.shape[1] < self._points.shape[0]:
+            self._points = self._points.T
 
+        GenericGeometry.__init__(self,
+                                 sdf_point_cloud_2d,
+                                 self._points)
 
+    @property
+    def points(self):
+        return self._points

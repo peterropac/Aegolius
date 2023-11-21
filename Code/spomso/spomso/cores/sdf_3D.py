@@ -5,6 +5,18 @@
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
+from scipy.interpolate import NearestNDInterpolator
+from scipy.spatial.distance import cdist
+from scipy.spatial import KDTree
+
+def sdf_x(co, offset):
+    return co[0] - offset
+
+def sdf_y(co, offset):
+    return co[1] - offset
+
+def sdf_z(co, offset):
+    return co[2] - offset
 
 
 def sdf_sphere(co, radius):
@@ -238,13 +250,9 @@ def sdf_segmented_curve_3d(co, points, t):
     u = t - v
     fval = points[:, v+1]*u + points[:, v]*(1-u)
 
-    u = np.asarray((-np.subtract.outer(fval[0], co[0]),
-                    -np.subtract.outer(fval[1], co[1]),
-                    -np.subtract.outer(fval[2], co[2])))
-    d = np.linalg.norm(u, axis=0)
-    out = np.amin(d, axis=0)
-
-    return out
+    tree = KDTree(fval.T)
+    mindist, minid = tree.query(co[:, :].T)
+    return mindist
 
 
 def sdf_segmented_line_3d(co, points):
@@ -261,20 +269,13 @@ def sdf_parametric_curve_3d(co, f, f_parameters, t):
 
     fval = f(t, *f_parameters)
 
-    u = np.asarray((-np.subtract.outer(fval[0], co[0]),
-                    -np.subtract.outer(fval[1], co[1]),
-                    -np.subtract.outer(fval[2], co[2])))
-    d = np.linalg.norm(u, axis=0)
-    out = np.amin(d, axis=0)
-
-    return out
+    tree = KDTree(fval.T)
+    mindist, minid = tree.query(co[:, :].T)
+    return mindist
 
 
-
-
-
-
-
-
-
+def sdf_point_cloud_3d(co, points):
+    tree = KDTree(points.T)
+    mindist, minid = tree.query(co[:3, :].T)
+    return mindist
 

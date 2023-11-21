@@ -23,7 +23,7 @@ def smoothmin_poly3(x, y, a):
         return np.minimum(y, y)
 
 
-def smoothmax_boltzman(x, y, width):
+def smoothmax_boltz(x, y, width):
     # https: // en.wikipedia.org / wiki / Smooth_maximum
     exp1 = np.exp(x/width)
     exp2 = np.exp(y/width)
@@ -56,15 +56,15 @@ class CombineGeometry:
                                       "SMOOTH_INTERSECT2": lambda obj1, obj2, width: -smoothmin_poly3(-obj1,
                                                                                                       -obj2,
                                                                                                       width),
-                                      "SMOOTH_INTERSECT2_BOLTZMAN": lambda obj1, obj2, width: smoothmax_boltzman(obj1,
-                                                                                                                 obj2,
-                                                                                                                 width),
+                                      "SMOOTH_INTERSECT2_BOLTZMANN": lambda obj1, obj2, width: smoothmax_boltz(obj1,
+                                                                                                               obj2,
+                                                                                                               width),
                                       "SMOOTH_SUBTRACT2": lambda obj1, obj2, width: -smoothmin_poly3(-obj1,
                                                                                                      obj2,
                                                                                                      width),
-                                      "SMOOTH_SUBTRACT2_BOLTZMAN": lambda obj1, obj2, width: smoothmax_boltzman(obj1,
-                                                                                                                -obj2,
-                                                                                                                width)
+                                      "SMOOTH_SUBTRACT2_BOLTZMANN": lambda obj1, obj2, width: smoothmax_boltz(obj1,
+                                                                                                              -obj2,
+                                                                                                              width)
                                       }
 
     @property
@@ -96,7 +96,7 @@ class CombineGeometry:
         """
         return self._combined_geometry
 
-    def combine(self, *combined_objects: tuple) -> GenericGeometry:
+    def combine(self, *combined_objects: object) -> GenericGeometry:
         """
         Combines 2 or more geometric objects together.
         :param combined_objects: Tuple containing geometric objects.

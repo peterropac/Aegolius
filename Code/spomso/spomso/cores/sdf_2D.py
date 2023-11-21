@@ -5,6 +5,9 @@
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
+from scipy.interpolate import NearestNDInterpolator
+from scipy.spatial.distance import cdist
+from scipy.spatial import KDTree
 
 
 def sdf_circle(co, radius):
@@ -32,18 +35,20 @@ def sdf_segment_2d(co, a, b):
 
 def sdf_rounded_box_2d(co, size, rounding):
 
-    mask1 = co[0,:] > 0.0
-    mask2 = co[1,:] > 0.0
+    m1 = co[0] > 0
+    m2 = co[1] > 0
+    m3 = co[0] < 0
 
-    r = np.ones(co.shape[1])*rounding[0]
-    r[mask1] = rounding[2]
-    r[mask2] = rounding[1]
+    r = rounding[0]*np.ones(co.shape[1])
+    r[m1] = rounding[1]
+    r[m2] = rounding[2]
+    r[m3*m2] = rounding[3]
 
-    q = np.subtract(np.abs(co[:2, :]).T, size).T + rounding[0]
-    term1 = np.minimum(np.maximum(q[0], q[1]), 0.0)
-    term2 = np.linalg.norm(np.maximum(q, 0), axis=0) - rounding[0]
+    d = np.subtract(np.abs(co[:2, :]).T, size).T + r
+    o = np.linalg.norm(np.maximum(d, 0), axis=0)
+    u = np.minimum(np.maximum(d[0], d[1]), 0) - r
 
-    return term1 + term2
+    return o + u
 
 
 def sdf_triangle_2d(co, p0, p1, p2):
@@ -66,7 +71,7 @@ def sdf_triangle_2d(co, p0, p1, p2):
     dv1 = np.asarray((np.sum(np.multiply(pq1, pq1), axis=0), s * (v1[0] * e1[1] - v1[1] * e1[0])))
     dv2 = np.asarray((np.sum(np.multiply(pq2, pq2), axis=0), s * (v2[0] * e2[1] - v2[1] * e2[0])))
 
-    d = np.amin([np.amin([dv0, dv1], axis=0), dv2], axis=0)
+    d = np.amin([dv0, dv1, dv2], axis=0)
 
     return -np.sqrt(d[0])*np.sign(d[1])
 
@@ -203,14 +208,11 @@ def sdf_segmented_curve_2d(co, points, t):
 
     v = np.floor(t).astype(int)
     u = t - v
-    fval = points[:, v+1]*u + points[:, v]*(1-u)
+    fval = points[:2, v+1]*u + points[:2, v]*(1-u)
 
-    u = np.asarray((-np.subtract.outer(fval[0], co[0]),
-                    -np.subtract.outer(fval[1], co[1])))
-    d = np.linalg.norm(u, axis=0)
-    out = np.amin(d, axis=0)
-
-    return out
+    tree = KDTree(fval.T)
+    mindist, minid = tree.query(co[:2, :].T)
+    return mindist
 
 
 def sdf_segmented_line_2d(co, points):
@@ -224,49 +226,14 @@ def sdf_segmented_line_2d(co, points):
 
 
 def sdf_parametric_curve_2d(co, f, f_parameters, t):
-
     fval = f(t, *f_parameters)
-
-    u = np.asarray((-np.subtract.outer(fval[0], co[0]),
-                    -np.subtract.outer(fval[1], co[1])))
-    d = np.linalg.norm(u, axis=0)
-    out = np.amin(d, axis=0)
-
-    return out
+    tree = KDTree(fval.T)
+    mindist, minid = tree.query(co[:2, :].T)
+    return mindist
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def sdf_point_cloud_2d(co, points):
+    tree = KDTree(points[:2, :].T)
+    mindist, minid = tree.query(co[:2, :].T)
+    return mindist
 

@@ -15,7 +15,8 @@ from spomso.cores.sdf_3D import sudf_plane, sdf_plane, sdf_segment_3d, sdf_cone
 from spomso.cores.sdf_3D import sdf_infinite_cone, sdf_oriented_infinite_cone
 from spomso.cores.sdf_3D import sdf_solid_angle, sdf_triangle_3d, sdf_quad_3d
 from spomso.cores.sdf_3D import sdf_parametric_curve_3d, sdf_segmented_curve_3d, sdf_segmented_line_3d
-
+from spomso.cores.sdf_3D import sdf_x, sdf_y, sdf_z
+from spomso.cores.sdf_3D import sdf_point_cloud_3d
 
 class GenericGeometry3D(EuclideanTransform, ModifyObject):
 
@@ -32,6 +33,51 @@ class GenericGeometry3D(EuclideanTransform, ModifyObject):
     def propagate(self, co, *parameters_):
         self._sdf = self.modified_object
         return self.apply(self._sdf, co, self.geo_parameters)
+
+
+class X(GenericGeometry):
+
+    def __init__(self, offset: float | int):
+        """
+        Value of X coordinate zeroth at some offset value.
+        :param offset: Value at which the field is zeroed.
+        """
+        GenericGeometry.__init__(self, sdf_x, offset)
+        self._offset = offset
+
+    @property
+    def offset(self):
+        return self._offset
+
+
+class Y(GenericGeometry):
+
+    def __init__(self, offset: float | int):
+        """
+        Value of Y coordinate zeroth at some offset value.
+        :param offset: Value at which the field is zeroed.
+        """
+        GenericGeometry.__init__(self, sdf_y, offset)
+        self._offset = offset
+
+    @property
+    def offset(self):
+        return self._offset
+
+
+class Z(GenericGeometry):
+
+    def __init__(self, offset: float | int):
+        """
+        Value of Z coordinate zeroth at some offset value.
+        :param offset: Value at which the field is zeroed.
+        """
+        GenericGeometry.__init__(self, sdf_z, offset)
+        self._offset = offset
+
+    @property
+    def offset(self):
+        return self._offset
 
 
 class InfiniteCylinder(GenericGeometry):
@@ -603,4 +649,25 @@ class SegmentedLine3D(GenericGeometry):
     @property
     def closed(self):
         return self._closed
+
+
+class PointCloud3D(GenericGeometry):
+
+    def __init__(self, points: list | tuple | np.ndarray):
+        """
+        SDF of the point cloud.
+        :param points: Positions of the points in an array of shape (3, N-points).
+        """
+        self._points = np.asarray(points)
+        if self._points.shape[1] < self._points.shape[0]:
+            self._points = self._points.T
+
+        GenericGeometry.__init__(self,
+                                 sdf_point_cloud_3d,
+                                 self._points)
+
+    @property
+    def points(self):
+        return self._points
+
 
