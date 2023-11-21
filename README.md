@@ -4,15 +4,17 @@
 
 **Aegolius** is the public repository for the Python package **SPOMSO**.
 
-**SPOMSO** is a free and open-source Python package, used to procedurally construct geometry on the foundation of [Signed Distance Functions](https://en.wikipedia.org/wiki/Signed_distance_function) (SDFs).
+**SPOMSO** is **Free and open-source software** under the [GNU LGPL](https://www.gnu.org/licenses/lgpl-3.0.html).
+This python package is intended for procedural construction of geometry and vector fields on the foundation of [Signed Distance Functions](https://en.wikipedia.org/wiki/Signed_distance_function) (SDFs).
 
-## Key Features
+## Key Features - SDFs
 
--   **Free and open-source software** under the [GNU LGPL](https://www.gnu.org/licenses/lgpl-3.0.html).
 -   Geometry can be defined in **2D** and **3D**.
--   Object-oriented and function-oriented approach to defining geometry, with 11 pre-defined 2D objects and 20 pre-defined 3D objects.
+-   Object-oriented and function-oriented approach to defining geometry, with 13 pre-defined 2D objects and 24 pre-defined 3D objects.
 -   Built-in [Euclidian Transformations](https://en.wikipedia.org/wiki/Rigid_transformation) (translation, rotation, scaling)
--   In total 26 possible modifications, including:
+-   Point clouds can be converted into SDFs and vice-versa.
+-   Euclidian transformations for SDFs and point clouds.
+-   In total 26 possible modifications of SDFs, including:
     * extrusion, revolution, twist, bend, elongation
     * mirror, symmetry, rotational symmetry
     * finite and infinite instancing
@@ -22,11 +24,27 @@
     * union, intersection, subtraction
     * smooth union, smooth intersection, smooth subtraction
 
+## Key Features - Vector Fields
+
+-   Support for **2D** and **3D** vector fields.
+-   Object-oriented and function-oriented approach, with 10 pre-defined vector fields. 
+-   Vector fields can be defined from scalar fields/SDFs.
+-   Modifications and transformations, including:
+    * addition, subtraction, rescaling
+    * element-wise rotations in the polar and azimuthal directions
+    * element-wise rotations around arbitrary axes
+    * revolutions of 2D vector fields around one of the principal axes
 
 ## Examples
 
-In total there are 26 examples showing how to construct geometry and use many of the features included in SPOMSO.
+There are 18 2D examples and 16 3D examples showing how to construct geometry and use many of the features included in SPOMSO.
+There are 4 examples showing how to construct and manipulate vector fields.
 For each of the examples there is both a *python script (.py)* version and an *interactive python notebook (.ipynb)* version.
+
+## Install
+
+See `aegolius_install.ipynb` in [Code/examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples).
+
 
 ## Future developments
 
@@ -34,10 +52,9 @@ In the future it will be possible to run the code on a GPU from within Python, w
 
 ## Citing
 
-I kindly request that you cite the archived repository on Zenodo in any published work for which you used SPOMSO.
+I kindly request that you cite the latest archived repository of Aegolius (SPOMSO) on Zenodo in any published work for which you used SPOMSO.
 
 [![DOI](https://zenodo.org/badge/655622891.svg)](https://zenodo.org/badge/latestdoi/655622891)
-
 
 ## Documentation
 
