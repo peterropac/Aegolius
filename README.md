@@ -4,7 +4,7 @@
 
 **Aegolius** is the public repository for the Python package **SPOMSO**.
 
-**SPOMSO** is **Free and open-source software** under the [GNU LGPL](https://www.gnu.org/licenses/lgpl-3.0.html).
+**SPOMSO** is a **free and open-source software** under the [GNU LGPL](https://www.gnu.org/licenses/lgpl-3.0.html).
 This python package is intended for procedural construction of geometry and vector fields on the foundation of [Signed Distance Functions](https://en.wikipedia.org/wiki/Signed_distance_function) (SDFs).
 
 ## Key Features - SDFs
