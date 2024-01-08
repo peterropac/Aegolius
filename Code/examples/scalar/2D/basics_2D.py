@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 from time import process_time
 
-from spomso.cores.helper_functions import generate_grid, smarter_reshape, hard_binarization
+from spomso.cores.helper_functions import generate_grid, smarter_reshape
+from spomso.cores.post_processing import hard_binarization
 from spomso.cores.geom import GenericGeometry
 from spomso.cores.geom_2d import Rectangle
 
@@ -16,7 +17,7 @@ co_size = 4, 4
 co_resolution = 400, 400
 
 show = "FIELD" # BINARY, FIELD
-show_midplane = True
+show_midplane = False
 
 # ----------------------------------------------------------------------------------------------------------------------
 # COORDINATE SYSTEM
@@ -123,9 +124,6 @@ if show_midplane:
     if show=="BINARY":
         pattern_2d = hard_binarization(field, 0)
 
-if show=="BINARY":
-    pattern = hard_binarization(rectangle_pattern, 0)
-
 # ----------------------------------------------------------------------------------------------------------------------
 # PLOT
 
@@ -162,14 +160,4 @@ if show_midplane and show == "FIELD":
 
     fig.tight_layout()
     plt.show()
-
-
-
-
-
-
-
-
-
-
 

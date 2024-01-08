@@ -5,11 +5,13 @@ from plotly.subplots import make_subplots
 
 from time import process_time
 
+from spomso.cores.geom import GenericGeometry
+
 from spomso.cores.helper_functions import generate_grid, smarter_reshape
 from spomso.cores.geom_2d import Circle
 
-from spomso.cores.post_processing import hard_binarization, capped_exponential, relu, gaussian_boundary
-from spomso.cores.post_processing import linear_falloff, sigmoid_falloff, gaussian_falloff
+from spomso.cores.post_processing import hard_binarization
+from spomso.cores.post_processing import PostProcess
 
 # ----------------------------------------------------------------------------------------------------------------------
 # PARAMETERS
@@ -48,31 +50,66 @@ field = smarter_reshape(final_pattern, co_resolution)
 
 # CAPPED EXPONENTIAL
 # set the amplitude of the capped exponential post-processing function to 1 and the width to 0.5
-ce = capped_exponential(field, 1.0, 0.5)
+post_process = PostProcess(final.propagate)
+post_process.capped_exponential(1, 0.5)
+ce_geo = GenericGeometry(post_process.processed_geo_object, ())
+ce_geo_field = ce_geo.create(coor)
+ce = smarter_reshape(ce_geo_field, co_resolution)
+print("Post-processing type:", post_process.post_processing_operations)
 
 # RELU
 # set the width parameters of the relu postprocessing function to 1
-rl = relu(field, 1.0)
+post_process = PostProcess(final.propagate)
+post_process.relu(1.0)
+rl_geo = GenericGeometry(post_process.processed_geo_object, ())
+rl_geo_field = rl_geo.create(coor)
+rl = smarter_reshape(rl_geo_field, co_resolution)
+print("Post-processing type:", post_process.post_processing_operations)
 
 # GAUSSIAN BOUNDARY
 # set the amplitude of the gaussian boundary post-processing function to 1 and the width to 0.5
-gb = gaussian_boundary(field, 1.0, 0.5)
+post_process = PostProcess(final.propagate)
+post_process.gaussian_boundary(1.0, 0.5)
+gb_geo = GenericGeometry(post_process.processed_geo_object, ())
+gb_geo_field = gb_geo.create(coor)
+gb = smarter_reshape(gb_geo_field, co_resolution)
+print("Post-processing type:", post_process.post_processing_operations)
 
 # LINEAR FALLOFF
 # set the amplitude of the linear falloff post-processing function to 1 and the width to 0.5
-lf = linear_falloff(field, 1.0, 0.5)
+post_process = PostProcess(final.propagate)
+post_process.linear_falloff(1.0, 0.5)
+lf_geo = GenericGeometry(post_process.processed_geo_object, ())
+lf_geo_field = lf_geo.create(coor)
+lf = smarter_reshape(lf_geo_field, co_resolution)
+print("Post-processing type:", post_process.post_processing_operations)
 
 # SIGMOID FALLOFF
 # set the amplitude of the sigmoid falloff post-processing function to 1 and the width to 0.5
-sf = sigmoid_falloff(field, 1.0, 0.5)
+post_process = PostProcess(final.propagate)
+post_process.sigmoid_falloff(1.0, 0.5)
+sf_geo = GenericGeometry(post_process.processed_geo_object, ())
+sf_geo_field = sf_geo.create(coor)
+sf = smarter_reshape(sf_geo_field, co_resolution)
+print("Post-processing type:", post_process.post_processing_operations)
 
 # GAUSSIAN FALLOFF
 # set the amplitude of the gaussian falloff post-processing function to 1 and the width to 0.5
-gf = gaussian_falloff(field, 1.0, 0.5)
+post_process = PostProcess(final.propagate)
+post_process.gaussian_falloff(1.0, 0.5)
+gf_geo = GenericGeometry(post_process.processed_geo_object, ())
+gf_geo_field = gf_geo.create(coor)
+gf = smarter_reshape(gf_geo_field, co_resolution)
+print("Post-processing type:", post_process.post_processing_operations)
 
 # HARD BINARIZATION
 # set the threshold parameter of the hard binarization postprocessing function to 0
-hb = hard_binarization(field, 0)
+post_process = PostProcess(final.propagate)
+post_process.hard_binarization(0)
+hb_geo = GenericGeometry(post_process.processed_geo_object, ())
+hb_geo_field = hb_geo.create(coor)
+hb = smarter_reshape(hb_geo_field, co_resolution)
+print("Post-processing type:", post_process.post_processing_operations)
 
 end_time = process_time()
 print("Evaluation Completed in {:.2f} seconds".format(end_time-start_time))

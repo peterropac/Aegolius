@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 from time import process_time
 
-from spomso.cores.helper_functions import generate_grid, smarter_reshape, hard_binarization
+from spomso.cores.helper_functions import generate_grid, smarter_reshape
+from spomso.cores.post_processing import hard_binarization
 from spomso.cores.geom_2d import Circle
 from spomso.cores.combine import CombineGeometry
 
@@ -79,9 +80,6 @@ if show_midplane:
     field = smarter_reshape(h2o_pattern, co_resolution)
     if show=="BINARY":
         pattern_2d = hard_binarization(field, 0)
-
-if show=="BINARY":
-    pattern = hard_binarization(h2o_pattern, 0)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # PLOT

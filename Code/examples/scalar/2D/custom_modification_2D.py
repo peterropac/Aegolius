@@ -1,33 +1,18 @@
-import numpy as np
 import matplotlib.pyplot as plt
 
 from time import process_time
 
 from spomso.cores.helper_functions import generate_grid, smarter_reshape
 from spomso.cores.post_processing import hard_binarization
-from spomso.cores.geom_2d import ParametricCurve
-
-# ----------------------------------------------------------------------------------------------------------------------
-# FUNCTIONS
-
-
-def polar_curve(t, radius1, radius2, f1, f2, ):
-
-    r = radius1 + radius2*np.cos(f2*t*2*np.pi)
-
-    x = r * np.cos(f1 * t * 2 * np.pi)
-    y = r * np.sin(f1 * t * 2 * np.pi)
-
-    return np.asarray((x, y))
-
+from spomso.cores.geom_2d import Circle
 
 # ----------------------------------------------------------------------------------------------------------------------
 # PARAMETERS
 
 # size of the volume
-co_size = 6, 6
+co_size = 4, 4
 # resolution of the volume
-co_resolution = 600, 600
+co_resolution = 400, 400
 
 show = "FIELD" # BINARY, FIELD
 show_midplane = True
@@ -41,36 +26,28 @@ coor, co_res_new = generate_grid(co_size, co_resolution)
 
 start_time = process_time()
 
-# create a shape from the closed parametric curve
-shape = False
+# create a circle with radius of 0.5
+circle = Circle(0.5)
 
-# create a parametric curve geometry from the parametric function defining the curve
-# the parameters of the function are 2, 0.5, 1, and 3
-# the curve is evaluated for 201 values of the parameter t in range from 0 to 1
-curve = ParametricCurve(polar_curve, (2, 0.5, 1, 3), (0, 1, 201), closed=True)
+# define the custom modification as a function
+# in this case the custom modification is equivalent to the move transformation
+# the only parameter of this modification is the vector by which the SDF is moved
+def move_along_vector(sdf_, co_cloud_, sdf_params_, vector):
+    q = co_cloud_.copy()
+    q[0] -= vector[0]
+    q[1] -= vector[1]
 
-# create a shape
-# this only works if the line is closed and has zero thickness
-if shape:
-    curve.shape()
+    return sdf_(q, sdf_params_)
 
-# to get the sign of an SDF:
-# curve_sign = curve.sign(direct=True)
-# the line can be recovered with:
-# curve.boundary()
+# apply the custom modification to the circle
+# in this case the circle is moved by a vector (0.5, 1.0, 0.0)
+# the custom modification is named "move_along_vector"
+circle.custom_modification(move_along_vector,
+                           (0.5, 1.0, 0.0),
+                           modification_name="move_along_vector")
 
-# the interior can be recovered with a function:
-# curve.recover_volume(curve_sign)
-
-# the interior can be redefined with a function:
-# curve.define_volume(some_sign_function, some_sign_function_parameters)
-
-# thicken the curve to a thickness of 0.1 to create a shape
-if not shape:
-    curve.rounding(0.1)
-
-# evaluate the SDF of the curve to create a signed distance field 2D map
-curve_pattern = curve.create(coor)
+# evaluate the SDF of the circle to create a signed distance field 2D map
+circle_pattern = circle.create(coor)
 
 end_time = process_time()
 print("Evaluation Completed in {:.2f} seconds".format(end_time-start_time))
@@ -80,7 +57,7 @@ print("Evaluation Completed in {:.2f} seconds".format(end_time-start_time))
 # distance field to a binary voxel map, where 1 corresponds to the interior and 0 to the exterior of the geometry.
 
 if show_midplane:
-    field = smarter_reshape(curve_pattern, co_resolution)
+    field = smarter_reshape(circle_pattern, co_resolution)
     if show=="BINARY":
         pattern_2d = hard_binarization(field, 0)
 
