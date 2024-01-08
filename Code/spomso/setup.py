@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
-VERSION = '1.1.0'
+VERSION = '1.2.0'
 DESCRIPTION = 'SPOMSO'
-LONG_DESCRIPTION = 'Python package for generating geometry in two or three dimensions using SDFs.'
+LONG_DESCRIPTION = 'Python package for generating geometry with SDFs.'
 
 # Setting up
 setup(
@@ -17,7 +17,7 @@ setup(
     install_requires=['numpy', 'scipy'],
     keywords=['python', 'geometry'],
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Education",
         "Programming Language :: Python :: 3",
         "Operating System :: MacOS :: MacOS X",
