@@ -10,16 +10,18 @@ This python package is intended for procedural construction of geometry and vect
 ## Key Features - SDFs
 
 -   Geometry can be defined in **2D** and **3D**.
--   Object-oriented and function-oriented approach to defining geometry, with 13 pre-defined 2D objects and 24 pre-defined 3D objects.
+-   Object-oriented and function-oriented approach to defining geometry, with pre-defined 2D and 3D objects.
 -   Built-in [Euclidian Transformations](https://en.wikipedia.org/wiki/Rigid_transformation) (translation, rotation, scaling)
 -   Point clouds can be converted into SDFs and vice-versa.
 -   Euclidian transformations for SDFs and point clouds.
--   In total 26 possible modifications of SDFs, including:
+-   In total 40 possible modifications of SDFs, including:
     * extrusion, revolution, twist, bend, elongation
     * mirror, symmetry, rotational symmetry
     * finite and infinite instancing
     * instancing along lines, segmented lines and parametric curves
     * surface-to-volume and volume-to-surface operations
+    * various post-processing functions
+    * custom user-defined modifications
 -   In total 11 ways to combine different geometric objects together - different implementations of:
     * union, intersection, subtraction
     * smooth union, smooth intersection, smooth subtraction
@@ -27,8 +29,8 @@ This python package is intended for procedural construction of geometry and vect
 ## Key Features - Vector Fields
 
 -   Support for **2D** and **3D** vector fields.
--   Object-oriented and function-oriented approach, with 10 pre-defined vector fields. 
--   Vector fields can be defined from scalar fields/SDFs.
+-   Object-oriented and function-oriented approach, with pre-defined vector fields. 
+-   Vector fields can be defined from scalar fields/SDFs or with custom functions.
 -   Modifications and transformations, including:
     * addition, subtraction, rescaling
     * element-wise rotations in the polar and azimuthal directions
@@ -37,8 +39,8 @@ This python package is intended for procedural construction of geometry and vect
 
 ## Examples
 
-There are 18 2D examples and 16 3D examples showing how to construct geometry and use many of the features included in SPOMSO.
-There are 4 examples showing how to construct and manipulate vector fields.
+There are 24 2D examples and 16 3D examples showing how to construct geometry and use many of the features included in SPOMSO.
+There are 5 examples showing how to construct and manipulate vector fields.
 For each of the examples there is both a *python script (.py)* version and an *interactive python notebook (.ipynb)* version.
 
 ## Install
