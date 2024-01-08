@@ -1,9 +1,9 @@
-# Copyright (C) 2023 Peter Ropač
+# Copyright (C) 2024 Peter Ropač
 # This file is part of SPOMSO.
 # SPOMSO is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
-import matplotlib.pyplot as plt
+
 import numpy as np
 from scipy.interpolate import NearestNDInterpolator
 from typing import Callable
@@ -17,7 +17,13 @@ from spomso.cores.vector_modification_functions import rotate_vectors_z_axis
 from spomso.cores.vector_modification_functions import rotate_vectors_axis
 from spomso.cores.vector_modification_functions import batch_normalize
 
-from spomso.cores.post_processing import conv_averaging
+from spomso.cores.post_processing import sigmoid_falloff, positive_sigmoid_falloff, capped_exponential
+from spomso.cores.post_processing import linear_falloff
+from spomso.cores.post_processing import relu, smooth_relu, slowstart
+from spomso.cores.post_processing import hard_binarization
+from spomso.cores.post_processing import gaussian_boundary, gaussian_falloff
+from spomso.cores.post_processing import conv_averaging, conv_edge_detection
+
 from spomso.cores.helper_functions import smarter_reshape, vector_smarter_reshape
 
 
@@ -233,6 +239,24 @@ class ModifyObject:
             return sp*sign
 
         self.geo_object = new_geo_object
+        return new_geo_object
+
+    def invert(self, direct: bool = False) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Invert the sign of the SDF.
+        :param direct: If True a function which returns inverts the sign of the SDF is returned without modifying the SDF.
+        If False the same happens as described above but the SDF is also modified.
+        :return: Modified SDF.
+        """
+        self._mod.append("invert")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            return -geo_object(co, *params)
+
+        if not direct:
+            self.geo_object = new_geo_object
         return new_geo_object
 
     def sign(self, direct: bool = False) -> Callable[[np.ndarray, tuple], np.ndarray]:
@@ -947,6 +971,286 @@ class ModifyObject:
                 w[:, mask] = v[:, :]
 
             return geo_object(w, *params)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def custom_modification(self,
+                            modification: Callable[[Callable[[np.ndarray, tuple], np.ndarray],
+                                                    np.ndarray,
+                                                    tuple,
+                                                    tuple],
+                            np.ndarray],
+                            modification_parameters: tuple,
+                            modification_name: str = "custom") -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Applies a custom user-specified modification to a scalar (Signed Distance Function) field.
+        :param modification: A custom modification which takes the SDF as a first argument,
+        point cloud of coordinates at which the SDF is evaluated as the second argument,
+        parameters of the SDF as the third argument,
+        and the custom modification parameters as the fourth argument.
+        :param modification_parameters: Parameters of the custom modification.
+        :param modification_name: Name of the custom modification.
+        :return: Modified Scalar Field.
+        """
+        self._mod.append(modification_name)
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            return modification(geo_object, co, params, modification_parameters)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def sigmoid_falloff(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Applies a sigmoid to the scalar (Signed Distance Function) field.
+        :param amplitude: Maximum value of the transformed scalar field.
+        :param width: Width of the sigmoid.
+        :return: Modified Scalar Field.
+        """
+        self._pmod.append("sigmoid_falloff")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            return sigmoid_falloff(u, amplitude, width)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def positive_sigmoid_falloff(self,
+                                 amplitude: float | int,
+                                 width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+       Applies a sigmoid, shifted to the positive velues by the value of the width parameter,
+        to the scalar (Signed Distance Function) field.
+        :param amplitude: Maximum value of the transformed scalar field.
+        :param width: Width of the sigmoid.
+        :return: Modified Scalar Field.
+        """
+        self._mod.append("positive_sigmoid_falloff")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            return positive_sigmoid_falloff(u, amplitude, width)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def capped_exponential(self,
+                           amplitude: float | int,
+                           width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Applies a decreasing exponential functon to the scalar (Signed Distance Function) field.
+        to the scalar (Signed Distance Function) field.
+        :param amplitude: Maximum value of the transformed scalar field.
+        :param width: Range at which the value of the transformed scalar field drops to almost zero.
+        :return: Modified Scalar Field.
+        """
+        self._mod.append("capped_exponential")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            return capped_exponential(u, amplitude, width)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def hard_binarization(self, threshold: float) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Binarizes the Signed Distance field/pattern based on a threshold.
+        Values below the threshold are 1 and values above are 0.
+        :param threshold: Binarization threshold.
+        :return: Modified Scalar Field.
+        """
+        self._mod.append("hard_binarization")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            return hard_binarization(u, threshold)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def linear_falloff(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Applies a decreasing linear function to the scalar (Signed Distance Function) field.
+        :param amplitude: Maximum value of the transformed scalar field.
+        :param width: Range at which the value of the transformed scalar field drops to zero.
+        :return: Modified Scalar Field.
+        """
+        self._mod.append("linear_falloff")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            return linear_falloff(u, amplitude, width)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def relu(self, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Applies the ReLU function to the scalar (Signed Distance Function) field.
+        :param width: Range at which the value of the transformed field reaches one.
+        :return: Modified Scalar Field.
+        """
+        self._mod.append("relu")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            return relu(u, width)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def smooth_relu(self, smooth_width: float | int,
+                    width: float | int = 1, threshold: int | float = 0.01) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Applies the "squareplus" function to the scalar (Signed Distance Function) field.
+        https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+        :param smooth_width: Distance from the origin at which the Smooth ReLU function
+        is greater than ReLU for less than the value of the threshold parameter.
+        :param width: Range at which the value of the transformed field reaches one.
+        :param threshold: At smooth_width distance from the origin the value of the Smooth ReLU function is greater
+        than ReLU for the value of the threshold parameter.
+        at smooth_width distance from the origin.
+        :return: Transformed scalar field.
+        """
+        self._mod.append("smooth_relu")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            return smooth_relu(u, smooth_width, width, threshold)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def slowstart(self, smooth_width: float | int,
+                  width: float | int = 1,
+                  threshold: int | float = 0.01,
+                  ground: bool = True) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Applies the SlowStart function to the scalar (Signed Distance Function) field.
+        :param smooth_width: Distance from the origin at which the SlowStart function
+        is greater than ReLU for less than the value of the threshold parameter.
+        :param width: Range at which the value of the transformed field reaches one.
+        :param threshold: At smooth_width distance from the origin the value of the SlowStart function is greater
+        than ReLU for the value of the threshold parameter.
+        :param ground: if True the value of the function is zero at zero.
+        :return: Transformed scalar field.
+        """
+
+        self._mod.append("slowstart")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            return slowstart(u, smooth_width, width, threshold, ground=ground)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def gaussian_boundary(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Applies the Gaussian to the scalar (Signed Distance Function) field.
+        :param amplitude: Maximum value of the transformed scalar field.
+        :param width: Range at which the value of the transformed scalar field drops to almost zero.
+        :return: Modified Scalar Field.
+        """
+        self._mod.append("gaussian_boundary")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            return gaussian_boundary(u, amplitude, width)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def gaussian_falloff(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Applies the Gaussian to the positive values of the scalar (Signed Distance Function) field.
+        :param amplitude: Maximum value of the transformed scalar field (and points at which the scalar field was < 0).
+        :param width: Range at which the value of the transformed scalar field drops to almost zero.
+        :return: Modified Scalar Field.
+        """
+        self._mod.append("gaussian_falloff")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            return gaussian_falloff(u, amplitude, width)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def conv_averaging(self,
+                       kernel_size: int | tuple | list | np.ndarray,
+                       iterations: int,
+                       co_resolution: tuple) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Averages the field using an averaging convolutional kernel of the specified size.
+        :param kernel_size: Size of the averaging kernel. Must be an integer or a tuple/array of the
+        same dimension as the scaler field.
+        :param iterations: Number of times the convolutional averaging is applied to the input scalar field.
+        :param co_resolution: Resolution of the coordinate system.
+        :return: Modified Scalar Field.
+        """
+        self._mod.append("conv_averaging")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            u = smarter_reshape(u, co_resolution)
+            out = conv_averaging(u, kernel_size, iterations)
+            return out.flatten()
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def conv_edge_detection(self,
+                            co_resolution: tuple) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Edge detection based ona 3x3 convolutional kernel.
+        :param co_resolution: Resolution of the coordinate system.
+        :return: Modified Scalar Field.
+        """
+        self._mod.append("conv_edge_detection")
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            u = smarter_reshape(u, co_resolution)
+            return conv_edge_detection(u)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def custom_post_process(self,
+                            function: Callable[[np.ndarray, tuple], np.ndarray],
+                            parameters: tuple,
+                            post_process_name: str = "custom") -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Applies a custom user-specified post-processing function to a scalar (Signed Distance Function) field.
+        :param function: A custom post-processing function which takes the SDF as a first argument
+        and the parameters of the function as the next arguments.
+        :param parameters: Parameters of the custom post-processing function.
+        :param post_process_name: Name of the custom post-processing function.
+        :return: Modified Scalar Field.
+        """
+        self._mod.append(post_process_name)
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            u = geo_object(co, *params)
+            return function(u, *parameters)
 
         self.geo_object = new_geo_object
         return new_geo_object

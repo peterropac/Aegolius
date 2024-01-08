@@ -1,12 +1,10 @@
-# Copyright (C) 2023 Peter Ropač
+# Copyright (C) 2024 Peter Ropač
 # This file is part of SPOMSO.
 # SPOMSO is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-import matplotlib.pyplot as plt
-from spomso.cores.post_processing import conv_averaging
 
 
 def resolution_conversion(resolution: int) -> int:
@@ -189,43 +187,6 @@ def binning(pattern: np.ndarray, bins: int, equal_width: bool = True) -> np.ndar
     out = u*a + min_
     return out
 
-
-def hard_binarization(pattern: np.ndarray, threshold: float) -> np.ndarray:
-    """
-    Binarizes the Signed Distance field/pattern based on a threshold.
-    Values below the threshold are 1 and values above are 0.
-    :param pattern: Signed Distance field or any field.
-    :param threshold: Binarization threshold.
-    :return: Binarized field.
-    """
-    out = pattern <= threshold
-    out = out.astype(float)
-    return out
-
-
-def compute_crossings_2d(sdf_grid: np.ndarray, thr: float = 0.06) -> np.ndarray:
-    """
-    Calculates where boundaries in the SDF and separates the regions by assigning the a +1 or -1 value.
-    :param sdf_grid: Signed Distance field or any scalar field.
-    :param thr: Threshold by which the regions are separated.
-    :return: Modified scalar field.
-    """
-    cross = np.zeros(sdf_grid.shape)
-
-    s = sdf_grid[:, :]
-    min_ = np.amin(s)
-    c1 = np.ones(sdf_grid.shape)
-
-    c1[:, 1:] = np.isclose(s[:, 1:], min_, atol=thr)*(~np.isclose(s[:, :-1], min_, atol=thr))
-
-    for j in range(1, sdf_grid.shape[1]):
-        cross[:, j] = 1*c1[:, j] + cross[:, j-1]
-
-    o = np.mod(cross,2).T
-    o = conv_averaging(o, 5, 2) >= 0.5
-    o = 2 * o.T - 1
-
-    return o
 
 
 

@@ -10,11 +10,13 @@ from .modifications import ModifyObject, ModifyVectorObject
 from .geom import GenericGeometry, Points
 from .helper_functions import resolution_conversion, generate_grid
 from .helper_functions import smarter_reshape, vector_smarter_reshape, n_vector_smarter_reshape
-from .helper_functions import hard_binarization
-from .helper_functions import compute_crossings_2d
-from .post_processing import sigmoid_falloff, positive_sigmoid_falloff, capped_exponential, linear_falloff, relu
+from .post_processing import sigmoid_falloff, positive_sigmoid_falloff, capped_exponential
+from .post_processing import linear_falloff, relu, smooth_relu, slowstart
+from .post_processing import hard_binarization
 from .post_processing import gaussian_boundary, gaussian_falloff
 from .post_processing import conv_averaging, conv_edge_detection
+from .post_processing import custom_post_process
+from .post_processing import PostProcess
 
 from .sdf_2D import sdf_circle, sdf_segment_2d, sdf_box_2d, sdf_rounded_box_2d, sdf_triangle_2d
 from .sdf_2D import sdf_arc, sdf_sector, sdf_inf_sector, sdf_ngon
@@ -45,6 +47,7 @@ from .vector_functions import aar_vector_field_cylindrical, awn_vector_field_cyl
 from .vector_functions import vortex_vector_field_cylindrical, aav_vector_field_cylindrical
 from .vector_functions import x_vector_field, y_vector_field, z_vector_field
 from .vector_functions import from_sdf
+from .vector_functions_special import compute_crossings_2d
 
 from .vector_modification_functions import batch_normalize
 from .vector_modification_functions import add_vectors, subtract_vectors, rescale_vectors

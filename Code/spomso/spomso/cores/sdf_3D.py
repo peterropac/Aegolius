@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Peter Ropač
+# Copyright (C) 2024 Peter Ropač
 # This file is part of SPOMSO.
 # SPOMSO is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -9,11 +9,14 @@ from scipy.interpolate import NearestNDInterpolator
 from scipy.spatial.distance import cdist
 from scipy.spatial import KDTree
 
+
 def sdf_x(co, offset):
     return co[0] - offset
 
+
 def sdf_y(co, offset):
     return co[1] - offset
+
 
 def sdf_z(co, offset):
     return co[2] - offset
