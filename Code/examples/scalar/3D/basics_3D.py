@@ -5,7 +5,8 @@ import plotly.graph_objects as go
 
 from time import process_time
 
-from spomso.cores.helper_functions import generate_grid, smarter_reshape, hard_binarization
+from spomso.cores.helper_functions import generate_grid, smarter_reshape
+from spomso.cores.post_processing import hard_binarization
 from spomso.cores.geom_3d import Box
 from spomso.cores.geom import GenericGeometry
 
@@ -17,7 +18,7 @@ co_size = 4, 4, 2
 # resolution of the volume
 co_resolution = 100, 100, 100
 
-show = "BINARY" # BINARY, FIELD
+show = "FIELD" # BINARY, FIELD
 show_midplane = True
 show_3d = True
 

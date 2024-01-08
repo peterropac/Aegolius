@@ -5,7 +5,8 @@ import plotly.graph_objects as go
 
 from time import process_time
 
-from spomso.cores.helper_functions import generate_grid, smarter_reshape, hard_binarization
+from spomso.cores.helper_functions import generate_grid, smarter_reshape
+from spomso.cores.post_processing import hard_binarization
 from spomso.cores.geom_3d import Sphere
 from spomso.cores.geom_2d import Arc
 from spomso.cores.combine import CombineGeometry
