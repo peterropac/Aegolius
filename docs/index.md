@@ -1,8 +1,4 @@
-
-![](Files/Images/comb_230623_2.png#gh-dark-mode-only)
-![](Files/Images/comb_220224_0.png#gh-light-mode-only)
-
-**Aegolius** is the public repository for the Python package **SPOMSO**.
+![](images/comb_220224_0.png)
 
 **SPOMSO** is a **free and open-source software** under the [GNU LGPL](https://www.gnu.org/licenses/lgpl-3.0.html).
 This python package is intended for procedural construction of geometry and vector fields on the foundation of [Signed Distance Functions](https://en.wikipedia.org/wiki/Signed_distance_function) (SDFs).
@@ -45,25 +41,13 @@ For each of the examples there is both a *python script (.py)* version and an *i
 
 ## Install
 
-See `aegolius_install.ipynb` in [Code/examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples).
-
-
-## Future developments
-
-In the future it will be possible to run the code on a GPU from within Python, with support for [Automatic Differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation) based on [JAX](https://jax.readthedocs.io/en/latest/).
+See the [Installation Guide](https://nbviewer.org/github/peterropac/Aegolius/blob/main/Code/examples/aegolius_install.ipynb).
 
 ## Citing
 
 I kindly request that you cite the latest archived repository of Aegolius (SPOMSO) on Zenodo in any published work for which you used SPOMSO.
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8090670.svg)](https://doi.org/10.5281/zenodo.8090670)
-
-## Documentation
-
-Official website with the documentation TO BE ADDED.
-
-[//]: # (See the [manual on readthedocs]&#40;&#41; for the latest documentation.)
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10470500.svg)](https://zenodo.org/badge/latestdoi/655622891)
 
 ## Acknowledgements
 

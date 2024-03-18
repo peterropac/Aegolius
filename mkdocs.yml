@@ -1,0 +1,58 @@
+site_name: SPOMSO Documentation
+site_author: Peter Ropač
+repo_url: https://github.com/peterropac/Aegolius/
+
+
+theme:
+  name: readthedocs
+  nav_style: dark
+
+markdown_extensions:
+    - mdx_math:
+        enable_dollar_delimiter: True
+
+extra_javascript:
+    - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+
+
+plugins:
+  - search
+  - mkdocstrings:
+        default_handler: python
+        handlers:
+            python:
+                options:
+                    show_source: false
+                    members_order: source
+                    heading_level: 1
+                    show_rot_toc_entry: false
+                    show_root_heading: false
+                    show_root_members_full_path: false
+
+nav:
+- 'Main': 'index.md'
+- 'Introduction': 'Introduction.md'
+- 'Download': 'Download.md'
+- 'Acknowledgements': 'Acknowledgements.md'
+- 'License and Copyright': 'License_and_Copyright.md'
+- 'Citing': 'Citing.md'
+- 'SDF Tutorials':
+    - 'Introduction': 'SDF_Tutorials/Introduction.md'
+    - 'Point Clouds': 'SDF_Tutorials/Point_Clouds.md'
+    - 'Modifications': 'SDF_Tutorials/Modifications.md'
+    - 'Combining Geometry': 'SDF_Tutorials/Combining_Geometry.md'
+    - 'Post-Processing': 'SDF_Tutorials/Post_Processing.md'
+    - 'Custom Functions': 'SDF_Tutorials/Custom_Functions.md'
+    - 'Advanced': 'SDF_Tutorials/Advanced.md'
+- 'Vector Fields Tutorials':
+    - 'Introduction': 'Vector_Fields_Tutorials/Introduction.md'
+- 'User Interface':
+    - 'Geometry': 'User_Interface/Geometry.md'
+    - '2D SDFS': 'User_Interface/2D_SDFs.md'
+    - '3D SDFs': 'User_Interface/3D_SDFs.md'
+    - 'Vector Fields': 'User_Interface/VectorFields.md'
+    - 'Euclidian Transformations': 'User_Interface/SDF_Transform.md'
+    - 'Combinations': 'User_Interface/Combinations.md'
+    - 'Modifications': 'User_Interface/SDF_Modifications.md'
+    - 'Post-Processing': 'User_Interface/SDF_PostProcessing.md'
+    - 'Helper Functions': 'User_Interface/Helper_Functions.md'
