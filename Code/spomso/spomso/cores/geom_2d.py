@@ -33,141 +33,168 @@ class GenericGeometry2D(EuclideanTransform, ModifyObject):
 
 
 class Circle(GenericGeometry):
+    """Circle defined by its radius.
+
+    Args:
+        radius: Radius of the circle.
+    """
 
     def __init__(self, radius: float | int):
-        """
-        Circle defined by its radius.
-        :param radius: Radius of the circle.
-        """
         GenericGeometry.__init__(self, sdf_circle, radius)
         self._radius = radius
 
     @property
-    def radius(self):
+    def radius(self) -> float | int:
+        """Radius of the circle."""
         return self._radius
 
 
 class NGon(GenericGeometry):
+    """
+    N-sided regular polygon, defined by the outer radius and the number of sides.
+
+    Args:
+        radius: Outer radius of the regular polygon.
+        n_sides: Number of sides of the regular polygon.
+    """
 
     def __init__(self, radius: float | int, n_sides: int):
-        """
-        N-sided regular polygon, defined by the outer radius and the number of sides.
-        :param radius: Outer radius of the regular polygon.
-        :param n_sides: Number of sides of the regular polygon.
-        """
         GenericGeometry.__init__(self, sdf_ngon, radius, n_sides)
         self._radius = radius
         self._n_sides = n_sides
+
     @property
-    def radius(self):
+    def radius(self) -> float | int:
+        """Radius of the n-gon"""
         return self._radius
 
     @property
-    def n_sides(self):
+    def n_sides(self) -> int:
+        """Number of sides in the n-gon"""
         return self._n_sides
 
 
 class Rectangle(GenericGeometry):
+    """
+    Rectangle defined by its side lengths.
+
+    Args:
+        a: Side length along the x-axis.
+        b: Side length along the y-axis.
+    """
 
     def __init__(self, a: float | int, b: float | int):
-        """
-        Rectangle defined by its side lengths.
-        :param a: Side length along the x-axis.
-        :param b: Side length along the y-axis.
-        """
         GenericGeometry.__init__(self, sdf_box_2d, (a/2, b/2))
         self._a = a/2
         self._b = b/2
 
     @property
-    def a(self):
+    def a(self) -> float | int:
+        """Side length along the x-axis."""
         return self._a
 
     @property
-    def b(self):
+    def b(self) -> float | int:
+        """Side length along the y-axis."""
         return self._b
 
     @property
-    def size(self):
+    def size(self) -> np.ndarray:
+        """2vector of side lengths (a, b)."""
         return np.asarray((self._a, self._b))
 
 
 class RoundedRectangle(GenericGeometry):
+    """
+    Rounded rectangle defined by its side lengths and rounding radii for each corner.
+
+    Args:
+        a: Side length along the x-axis.
+        b: Side length along the y-axis.
+        rounding: rounding radii for each corner.
+    """
 
     def __init__(self, a: float, b: float, rounding: tuple | list | np.ndarray):
-        """
-        Rounded rectangle defined by its side lengths and rounding radii for each corner.
-        :param a: Side length along the x-axis.
-        :param b: Side length along the y-axis.
-        :param rounding: rounding radii for each corner.
-        """
         GenericGeometry.__init__(self, sdf_rounded_box_2d, (a/2, b/2), rounding[:4])
         self._a = a/2
         self._b = b/2
         self._round_corners = rounding[:4]
 
     @property
-    def a(self):
+    def a(self) -> float | int:
+        """Side length along the x-axis."""
         return self._a
 
     @property
-    def b(self):
+    def b(self) -> float | int:
+        """Side length along the y-axis."""
         return self._b
 
     @property
-    def size(self):
+    def size(self) -> np.ndarray:
+        """2vector of side lengths (a, b)."""
         return np.asarray((self._a, self._b))
 
     @property
-    def round_corners(self):
+    def round_corners(self) -> np.ndarray:
+        """rounding on each of the corners."""
         return np.asarray(self._round_corners)
 
 
 class Segment(GenericGeometry):
+    """
+    Line segment defined by its end points.
+
+    Args:
+        a: Vector defining the position of the start point.
+        b: Vector defining the position of the end point.
+    """
 
     def __init__(self, a: tuple | list | np.ndarray, b: tuple | list | np.ndarray):
-        """
-        Line segment defined by its end points.
-        :param a: Vector defining the position of the start point.
-        :param b: Vector defining the position of the end point.
-        """
         GenericGeometry.__init__(self, sdf_segment_2d, a, b)
         self._a = np.asarray(a)
         self._b = np.asarray(b)
 
     @property
-    def point_a(self):
+    def point_a(self) -> np.ndarray:
+        """Vector defining the position of the start point."""
         return self._a
 
     @property
-    def point_b(self):
+    def point_b(self) -> np.ndarray:
+        """Vector defining the position of the end point."""
         return self._b
 
 
 class Triangle(GenericGeometry):
+    """
+    Triangle defined by the three vertices.
+
+    Args:
+        a: Vector defining the position of the first vertex.
+        b: Vector defining the position of the second vertex.
+        c: Vector defining the position of the third vertex.
+    """
 
     def __init__(self, a: tuple | list | np.ndarray, b: tuple | list | np.ndarray, c: tuple | list | np.ndarray):
-        """
-        Triangle defined by the three vertices.
-        :param a: Vector defining the position of the first vertex.
-        :param b: Vector defining the position of the second vertex.
-        :param c: Vector defining the position of the third vertex.
-        """
         GenericGeometry.__init__(self, sdf_triangle_2d, np.asarray(a), np.asarray(b), np.asarray(c))
         self._a = np.asarray(a)
         self._b = np.asarray(b)
         self._c = np.asarray(c)
 
     @property
-    def a(self):
+    def a(self) -> np.ndarray:
+        """Vector defining the position of the first vertex."""
         return self._a
 
     @property
-    def b(self):
+    def b(self) -> np.ndarray:
+        """Vector defining the position of the second vertex."""
         return self._b
 
     @property
-    def c(self):
+    def c(self) -> np.ndarray:
+        """Vector defining the position of the third vertex."""
         return self._c
 
 
@@ -188,62 +215,73 @@ class SectorOld(GenericGeometry):
 
 
 class Sector(GenericGeometry):
+    """
+    Sector defined by the radius of the circle and two angles.
+
+    Args:
+        radius: Radius of the circle.
+        angle_1: First angle defining the sector.
+        angle_2: Second angle defining the sector.
+    """
 
     def __init__(self, radius: float | int, angle_1: float | int, angle_2: float | int):
-        """
-        Sector defined by the radius of the circle and two angles.
-        :param radius: Radius of the circle.
-        :param angle_1: First angle defining the sector.
-        :param angle_2: Second angle defining the sector.
-        """
         GenericGeometry.__init__(self, sdf_sector, radius, angle_1, angle_2)
         self._radius = radius
         self._angle_1 = angle_1
         self._angle_2 = angle_2
 
     @property
-    def radius(self):
+    def radius(self) -> float | int:
+        """Radius of the circle."""
         return self._radius
 
     @property
-    def angle_1(self):
+    def angle_1(self) -> float | int:
+        """First angle defining the sector."""
         return self._angle_1
 
     @property
-    def angle_2(self):
+    def angle_2(self) -> float | int:
+        """Second angle defining the sector."""
         return self._angle_2
 
 
 class InfiniteSector(GenericGeometry):
+    """
+    Sector of infinite radius defined by two angles.
 
-    def __init__(self, angle_1, angle_2):
-        """
-        Sector of infinite radius defined by two angles.
-        :param angle_1: First angle defining the sector.
-        :param angle_2: Second angle defining the sector.
-        """
+    Args:
+        angle_1: First angle defining the sector.
+        angle_2: Second angle defining the sector.
+    """
+
+    def __init__(self, angle_1: float | int, angle_2: float | int):
         GenericGeometry.__init__(self, sdf_inf_sector, angle_1, angle_2)
         self._angle_1 = angle_1
         self._angle_2 = angle_2
 
     @property
-    def angle_1(self):
+    def angle_1(self) -> float | int:
+        """First angle defining the sector."""
         return self._angle_1
 
     @property
-    def angle_2(self):
+    def angle_2(self) -> float | int:
+        """Second angle defining the sector."""
         return self._angle_2
 
 
 class Arc(GenericGeometry):
+    """
+    Arc defined by the radius and the angles of both ends.
+
+    Args:
+        radius: Radius of the arc.
+        start_angle: Angle of one end with respect to the x-axis.
+        end_angle: Angle of the other end with respect to the x-axis.
+    """
 
     def __init__(self, radius: float, start_angle: float, end_angle: float):
-        """
-        Arc defined by the radius and the angles of both ends.
-        :param radius: Radius of the arc.
-        :param start_angle: Angle of one end with respect to the x-axis.
-        :param end_angle: Angle of the other end with respect to the x-axis.
-        """
         GenericGeometry.__init__(self, sdf_arc, radius, start_angle, end_angle)
         self._radius = radius
         self._sangle = start_angle
@@ -251,32 +289,37 @@ class Arc(GenericGeometry):
 
     @property
     def radius(self):
+        """Radius of the arc."""
         return self._radius
 
     @property
     def start_angle(self):
+        """Angle of one end with respect to the x-axis."""
         return self._sangle
 
     @property
     def end_angle(self):
+        """Angle of the other end with respect to the x-axis."""
         return self._eangle
 
 
 class ParametricCurve(GenericGeometry):
+    """
+    Curve connecting points on the user provided parametric curve.
+
+    Args:
+        parametric_curve: Function defining the parametric curve with a single variable (t) and other parameters.
+        parametric_curve_parameters: Parameters of the function defining the parametric curve.
+        t_range: Range of the t parameter.
+            t_range[0] -  start, t_range[1] - end, t_range[2] -  number of steps in between.
+        closed: Is the curve closed on itself. False by default.
+    """
 
     def __init__(self,
                  parametric_curve: Callable[[np.ndarray, tuple], np.ndarray],
                  parametric_curve_parameters: tuple,
                  t_range: tuple,
                  closed: bool = False):
-        """
-        Curve connecting points on the user provided parametric curve.
-        :param parametric_curve: Function defining the parametric curve with a single variable (t) and other parameters.
-        :param parametric_curve_parameters: Parameters of the function defining the parametric curve.
-        :param t_range: Range of the t parameter.
-        t_range[0] -  start, t_range[1] - end, t_range[2] -  number of steps in between.
-        :param closed: Is the curve closed on itself. False by default.
-        """
         self._curve = parametric_curve
         self._c_params = parametric_curve_parameters
         self._t_range = t_range
@@ -288,7 +331,13 @@ class ParametricCurve(GenericGeometry):
                                  parametric_curve_parameters,
                                  self.ts)
 
-    def sdf_closed_curve(self):
+    def sdf_closed_curve(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Returns the SDF of the closed curve if parameter close==True.
+
+        Returns:
+            Modified SDF
+        """
         def new_geo_object(co, f, f_parameters, t):
 
             p0 = f(t[0], *f_parameters)
@@ -305,29 +354,36 @@ class ParametricCurve(GenericGeometry):
             return sdf_parametric_curve_2d
 
     @property
-    def steps(self):
+    def steps(self) -> int:
+        """Number of points at which the curve is evaluated."""
         return self._t_range[2]
 
     @property
-    def t_start(self):
+    def t_start(self) -> float | int:
+        """Start value of parameter t."""
         return self._t_range[0]
 
     @property
-    def t_end(self):
+    def t_end(self) -> float | int:
+        """End value of parameter t."""
         return self._t_range[1]
 
     @property
-    def ts(self):
+    def ts(self) -> np.ndarray:
+        """Values of parameter t."""
         return np.linspace(*self._t_range)
 
     @property
-    def closed(self):
+    def closed(self) -> bool:
+        """Is the segmented line closed on itself. False by default."""
         return self._closed
 
     def shape(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Converts the closed parametric curve into a shape.
-        :return: Modified SDF.
+
+        Returns:
+            Modified SDF.
         """
         if not self.closed:
             return self.geo_object
@@ -368,16 +424,18 @@ class ParametricCurve(GenericGeometry):
 
 
 class SegmentedParametricCurve(GenericGeometry):
+    """
+    Segmented line connecting the user provided points.
+
+    Args:
+        points: Points to connect.
+        t_range: Range of the t parameter.
+            t_range[0] -  start, t_range[1] - end, t_range[2] -  number of steps in between.
+            t_range[1]-t_range[0] >= number of points.
+        closed: Is the segmented line closed on itself. False by default.
+    """
 
     def __init__(self, points: list | tuple | np.ndarray, t_range: tuple, closed: bool = False):
-        """
-        Segmented line connecting the user provided points.
-        :param points: Points to connect.
-        :param t_range: Range of the t parameter.
-        t_range[0] -  start, t_range[1] - end, t_range[2] -  number of steps in between.
-        t_range[1]-t_range[0] >= number of points.
-        :param closed: Is the segmented line closed on itself. False by default.
-        """
         self._points = np.asarray(points)
         if self._points.shape[1] < self._points.shape[0]:
             self._points = self._points.T
@@ -389,7 +447,13 @@ class SegmentedParametricCurve(GenericGeometry):
                                  self._points,
                                  self.ts)
 
-    def sdf_closed_curve(self):
+    def sdf_closed_curve(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Returns the SDF of the closed curve if parameter close==True.
+
+        Returns:
+            Modified SDF
+        """
         def new_geo_object(co, points, t):
 
             f1 = sdf_segmented_curve_2d(co, points, t)
@@ -403,31 +467,38 @@ class SegmentedParametricCurve(GenericGeometry):
             return sdf_segmented_curve_2d
 
     @property
-    def steps(self):
+    def steps(self) -> int:
+        """Number of points at which the curve is evaluated."""
         return self._t_range[2]
 
     @property
-    def t_start(self):
+    def t_start(self) -> float | int:
+        """Start value of parameter t."""
         return self._t_range[0]
 
     @property
-    def t_end(self):
+    def t_end(self) -> float | int:
+        """End value of parameter t."""
         return self._t_range[1]
 
     @property
-    def ts(self):
+    def ts(self) -> np.ndarray:
+        """Values of parameter t."""
         tt = np.linspace(self._t_range[0], self._t_range[1]-1, self._t_range[2])
         ts_ = np.clip(tt, 0, self._points.shape[1]-1.0001)
         return ts_
 
     @property
-    def closed(self):
+    def closed(self) -> bool:
+        """Is the segmented line closed on itself. False by default."""
         return self._closed
 
     def polygon(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Converts the closed segmented line into a polygon.
-        :return: Modified SDF.
+
+        Returns:
+            Modified SDF.
         """
         if not self.closed:
             return self.geo_object
@@ -467,13 +538,15 @@ class SegmentedParametricCurve(GenericGeometry):
 
 
 class SegmentedLine(GenericGeometry):
+    """
+    Segmented line connecting the user provided points.
+
+    Args:
+        points: Points to connect.
+        closed: Is the segmented line closed on itself. False by default.
+    """
 
     def __init__(self, points: list | tuple | np.ndarray, closed: bool = False):
-        """
-        Segmented line connecting the user provided points.
-        :param points: Points to connect.
-        :param closed: Is the segmented line closed on itself. False by default.
-        """
         self._points = np.asarray(points)
         if self._points.shape[1] < self._points.shape[0]:
             self._points = self._points.T
@@ -483,7 +556,13 @@ class SegmentedLine(GenericGeometry):
                                  self.sdf_closed_curve(),
                                  self._points)
 
-    def sdf_closed_curve(self):
+    def sdf_closed_curve(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Returns the SDF of the closed curve if parameter close==True.
+
+        Returns:
+            Modified SDF
+        """
         def new_geo_object(co, points):
 
             f1 = sdf_segmented_line_2d(co, points)
@@ -497,13 +576,16 @@ class SegmentedLine(GenericGeometry):
             return sdf_segmented_line_2d
 
     @property
-    def closed(self):
+    def closed(self) -> bool:
+        """Is the segmented line closed on itself. False by default."""
         return self._closed
 
     def polygon(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Converts the closed segmented line into a polygon.
-        :return: Modified SDF.
+
+        Returns:
+            Modified SDF.
         """
         if not self.closed:
             return self.geo_object
@@ -543,20 +625,21 @@ class SegmentedLine(GenericGeometry):
 
 
 class PointCloud2D(GenericGeometry):
+    """
+    SDF of the point cloud.
+
+    Args:
+        points: Positions of the points in an array of shape (2, N-points).
+    """
 
     def __init__(self, points: list | tuple | np.ndarray):
-        """
-        SDF of the point cloud.
-        :param points: Positions of the points in an array of shape (2, N-points).
-        """
         self._points = np.asarray(points)
         if self._points.shape[1] < self._points.shape[0]:
             self._points = self._points.T
 
-        GenericGeometry.__init__(self,
-                                 sdf_point_cloud_2d,
-                                 self._points)
+        GenericGeometry.__init__(self, sdf_point_cloud_2d, self._points)
 
     @property
-    def points(self):
+    def points(self) -> np.ndarray:
+        """Positions of the points in an array of shape (2, N-points)."""
         return self._points

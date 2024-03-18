@@ -10,25 +10,32 @@ import numpy as np
 def resolution_conversion(resolution: int) -> int:
     """
     Converts the given resolution so that there are odd number of points along each axis.
-    :param resolution: given resolution along an axis.
-    :return: converted resolution along an axis.
+
+    Args:
+        resolution: Given resolution along an axis.
+
+    Returns:
+        converted Resolution along an axis.
     """
     return int(resolution if resolution % 2 == 1 else resolution + 1)
 
 
-def generate_grid(size: int | float | tuple | list | np.ndarray, resolution: int | tuple | list | np.ndarray) -> tuple:
+def generate_grid(size: int | float | tuple | list | np.ndarray,
+                  resolution: int | tuple | list | np.ndarray) -> (np.ndarray, tuple):
     """
     Generates a grid of points based on the provided size and resolution, centered at zero.
     The dimensionality of the grid is determined from the number of elements in the size input parameter.
-    :param size: size of the grid along each dimension.
-    :param resolution: number of grid points along each dimension.
-    :return: pointcloud: np.ndarray, new_resolution: tuple.
 
-             pointcloud - Point cloud of points with shape (D, N),
-                where D - dimensionality, N - total number of points in the grid.
+    Args:
+        size: size of the grid along each dimension.
+        resolution: number of grid points along each dimension.
 
-             new_resolution - Converted resolution of the grid, containing the number of points along each axis.
+    Returns:
+        Point cloud of points with shape (D, N),
+                where D - dimensionality, N - total number of points in the grid.,
+        Converted resolution of the grid, containing the number of points along each axis.
     """
+
     resolution = np.asarray(resolution)
     if resolution.size == 1:
         co_res_0 = resolution_conversion(resolution)
@@ -89,10 +96,15 @@ def generate_grid(size: int | float | tuple | list | np.ndarray, resolution: int
 def smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.ndarray) -> np.ndarray:
     """
     Converts the Signed Distance field point cloud into a grid.
-    :param pattern: Signed Distance field
-    :param resolution: Resolution of the grid, determining the number of points along each axis.
-    :return: Signed distance field in a grid.
+
+    Args:
+        pattern: Signed Distance field
+        resolution: Resolution of the grid, determining the number of points along each axis.
+
+    Returns:
+        Signed distance field in a grid.
     """
+
     n_ele = pattern.shape[0]
     resolution = np.asarray(resolution)
 
@@ -139,10 +151,15 @@ def smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.ndarray) 
 def vector_smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.ndarray) -> np.ndarray:
     """
     Converts a vector field point cloud into a grid.
-    :param pattern: Vector field
-    :param resolution: Resolution of the grid, determining the number of points along each axis.
-    :return: Vector field on a grid.
+
+    Args:
+        pattern: Vector field
+        resolution: Resolution of the grid, determining the number of points along each axis.
+
+    Returns:
+        Vector field on a grid of shape (3, resolution[0], resolution[1], resolution[2]).
     """
+
     x = smarter_reshape(pattern[0], resolution)
     y = smarter_reshape(pattern[1], resolution)
     z = smarter_reshape(pattern[2], resolution)
@@ -150,13 +167,18 @@ def vector_smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.nd
     return np.asarray([x, y, z])
 
 
-def n_vector_smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.ndarray) -> np.ndarray:
+def nd_vector_smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.ndarray) -> np.ndarray:
     """
-    Converts a vector field point cloud into a grid.
-    :param pattern: Vector field
-    :param resolution: Resolution of the grid, determining the number of points along each axis.
-    :return: Vector field on a grid.
+    Converts an n-dimensional vector field point cloud into a grid.
+
+    Args:
+        pattern: Vector field
+        resolution: Resolution of the grid, determining the number of points along each axis.
+
+    Returns:
+        Vector field on a grid of shape (ND, resolution[0], resolution[1], resolution[2]).
     """
+
     c = smarter_reshape(pattern[0], resolution)
     out = np.zeros((pattern.shape[0], *c.shape))
     out[0] = c
@@ -168,12 +190,17 @@ def n_vector_smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.
 
 def binning(pattern: np.ndarray, bins: int, equal_width: bool = True) -> np.ndarray:
     """
-    Map the values in the Signed Distance field/pattern to discrete based on the specified number of bins.
-    :param pattern: Signed Distance field or any field.
-    :param bins: Number of bins - unique discrete values in the final pattern.
-    :param equal_width: All the bins are of equal width. If False the first and the last bin have half the width.
-    :return: Modified field.
+    Discretize the Signed Distance field/pattern to based on the specified number of bins.
+
+    Args:
+        pattern: Signed Distance field or any field.
+        bins: Number of bins - unique discrete values in the final pattern.
+        equal_width: All the bins are of equal width. If False the first and the last bin have half the width.
+
+    Returns:
+        Modified field.
     """
+
     max_ = np.amax(pattern)
     min_ = np.amin(pattern)
     a = (max_ - min_)

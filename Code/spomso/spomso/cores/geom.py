@@ -13,49 +13,57 @@ from typing import Callable
 
 
 class GenericGeometry(EuclideanTransform, ModifyObject):
+    """Constructs geometry based on an SDF.
 
-    def __init__(self, geo_sdf: Callable[[np.ndarray, tuple], np.ndarray], *geo_parameters: tuple):
-        """
-        Constructs all the necessary attributes for the GenericGeometry object.
-        :param geo_sdf: The SDF function of the geometry - geo_sdf(co, *geo_parameters)
-        :param geo_parameters: The parameters of the SDF function
-        """
+        Args:
+            geo_sdf: SDF of a geometry - geo_sdf(co, *geo_parameters).
+            geo_parameters: Parameters of the SDF.
+    """
+
+    def __init__(self, geo_sdf: Callable[[np.ndarray, tuple], np.ndarray], *geo_parameters: object):
         EuclideanTransform.__init__(self)
         ModifyObject.__init__(self, geo_sdf)
-        self.geo_parameters = geo_parameters
+        self._geo_parameters = geo_parameters
         self._sdf = geo_sdf
 
     def create(self, co: np.ndarray) -> np.ndarray:
         """
         Applies the modifications and transformations (in that order) to the SDF and returns the map of the
-        Signed Distance field.
-        :param co: Point cloud of coordinates (D, N);
-        D - number of dimensions (2,3);
-        N - number of points in the point cloud.
-        :return: Signed Distance field as a numpy.ndarray of shape (N,)
+        Signed Distance Field.
+
+        Args:
+            co: Point cloud of coordinates (D, N);
+                D - number of dimensions (2,3);
+                N - number of points in the point cloud.
+
+        Returns:
+            Signed Distance Field of shape (N,).
         """
         self._sdf = self.modified_object
         return self.apply(self._sdf, co, self.geo_parameters)
 
-    def propagate(self, co: np.ndarray, *parameters_: object) -> np.ndarray:
+    def propagate(self, co: np.ndarray, *parameters_: tuple) -> np.ndarray:
         """
         Applies the modifications and transformations (in that order) to the SDF and returns the map of the
-        Signed Distance field. Similar to create but is meant to be used as input to construct new geometry.
-        :param co: Point cloud of coordinates (D, N);
-        D - number of dimensions (2,3);
-        N - number of points in the point cloud.
-        :param parameters_: can be empty
-        :return: Signed Distance field as a numpy.ndarray of shape (N,)
+        Signed Distance Field. Similar to create but is meant to be used as input to construct new geometry.
+
+        Args:
+            co: Point cloud of coordinates (D, N);
+                D - number of dimensions (2,3);
+                N - number of points in the point cloud.
+            parameters_: can be empty
+
+        Returns:
+            Signed Distance Field of shape (N,).
         """
         self._sdf = self.modified_object
         return self.apply(self._sdf, co, self.geo_parameters)
 
     def point_cloud(self, co: np.ndarray) -> np.ndarray:
-        """
-        Creates a point cloud from a greyscale image.
-        Positions of the points in the point cloud are calculated
-        from the positions of the pixels with brightness below the binary threshold.
-        :param co: Point cloud of coordinates (D, N);
+        """Creates a point cloud from the interior points of the SDF.
+
+        Args:
+            co: Point cloud of coordinates (D, N);
         """
         data_ = self.create(co)
         mask_ = data_ <= 0
@@ -67,12 +75,13 @@ class GenericGeometry(EuclideanTransform, ModifyObject):
 
 
 class Points(EuclideanTransformPoints):
+    """Constructs a Points object from a point cloud.
+
+    Args:
+        points: The point cloud of shape (D, N), where D is the spatial dimension and N is the number of points.
+    """
 
     def __init__(self, points: np.ndarray | list | tuple):
-        """
-        Constructs all the necessary attributes for the Points object.
-        :param points: The point cloud of shape (D, N), where D is the spatial dimension and N is the number of points.
-        """
         EuclideanTransformPoints.__init__(self)
         self._points = np.asarray(points)
         if self._points.size > 0:
@@ -80,7 +89,12 @@ class Points(EuclideanTransformPoints):
                 self._points = self._points.T
 
     @property
-    def cloud(self):
+    def cloud(self) -> np.ndarray:
+        """Transformed point cloud.
+
+        Returns:
+            Transformed point cloud of shape (D, N).
+        """
         return self.apply(self._points)
 
     def from_image(self,
@@ -91,9 +105,11 @@ class Points(EuclideanTransformPoints):
         Creates a point cloud from a greyscale image.
         Positions of the points in the point cloud are calculated
         from the positions of the pixels with brightness below the binary threshold.
-        :param greyscale_image: The greyscale image.
-        :param image_dimensions: A 2vector defining the size of the image.
-        :param binary_threshold: Threshold used to filter which points belong in the point cloud.
+
+        Args:
+            greyscale_image: The greyscale image.
+            image_dimensions: A 2vector defining the size of the image.
+            binary_threshold: Threshold used to filter which points belong in the point cloud.
         """
         data_ = np.asarray(greyscale_image)
         data_max = np.amax(data_)
@@ -119,10 +135,14 @@ class Points(EuclideanTransformPoints):
         """
         Converts a point cloud into a black and white image.
         Black where there are points and white where there are none.
-        :param co_size: Size of the 3D coordinate system (size_x, size_y, size_z).
-        :param co_resolution: Resolution of the grid along all three dimensions (res_x, res_y, res_z).
-        :param extend: Along which directions is the image extended (-X, +X, -Y, +Y, -Z, +Z).
-        :return: A grid of voxels with the shape (res_x, res_y, res_z) and values of 0 or 1.
+
+        Args:
+            co_size: Size of the 3D coordinate system (size_x, size_y, size_z).
+            co_resolution: Resolution of the grid along all three dimensions (res_x, res_y, res_z).
+            extend: Along which directions is the image extended (-X, +X, -Y, +Y, -Z, +Z).
+
+        Returns:
+            A grid of voxels with the shape (res_x, res_y, res_z) and values of 0 or 1.
         """
 
         cloud = self.cloud
@@ -191,119 +211,150 @@ class Points(EuclideanTransformPoints):
 
 
 class VectorField(ModifyVectorObject):
+    """Constructs a VectorField object from a vector field function.
+
+        Args:
+            vf: The vector field function - vf(p, *vf_parameters).
+            vf_parameters: The parameters of the vector field function.
+    """
 
     def __init__(self, vf: Callable[[np.ndarray, tuple], np.ndarray], *vf_parameters: tuple):
-        """
-        Constructs all the necessary attributes for the VectorField object.
-        :param vf: The vector field function - vf(p, *vf_parameters).
-        :param vf_parameters: The parameters of the vector field function.
-        """
         ModifyVectorObject.__init__(self, vf)
         self._vf_parameters = vf_parameters
         self._vf = vf
 
     def create(self, p: np.ndarray) -> np.ndarray:
-        """
-        Applies the modifications to the vector field and returns the map of the vector field.
-        :param p: Point cloud of field components (D, N);
-        D - number of dimensions (2,3);
-        N - number of points in the point cloud.
-        :return: Vector field as a numpy.ndarray of shape (D, N).
+        """Applies the modifications to the vector field and returns the map of the vector field.
+        
+        Args:
+            p: Point cloud of field components (D, N);
+                D - number of dimensions (2,3);
+                N - number of points in the point cloud.
+        Returns:
+             Vector field of shape (D, N).
         """
         self._vf = self.vf
         return self._vf(p, *self._vf_parameters)
 
-    def propagate(self, p: np.ndarray, *parameters_: object) -> np.ndarray:
+    def propagate(self, p: np.ndarray, *parameters_: tuple) -> np.ndarray:
         """
         Applies the modifications to the vector field and returns the map of the vector field.
         Similar to create but is meant to be used as input to construct new vector fields.
-        :param p: Point cloud of field components (D, N);
-        D - number of dimensions (2,3);
-        N - number of points in the point cloud.
-        :param parameters_: can be empty.
-        :return: Vector field as a numpy.ndarray of shape (D, N).
+        
+        Args:
+            p: Point cloud of field components (D, N);
+                D - number of dimensions (2,3);
+                N - number of points in the point cloud.
+            parameters_: can be empty.
+        
+        Returns:
+            Vector field of shape (D, N).
         """
         self._vf = self.vf
         return self._vf(p, *self._vf_parameters)
 
-    def x(self, p: np.ndarray, *parameters_: object) -> np.ndarray:
+    def x(self, p: np.ndarray, *parameters_: tuple) -> np.ndarray:
         """
         Applies the modifications to the vector field and returns the x component of the vector field.
         Similar to create but is meant to be used as input to construct new vector fields.
-        :param p: Point cloud of field components (D, N);
-        D - number of dimensions (2,3);
-        N - number of points in the point cloud.
-        :param parameters_: can be empty.
-        :return: Scalar field as a numpy.ndarray of shape (N, ).
+        
+        Args:
+            p: Point cloud of field components (D, N);
+                D - number of dimensions (2,3);
+                N - number of points in the point cloud.
+            parameters_: can be empty.
+        
+        Returns:
+            Scalar field of shape (N,).
         """
         self._vf = self.vf
         return self._vf(p, *self._vf_parameters)[0]
 
-    def y(self, p, *parameters_: object) -> np.ndarray:
+    def y(self, p: np.ndarray, *parameters_: tuple) -> np.ndarray:
         """
         Applies the modifications to the vector field and returns the x component of the vector field.
         Similar to create but is meant to be used as input to construct new vector fields.
-        :param p: Point cloud of field components (D, N);
-        D - number of dimensions (2,3);
-        N - number of points in the point cloud.
-        :param parameters_: can be empty.
-        :return: Scalar field as a numpy.ndarray of shape (N,).
+        
+        Args:
+            p: Point cloud of field components (D, N);
+                D - number of dimensions (2,3);
+                N - number of points in the point cloud.
+            parameters_: can be empty.
+        
+        Returns:
+            Scalar field of shape (N,).
         """
         self._vf = self.vf
         return self._vf(p, *self._vf_parameters)[1]
 
-    def z(self, p, *parameters_: object) -> np.ndarray:
+    def z(self, p: np.ndarray, *parameters_: tuple) -> np.ndarray:
         """
         Applies the modifications to the vector field and returns the x component of the vector field.
         Similar to create but is meant to be used as input to construct new vector fields.
-        :param p: Point cloud of field components (D, N);
-        D - number of dimensions (2,3);
-        N - number of points in the point cloud.
-        :param parameters_: can be empty.
-        :return: Scalar field as a numpy.ndarray of shape (N,).
+        
+        Args:
+            p: Point cloud of field components (D, N);
+                D - number of dimensions (2,3);
+                N - number of points in the point cloud.
+            parameters_: can be empty.
+        
+        Returns:
+            Scalar field of shape (N,).
         """
         self._vf = self.vf
         return self._vf(p, *self._vf_parameters)[2]
 
-    def phi(self, p, *parameters_: object) -> np.ndarray:
+    def phi(self, p: np.ndarray, *parameters_: tuple) -> np.ndarray:
         """
         Applies the modifications and returns the azimuthal angle for each vector in the vector field.
         Similar to create but is meant to be used as input to construct new vector fields.
-        :param p: Point cloud of field components (D, N);
-        D - number of dimensions (2,3);
-        N - number of points in the point cloud.
-        :param parameters_: can be empty.
-        :return: Scalar field as a numpy.ndarray of shape (N,).
+        
+        Args:
+            p: Point cloud of field components (D, N);
+                D - number of dimensions (2,3);
+                N - number of points in the point cloud.
+            parameters_: can be empty.
+        
+        Returns:
+            Scalar field of shape (N,).
         """
         self._vf = self.vf
         vec = self._vf(p, *self._vf_parameters)
 
         return np.arctan2(vec[1], vec[0])
 
-    def theta(self, p, *parameters_: object) -> np.ndarray:
+    def theta(self, p: np.ndarray, *parameters_: tuple) -> np.ndarray:
         """
         Applies the modifications and returns the polar angle for each vector in the vector field.
         Similar to create but is meant to be used as input to construct new vector fields.
-        :param p: Point cloud of field components (D, N);
-        D - number of dimensions (2,3);
-        N - number of points in the point cloud.
-        :param parameters_: can be empty.
-        :return: Scalar field as a numpy.ndarray of shape (N,).
+        
+        Args:
+            p: Point cloud of field components (D, N);
+                D - number of dimensions (2,3);
+                N - number of points in the point cloud.
+            parameters_: can be empty.
+        
+        Returns:
+            Scalar field of shape (N,).
         """
         self._vf = self.vf
         vec = self._vf(p, *self._vf_parameters)
 
         return np.arccos(vec[2])
 
-    def length(self, p, *parameters_: object) -> np.ndarray:
+    def length(self, p: np.ndarray, *parameters_: tuple) -> np.ndarray:
         """
         Applies the modifications and returns the lengths of vectors in the vector field.
         Similar to create but is meant to be used as input to construct new vector fields.
-        :param p: Point cloud of field components (D, N);
-        D - number of dimensions (2,3);
-        N - number of points in the point cloud.
-        :param parameters_: can be empty.
-        :return: Scalar field as a numpy.ndarray of shape (N,).
+        
+        Args:
+            p: Point cloud of field components (D, N);
+                D - number of dimensions (2,3);
+                N - number of points in the point cloud.
+            parameters_: can be empty.
+        
+        Returns:
+            Scalar field of shape (N,).
         """
         self._vf = self.vf
         vec = self._vf(p, *self._vf_parameters)

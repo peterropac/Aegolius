@@ -32,75 +32,90 @@ def smoothmax_boltz(x, y, width):
 
 
 class CombineGeometry:
+    """Class containing all the possible combination operations which can be applied to a scalar fields.
+
+        Attributes:
+            operations: Dictionary containing all the possible non-parametric operations.
+            parametric_operations: Dictionary containing all the possible parametric operations.
+
+        Args:
+            operation_type: Type of operation with which two or more geometric objects are combined.
+        """
 
     def __init__(self, operation_type: str):
-        """
-        Constructs all the necessary attributes for the CombineGeometry object.
-        :param operation_type: Type of operation with which two or more geometric objects are combined.
-        """
-        self.operation_type = operation_type
-        self._combined_geometry = None
-        self.operations = {"UNION2": lambda obj1, obj2: np.minimum(obj1, obj2),
-                           "UNION": lambda *objs: np.amin(objs, axis=0),
-                           "SUBTRACT2": lambda obj1, obj2: np.maximum(obj1, -obj2),
-                           "INTERSECT2": lambda obj1, obj2: np.maximum(obj1, obj2),
-                           "INTERSECT": lambda *objs: np.amax(objs, axis=0),
-                           }
+        self.operation_type: str = operation_type
+        self._combined_geometry: Callable[[np.ndarray, tuple], np.ndarray] = None
+        self.operations: dict = {"UNION2": lambda obj1, obj2: np.minimum(obj1, obj2),
+                                 "UNION": lambda *objs: np.amin(objs, axis=0),
+                                 "SUBTRACT2": lambda obj1, obj2: np.maximum(obj1, -obj2),
+                                 "INTERSECT2": lambda obj1, obj2: np.maximum(obj1, obj2),
+                                 "INTERSECT": lambda *objs: np.amax(objs, axis=0),
+                                 }
 
-        self.parametric_operations = {"SMOOTH_UNION2_2": lambda obj1, obj2, width: smoothmin_poly2(obj1,
-                                                                                                   obj2,
-                                                                                                   width),
-                                      "SMOOTH_UNION2": lambda obj1, obj2, width: smoothmin_poly3(obj1,
-                                                                                                 obj2,
-                                                                                                 width),
-                                      "SMOOTH_INTERSECT2": lambda obj1, obj2, width: -smoothmin_poly3(-obj1,
-                                                                                                      -obj2,
-                                                                                                      width),
-                                      "SMOOTH_INTERSECT2_BOLTZMANN": lambda obj1, obj2, width: smoothmax_boltz(obj1,
-                                                                                                               obj2,
-                                                                                                               width),
-                                      "SMOOTH_SUBTRACT2": lambda obj1, obj2, width: -smoothmin_poly3(-obj1,
-                                                                                                     obj2,
-                                                                                                     width),
-                                      "SMOOTH_SUBTRACT2_BOLTZMANN": lambda obj1, obj2, width: smoothmax_boltz(obj1,
-                                                                                                              -obj2,
-                                                                                                              width)
+        self.parametric_operations: dict = {"SMOOTH_UNION2_2": lambda obj1, obj2, width: smoothmin_poly2(obj1,
+                                                                                                         obj2,
+                                                                                                         width),
+                                            "SMOOTH_UNION2": lambda obj1, obj2, width: smoothmin_poly3(obj1,
+                                                                                                       obj2,
+                                                                                                       width),
+                                            "SMOOTH_INTERSECT2": lambda obj1, obj2, width: -smoothmin_poly3(-obj1,
+                                                                                                            -obj2,
+                                                                                                            width),
+                                            "SMOOTH_INTERSECT2_BOLTZMANN": lambda obj1, obj2, width: smoothmax_boltz(obj1,
+                                                                                                                     obj2,
+                                                                                                                     width),
+                                            "SMOOTH_SUBTRACT2": lambda obj1, obj2, width: -smoothmin_poly3(-obj1,
+                                                                                                           obj2,
+                                                                                                           width),
+                                            "SMOOTH_SUBTRACT2_BOLTZMANN": lambda obj1, obj2, width: smoothmax_boltz(obj1,
+                                                                                                                    -obj2,
+                                                                                                                    width)
                                       }
 
     @property
-    def available_operations(self):
+    def available_operations(self) -> list:
         """
         Available types of operations.
-        :return: List of available operations.
+        
+        Returns:
+             List of available operations.
         """
         operations_list = list(self.operations.keys())
         print(f"Available non-parametric operations are: {operations_list}")
         return operations_list
 
     @property
-    def available_parametric_operations(self):
+    def available_parametric_operations(self) -> list:
         """
         Available types of operations which require a parameter.
-        :return: List of available parametric operations.
+        
+        Returns:
+              List of available parametric operations.
         """
         operations_list = list(self.parametric_operations.keys())
         print(f"Available parametric operations are: {operations_list}")
         return operations_list
 
     @property
-    def combined_geometry(self) -> Callable[[np.ndarray, tuple], tuple]:
+    def combined_geometry(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Returns the SDF of the combined geometries,
         which can be used to create a new geometry using GenericGeometry class.
-        :return: SDF of the combined geometries
+        
+        Returns:
+              SDF of the combined geometries
         """
         return self._combined_geometry
 
     def combine(self, *combined_objects: object) -> GenericGeometry:
         """
         Combines 2 or more geometric objects together.
-        :param combined_objects: Tuple containing geometric objects.
-        :return: New geometric object.
+
+        Args:
+            combined_objects: Tuple containing geometric objects.
+        
+        Returns:
+              New geometric object.
         """
         if self.operation_type not in self.operations.keys():
             raise SyntaxError(f"{self.operation_type} is not an implemented non-parametric operation.",
@@ -120,9 +135,12 @@ class CombineGeometry:
     def combine_parametric(self, *combined_objects: object, parameters: tuple | float | int) -> GenericGeometry:
         """
         Combines 2 or more geometric objects together, based on the parameters of the operations.
-        :param combined_objects: Tuple containing geometric objects.
-        :param parameters: Parameters of the operation.
-        :return: New geometric object.
+        Args:
+            combined_objects: Tuple containing geometric objects.
+            parameters: Parameters of the operation.
+        
+        Returns:
+              New geometric object.
         """
         if self.operation_type not in self.parametric_operations.keys():
             raise SyntaxError(f"{self.operation_type} is not an implemented parametric operation.",

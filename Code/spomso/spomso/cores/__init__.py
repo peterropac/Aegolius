@@ -9,7 +9,7 @@ from .transformations import EuclideanTransform, EuclideanTransformPoints
 from .modifications import ModifyObject, ModifyVectorObject
 from .geom import GenericGeometry, Points
 from .helper_functions import resolution_conversion, generate_grid
-from .helper_functions import smarter_reshape, vector_smarter_reshape, n_vector_smarter_reshape
+from .helper_functions import smarter_reshape, vector_smarter_reshape, nd_vector_smarter_reshape
 from .post_processing import sigmoid_falloff, positive_sigmoid_falloff, capped_exponential
 from .post_processing import linear_falloff, relu, smooth_relu, slowstart
 from .post_processing import hard_binarization
@@ -47,6 +47,7 @@ from .vector_functions import aar_vector_field_cylindrical, awn_vector_field_cyl
 from .vector_functions import vortex_vector_field_cylindrical, aav_vector_field_cylindrical
 from .vector_functions import x_vector_field, y_vector_field, z_vector_field
 from .vector_functions import from_sdf
+from .geom_vector_special import lcwg1_p1, lcwg1_m1, lcwg1_2d
 from .vector_functions_special import compute_crossings_2d
 
 from .vector_modification_functions import batch_normalize
@@ -63,3 +64,4 @@ from .geom_vector import AngledRadialCylindricalVectorField, WindingCylindricalV
 from .geom_vector import VortexCylindricalVectorField, AngledVortexCylindricalVectorField
 from .geom_vector import XVectorField, YVectorField, ZVectorField
 from .geom_vector import VectorFieldFromSDF
+from .geom_vector_special import LCWG2D, LCWG3Dp1, LCWG3Dm1

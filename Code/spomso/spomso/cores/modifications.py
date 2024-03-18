@@ -28,21 +28,27 @@ from spomso.cores.helper_functions import smarter_reshape, vector_smarter_reshap
 
 
 class ModifyObject:
+    """Class containing all the possible modifications which can be applied to a scalar field.
+
+    Attributes:
+        original_geo_object: Original SDF.
+        geo_object: Modified SDF.
+
+    Args:
+        geo_object: SDF of a geometry.
+    """
 
     def __init__(self, geo_object: Callable[[np.ndarray, tuple], np.ndarray]):
-        """
-        Class containing all the modifications, which can be applied to the geometry.
-        :param geo_object: SDF of a geometry.
-        """
-        self._mod = []
-        self.original_geo_object = geo_object
-        self.geo_object = geo_object
+        self._mod: list = []
+        self.original_geo_object: Callable[[np.ndarray, tuple], np.ndarray] = geo_object
+        self.geo_object: Callable[[np.ndarray, tuple], np.ndarray] = geo_object
 
     @property
     def modifications(self) -> list:
-        """
-        All the modifications which were applied to the geometry in chronological order.
-        :return: List of modifications.
+        """All the modifications which were applied to the geometry in chronological order.
+
+        Returns:
+            List of modifications.
         """
         return self._mod
 
@@ -50,7 +56,9 @@ class ModifyObject:
     def modified_object(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         SDF of the modified geometry.
-        :return: SDF of the modified geometry.
+
+        Returns:
+            SDF of the modified geometry.
         """
         return self.geo_object
 
@@ -58,15 +66,21 @@ class ModifyObject:
     def original_object(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         SDF of the unmodified geometry.
-        :return: SDF of the unmodified geometry.
+
+        Returns:
+            SDF of the unmodified geometry.
         """
         return self.original_geo_object
 
     def elongation(self, elon_vector: np.ndarray | tuple | list) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Elongates the geometry along a certain vector by the length of the vector in each respective direction.
-        :param elon_vector: 3vector defining the direction and distance of the elongation.
-        :return: Modified SDF.
+
+        Args:
+            elon_vector: 3vector defining the direction and distance of the elongation.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("elongation")
         elon_vector = np.asarray(elon_vector)/2
@@ -86,8 +100,10 @@ class ModifyObject:
     def rounding(self, rounding_radius: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Rounds off the geometry - effectively thickening it by the rounding radius.
-        :param rounding_radius: Radius by which the edges are rounded and the object thickened.
-        :return: Modified SDF.
+        rounding_radius: Radius by which the edges are rounded and the object thickened.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("rounding")
 
@@ -105,9 +121,13 @@ class ModifyObject:
         """
         Rounds off the geometry, but the geometry will be contained in its bounding box.
         Bounding box size must be specified.
-        :param rounding_radius: Radius by which the edges are rounded.
-        :param bb_size: Size of the bounding box. Typically, the largest dimension of the object.
-        :return: Modified SDF.
+
+        Args:
+            rounding_radius: Radius by which the edges are rounded.
+            bb_size: Size of the bounding box. Typically, the largest dimension of the object.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("rounding_cs")
 
@@ -123,7 +143,9 @@ class ModifyObject:
     def boundary(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Get the boundary of a shape.
-        :return: Modified SDF.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("boundary")
 
@@ -135,11 +157,15 @@ class ModifyObject:
         self.geo_object = new_geo_object
         return new_geo_object
 
-    def signed_old(self, co_resolution) -> Callable[[np.ndarray, tuple], np.ndarray]:
+    def signed_old(self, co_resolution: tuple) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Transform an Unsigned Distance Function into a Signed Distance Function.
-        :param co_resolution: Resolution of the coordinate system.
-        :return: Modified SDF.
+
+        Args:
+            co_resolution: Resolution of the coordinate system.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("signed")
 
@@ -188,11 +214,15 @@ class ModifyObject:
         self.geo_object = new_geo_object
         return new_geo_object
 
-    def signed(self, co_resolution) -> Callable[[np.ndarray, tuple], np.ndarray]:
+    def signed(self, co_resolution: tuple) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Transform an Unsigned Distance Function into a Signed Distance Function.
-        :param co_resolution: Resolution of the coordinate system.
-        :return: Modified SDF.
+
+        Args:
+            co_resolution: Resolution of the coordinate system.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("signed")
 
@@ -244,9 +274,13 @@ class ModifyObject:
     def invert(self, direct: bool = False) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Invert the sign of the SDF.
-        :param direct: If True a function which returns inverts the sign of the SDF is returned without modifying the SDF.
-        If False the same happens as described above but the SDF is also modified.
-        :return: Modified SDF.
+
+        Args:
+            direct: If True a function which returns inverts the sign of the SDF is returned without modifying the SDF.
+                If False the same happens as described above but the SDF is also modified.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("invert")
 
@@ -262,9 +296,13 @@ class ModifyObject:
     def sign(self, direct: bool = False) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Get the sign of the SDF.
-        :param direct: If True a function which returns the sign of the SDF is returned without modifying the SDF.
-        If False the same happens as described above but the SDF is also modified.
-        :return: Modified SDF.
+
+        Args:
+            direct: If True a function which returns the sign of the SDF is returned without modifying the SDF.
+                If False the same happens as described above but the SDF is also modified.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("sign")
 
@@ -284,8 +322,12 @@ class ModifyObject:
         Recovers the interior of the SDF if a function which outputs the correct value (-1 or 1) is provided.
         This function should take the same parameters as the SDF.
         Typically, this function is the output of self.sign().
-        :param interior: Function defining the interior (negative values) of an SDF.
-        :return: Modified SDF.
+
+        Args:
+            interior: Function defining the interior (negative values) of an SDF.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("recover_volume")
 
@@ -302,9 +344,13 @@ class ModifyObject:
                       interior_parameters: tuple) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Defines the interior of the SDF if with a function.
-        :param interior: Function defining the interior (-1) and exterior (1) of an SDF.
-        :param interior_parameters: Parameters of the function defining the interior of the SDF.
-        :return: Modified SDF.
+
+        Args:
+            interior: Function defining the interior (-1) and exterior (1) of an SDF.
+            interior_parameters: Parameters of the function defining the interior of the SDF.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("define_volume")
 
@@ -319,8 +365,11 @@ class ModifyObject:
     def onion(self, thickness: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Transforms the geometry into a surface with some thickness.
-        :param thickness: Thickness of the resulting shape.
-        :return: Modified SDF.
+        Args:
+            thickness: Thickness of the resulting shape.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("onion")
 
@@ -336,8 +385,12 @@ class ModifyObject:
         """
         Transforms an isosurface into two concentric isosurfaces which are apart by the value of width.
         Transforms a volume into an isosurface and rounds it by width/2.
-        :param width: Thickness of the resulting shape.
-        :return: Modified SDF.
+
+        Args:
+            width: Thickness of the resulting shape.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("concentric")
 
@@ -354,8 +407,12 @@ class ModifyObject:
         Revolves a 2D shape around the y-axis to generate a 3D shape.
         First the 2D shape is translated along the x-axis by the radius of revolution,
         then it is revolved around the y-axis.
-        :param radius: Radius of revolution.
-        :return: Modified SDF.
+
+        Args:
+            radius: Radius of revolution.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("revolution")
 
@@ -378,9 +435,13 @@ class ModifyObject:
         First the 2D shape is translated along the x-axis by the radius of revolution,
         then it is revolved around the axis of revolution.
         The axis of revolution is angled by the specified angle with respect to the y-axis.
-        :param radius: Radius of revolution.
-        :param angle: Angle between the axis of revolution and the y-axis.
-        :return: Modified SDF.
+
+        Args:
+            radius: Radius of revolution.
+            angle: Angle between the axis of revolution and the y-axis.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("revolution")
 
@@ -407,8 +468,12 @@ class ModifyObject:
     def extrusion(self, distance: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Extrudes a 2D shape along the z-axis so that the height of the object is equal to the specified distance.
-        :param distance: Final height of the object - distance of extrusion.
-        :return: Modified SDF.
+
+        Args:
+            distance: Final height of the object - distance of extrusion.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("extrusion")
 
@@ -429,8 +494,12 @@ class ModifyObject:
     def twist(self, pitch: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Twists the geometry around the z-axis based on the position along the z-axis and the pitch.
-        :param pitch: rad/unit length.
-        :return: Modified SDF.
+
+        Args:
+            pitch: rad/unit length.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("twist")
 
@@ -487,9 +556,13 @@ class ModifyObject:
         """
         Bends the geometry around the z-axis, based on the specified bending radius and angle.
         The length of the bent section is radius*angle.
-        :param radius: Bending radius.
-        :param angle: Bending angle.
-        :return: Modified SDF.
+
+        Args:
+            radius: Bending radius.
+            angle: Bending angle.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("bend")
 
@@ -534,11 +607,16 @@ class ModifyObject:
                      displacement_function_parameters: tuple) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Displaces the surface of an object based on the values of the displacement function. Should be applied last.
-        :param displacement_function: Function which takes an array of coordinates with shape (D, N) and a tuple of parameters.
-        D - number of dimensions (2 or 3);
-        N - number of points in the point cloud.
-        :param displacement_function_parameters: Parameters of the displacement function.
-        :return: Modified SDF.
+
+        Args:
+            displacement_function:
+                Function which takes an array of coordinates with shape (D, N) and a tuple of parameters.
+                D - number of dimensions (2 or 3);
+                N - number of points in the point cloud.
+            displacement_function_parameters: Parameters of the displacement function.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("displacement")
 
@@ -554,8 +632,12 @@ class ModifyObject:
     def infinite_repetition(self, distances: tuple | list | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Infinitely repeats geometry in space on a cubic lattice.
-        :param distances: 3vector determining the distances between instances along each axis.
-        :return: Modified SDF.
+        
+        Args:
+            distances: 3vector determining the distances between instances along each axis.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("infinite_repetition")
 
@@ -576,9 +658,13 @@ class ModifyObject:
                           repetitions: tuple | list | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Repeats the geometry finite amount of times along each axis within a defined bounding box.
-        :param size: Size of the bounding box along each axis in which the geometry is repeated.
-        :param repetitions: Number of repetitions along each axis inside the bounding box.
-        :return: Modified SDF.
+        
+        Args:
+            size: Size of the bounding box along each axis in which the geometry is repeated.
+            repetitions: Number of repetitions along each axis inside the bounding box.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("finite_repetition")
 
@@ -623,11 +709,14 @@ class ModifyObject:
         """
         Repeats the geometry finite amount of times along each axis within a defined bounding box.
         The geometry is rescaled based on the provided geometry bounding box size and padding along each axis.
-        :param size: Size of the bounding box along each axis in which the geometry is repeated.
-        :param repetitions: Number of repetitions along each axis inside the bounding box.
-        :param instance_size: Size of the bounding box around one instance of geometry along each axis.
-        :param padding: Padding around each instance along each axis.
-        :return: Modified SDF.
+        Args:
+            size: Size of the bounding box along each axis in which the geometry is repeated.
+            repetitions: Number of repetitions along each axis inside the bounding box.
+            instance_size: Size of the bounding box around one instance of geometry along each axis.
+            padding: Padding around each instance along each axis.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("finite_repetition_rescaled")
 
@@ -669,11 +758,15 @@ class ModifyObject:
         self.geo_object = new_geo_object
         return new_geo_object
 
-    def symmetry(self, axis: int):
+    def symmetry(self, axis: int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Applies symmetry along an axis of the object.
-        :param axis: Index of the axis along which the symmetry is applied.
-        :return: Modified SDF.
+
+        Args:
+            axis: Index of the axis along which the symmetry is applied.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("symmetry")
 
@@ -690,12 +783,18 @@ class ModifyObject:
         self.geo_object = new_geo_object
         return new_geo_object
 
-    def mirror(self, a: tuple | list | np.ndarray, b: tuple | list | np.ndarray):
+    def mirror(self,
+               a: tuple | list | np.ndarray,
+               b: tuple | list | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Applies mirroring along an axis connecting the two specified points.
-        :param a: Position of the object's mirror image.
-        :param b: Position of the object.
-        :return: Modified SDF.
+
+        Args:
+            a: Position of the object's mirror image.
+            b: Position of the object.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("mirror")
 
@@ -732,10 +831,14 @@ class ModifyObject:
                             phase: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Applies n-fold rotational symmetry to the object.
-        :param n: Order of the symmetry.
-        :param radius: By how much the geometry is moved from the centre.
-        :param phase: Angle by which the circular pattern is rotated by.
-        :return: Modified SDF.
+
+        Args:
+            n: Order of the symmetry.
+            radius: By how much the geometry is moved from the centre.
+            phase: Angle by which the circular pattern is rotated by.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("rotational_symmetry")
 
@@ -764,10 +867,14 @@ class ModifyObject:
                           b: tuple | list | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Instances the geometry n-times along the length of a segment defined by two points.
-        :param n: Number of instances along the segment.
-        :param a: Starting point of the segment.
-        :param b: Ending point of the segment.
-        :return: Modified SDF.
+
+        Args:
+            n: Number of instances along the segment.
+            a: Starting point of the segment.
+            b: Ending point of the segment.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("linear_instancing")
 
@@ -815,13 +922,17 @@ class ModifyObject:
                          t_range: tuple) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Instances the geometry n-times along the length of a parametric curve defined by a function.
-        :param f: Function defining the parametric curve.
-        :param f_parameters: Parameters of the function defining the parametric curve.
-        :param t_range: (t_start, t_end, n_instances):
-        t_start - initial value of the parameter t, which is feed into the parametric curve.
-        t_end - final value of the parameter t.
-        n_instances -  number of instances of the geometry along the parametric curve.
-        :return: Modified SDF.
+
+        Args:
+            f: Function defining the parametric curve.
+            f_parameters: Parameters of the function defining the parametric curve.
+            t_range: (t_start, t_end, n_instances):
+                t_start - initial value of the parameter t, which is feed into the parametric curve.
+                t_end - final value of the parameter t.
+                n_instances -  number of instances of the geometry along the parametric curve.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("parametric_curve_instancing")
 
@@ -856,13 +967,17 @@ class ModifyObject:
         """
         Instances the geometry n-times along the length of a parametric curve defined by a function.
         The x-axis of the geometry is aligned with the tangent vector of the parametric curve.
-        :param f: Function defining the parametric curve.
-        :param f_parameters: Parameters of the function defining the parametric curve.
-        :param t_range: (t_start, t_end, n_instances):
-        t_start - initial value of the parameter t, which is feed into the parametric curve.
-        t_end - final value of the parameter t.
-        n_instances -  number of instances of the geometry along the parametric curve.
-        :return: Modified SDF.
+
+        Args:
+            f: Function defining the parametric curve.
+            f_parameters: Parameters of the function defining the parametric curve.
+            t_range: (t_start, t_end, n_instances):
+                t_start - initial value of the parameter t, which is feed into the parametric curve.
+                t_end - final value of the parameter t.
+                n_instances -  number of instances of the geometry along the parametric curve.
+        
+        Returns: 
+            Modified SDF.
         """
         # approximation with the binormal (dy) and normal (dz) vector!!!
         self._mod.append("aligned_parametric_curve_instancing")
@@ -918,13 +1033,17 @@ class ModifyObject:
         The x-axis of the geometry is aligned with the tangent vector of the parametric curve.
         The y-axis of the geometry is aligned with the normal vector of the parametric curve.
         The z-axis of the geometry is aligned with the binormal vector of the parametric curve.
-        :param f: Function defining the parametric curve.
-        :param f_parameters: Parameters of the function defining the parametric curve.
-        :param t_range: (t_start, t_end, n_instances):
-        t_start - initial value of the parameter t, which is feed into the parametric curve.
-        t_end - final value of the parameter t.
-        n_instances -  number of instances of the geometry along the parametric curve.
-        :return: Modified SDF.
+
+        Args:
+            f: Function defining the parametric curve.
+            f_parameters: Parameters of the function defining the parametric curve.
+            t_range: (t_start, t_end, n_instances):
+                t_start - initial value of the parameter t, which is feed into the parametric curve.
+                t_end - final value of the parameter t.
+                n_instances -  number of instances of the geometry along the parametric curve.
+        
+        Returns: 
+            Modified SDF.
         """
         self._mod.append("fully_aligned_parametric_curve_instancing")
 
@@ -985,13 +1104,17 @@ class ModifyObject:
                             modification_name: str = "custom") -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Applies a custom user-specified modification to a scalar (Signed Distance Function) field.
-        :param modification: A custom modification which takes the SDF as a first argument,
-        point cloud of coordinates at which the SDF is evaluated as the second argument,
-        parameters of the SDF as the third argument,
-        and the custom modification parameters as the fourth argument.
-        :param modification_parameters: Parameters of the custom modification.
-        :param modification_name: Name of the custom modification.
-        :return: Modified Scalar Field.
+
+        Args:
+            modification: A custom modification which takes the SDF as a first argument,
+                point cloud of coordinates at which the SDF is evaluated as the second argument,
+                parameters of the SDF as the third argument,
+                and the custom modification parameters as the fourth argument.
+            modification_parameters: Parameters of the custom modification.
+            modification_name: Name of the custom modification.
+
+        Returns:
+            Modified Scalar Field.
         """
         self._mod.append(modification_name)
         geo_object = self.geo_object
@@ -1005,9 +1128,13 @@ class ModifyObject:
     def sigmoid_falloff(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Applies a sigmoid to the scalar (Signed Distance Function) field.
-        :param amplitude: Maximum value of the transformed scalar field.
-        :param width: Width of the sigmoid.
-        :return: Modified Scalar Field.
+
+        Args:
+            amplitude: Maximum value of the transformed scalar field.
+            width: Width of the sigmoid.
+
+        Returns:
+            Modified Scalar Field.
         """
         self._pmod.append("sigmoid_falloff")
         geo_object = self.geo_object
@@ -1023,11 +1150,15 @@ class ModifyObject:
                                  amplitude: float | int,
                                  width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-       Applies a sigmoid, shifted to the positive velues by the value of the width parameter,
+        Applies a sigmoid, shifted to the positive velues by the value of the width parameter,
         to the scalar (Signed Distance Function) field.
-        :param amplitude: Maximum value of the transformed scalar field.
-        :param width: Width of the sigmoid.
-        :return: Modified Scalar Field.
+
+        Args:
+            amplitude: Maximum value of the transformed scalar field.
+            width: Width of the sigmoid.
+
+        Returns:
+            Modified Scalar Field.
         """
         self._mod.append("positive_sigmoid_falloff")
         geo_object = self.geo_object
@@ -1045,9 +1176,13 @@ class ModifyObject:
         """
         Applies a decreasing exponential functon to the scalar (Signed Distance Function) field.
         to the scalar (Signed Distance Function) field.
-        :param amplitude: Maximum value of the transformed scalar field.
-        :param width: Range at which the value of the transformed scalar field drops to almost zero.
-        :return: Modified Scalar Field.
+
+        Args:
+            amplitude: Maximum value of the transformed scalar field.
+            width: Range at which the value of the transformed scalar field drops to almost zero.
+
+        Returns:
+            Modified Scalar Field.
         """
         self._mod.append("capped_exponential")
         geo_object = self.geo_object
@@ -1063,8 +1198,12 @@ class ModifyObject:
         """
         Binarizes the Signed Distance field/pattern based on a threshold.
         Values below the threshold are 1 and values above are 0.
-        :param threshold: Binarization threshold.
-        :return: Modified Scalar Field.
+
+        Args:
+            threshold: Binarization threshold.
+
+        Returns:
+            Modified Scalar Field.
         """
         self._mod.append("hard_binarization")
         geo_object = self.geo_object
@@ -1079,9 +1218,13 @@ class ModifyObject:
     def linear_falloff(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Applies a decreasing linear function to the scalar (Signed Distance Function) field.
-        :param amplitude: Maximum value of the transformed scalar field.
-        :param width: Range at which the value of the transformed scalar field drops to zero.
-        :return: Modified Scalar Field.
+
+        Args:
+            amplitude: Maximum value of the transformed scalar field.
+            width: Range at which the value of the transformed scalar field drops to zero.
+
+        Returns:
+            Modified Scalar Field.
         """
         self._mod.append("linear_falloff")
         geo_object = self.geo_object
@@ -1096,8 +1239,12 @@ class ModifyObject:
     def relu(self, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Applies the ReLU function to the scalar (Signed Distance Function) field.
-        :param width: Range at which the value of the transformed field reaches one.
-        :return: Modified Scalar Field.
+
+        Args:
+            width: Range at which the value of the transformed field reaches one.
+
+        Returns:
+            Modified Scalar Field.
         """
         self._mod.append("relu")
         geo_object = self.geo_object
@@ -1114,13 +1261,17 @@ class ModifyObject:
         """
         Applies the "squareplus" function to the scalar (Signed Distance Function) field.
         https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
-        :param smooth_width: Distance from the origin at which the Smooth ReLU function
-        is greater than ReLU for less than the value of the threshold parameter.
-        :param width: Range at which the value of the transformed field reaches one.
-        :param threshold: At smooth_width distance from the origin the value of the Smooth ReLU function is greater
-        than ReLU for the value of the threshold parameter.
-        at smooth_width distance from the origin.
-        :return: Transformed scalar field.
+
+        Args:
+            smooth_width: Distance from the origin at which the Smooth ReLU function
+                is greater than ReLU for less than the value of the threshold parameter.
+            width: Range at which the value of the transformed field reaches one.
+            threshold: At smooth_width distance from the origin the value of the Smooth ReLU function is greater
+                than ReLU for the value of the threshold parameter.
+                at smooth_width distance from the origin.
+
+        Returns:
+            Transformed scalar field.
         """
         self._mod.append("smooth_relu")
         geo_object = self.geo_object
@@ -1138,13 +1289,17 @@ class ModifyObject:
                   ground: bool = True) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Applies the SlowStart function to the scalar (Signed Distance Function) field.
-        :param smooth_width: Distance from the origin at which the SlowStart function
-        is greater than ReLU for less than the value of the threshold parameter.
-        :param width: Range at which the value of the transformed field reaches one.
-        :param threshold: At smooth_width distance from the origin the value of the SlowStart function is greater
-        than ReLU for the value of the threshold parameter.
-        :param ground: if True the value of the function is zero at zero.
-        :return: Transformed scalar field.
+
+        Args:
+            smooth_width: Distance from the origin at which the SlowStart function
+                is greater than ReLU for less than the value of the threshold parameter.
+            width: Range at which the value of the transformed field reaches one.
+            threshold: At smooth_width distance from the origin the value of the SlowStart function is greater
+                than ReLU for the value of the threshold parameter.
+            ground: if True the value of the function is zero at zero.
+
+        Returns:
+            Transformed scalar field.
         """
 
         self._mod.append("slowstart")
@@ -1160,9 +1315,13 @@ class ModifyObject:
     def gaussian_boundary(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Applies the Gaussian to the scalar (Signed Distance Function) field.
-        :param amplitude: Maximum value of the transformed scalar field.
-        :param width: Range at which the value of the transformed scalar field drops to almost zero.
-        :return: Modified Scalar Field.
+
+        Args:
+            amplitude: Maximum value of the transformed scalar field.
+            width: Range at which the value of the transformed scalar field drops to almost zero.
+
+        Returns:
+            Modified Scalar Field.
         """
         self._mod.append("gaussian_boundary")
         geo_object = self.geo_object
@@ -1177,9 +1336,13 @@ class ModifyObject:
     def gaussian_falloff(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Applies the Gaussian to the positive values of the scalar (Signed Distance Function) field.
-        :param amplitude: Maximum value of the transformed scalar field (and points at which the scalar field was < 0).
-        :param width: Range at which the value of the transformed scalar field drops to almost zero.
-        :return: Modified Scalar Field.
+
+        Args:
+            amplitude: Maximum value of the transformed scalar field (and points at which the scalar field was < 0).
+            width: Range at which the value of the transformed scalar field drops to almost zero.
+
+        Returns:
+            Modified Scalar Field.
         """
         self._mod.append("gaussian_falloff")
         geo_object = self.geo_object
@@ -1197,11 +1360,15 @@ class ModifyObject:
                        co_resolution: tuple) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Averages the field using an averaging convolutional kernel of the specified size.
-        :param kernel_size: Size of the averaging kernel. Must be an integer or a tuple/array of the
-        same dimension as the scaler field.
-        :param iterations: Number of times the convolutional averaging is applied to the input scalar field.
-        :param co_resolution: Resolution of the coordinate system.
-        :return: Modified Scalar Field.
+
+        Args:
+            kernel_size: Size of the averaging kernel. Must be an integer or a tuple/array of the
+                same dimension as the scaler field.
+            iterations: Number of times the convolutional averaging is applied to the input scalar field.
+            co_resolution: Resolution of the coordinate system.
+
+        Returns:
+            Modified Scalar Field.
         """
         self._mod.append("conv_averaging")
         geo_object = self.geo_object
@@ -1219,8 +1386,12 @@ class ModifyObject:
                             co_resolution: tuple) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Edge detection based ona 3x3 convolutional kernel.
-        :param co_resolution: Resolution of the coordinate system.
-        :return: Modified Scalar Field.
+
+        Args:
+            co_resolution: Resolution of the coordinate system.
+
+        Returns:
+            Modified Scalar Field.
         """
         self._mod.append("conv_edge_detection")
         geo_object = self.geo_object
@@ -1239,11 +1410,15 @@ class ModifyObject:
                             post_process_name: str = "custom") -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Applies a custom user-specified post-processing function to a scalar (Signed Distance Function) field.
-        :param function: A custom post-processing function which takes the SDF as a first argument
-        and the parameters of the function as the next arguments.
-        :param parameters: Parameters of the custom post-processing function.
-        :param post_process_name: Name of the custom post-processing function.
-        :return: Modified Scalar Field.
+
+        Args:
+            function: A custom post-processing function which takes the SDF as a first argument
+                and the parameters of the function as the next arguments.
+            parameters: Parameters of the custom post-processing function.
+            post_process_name: Name of the custom post-processing function.
+
+        Returns:
+             Modified Scalar Field.
         """
         self._mod.append(post_process_name)
         geo_object = self.geo_object
@@ -1257,21 +1432,28 @@ class ModifyObject:
 
 
 class ModifyVectorObject:
+    """Class containing all the possible modifications which can be applied to a vector field.
+
+        Attributes:
+            original_vf: Original vector field.
+            vf: Modified vector field.
+
+        Args:
+            vf: Vector field.
+        """
 
     def __init__(self, vf: Callable[[np.ndarray, tuple], np.ndarray]):
-        """
-        Class containing all the modifications, which can be applied to a vector field.
-        :param vf: SDF of a geometry.
-        """
-        self._mod = []
-        self.original_vf = vf
-        self.vf = vf
+        self._mod: list = []
+        self.original_vf: Callable[[np.ndarray, tuple], np.ndarray] = vf
+        self.vf: Callable[[np.ndarray, tuple], np.ndarray] = vf
 
     @property
     def modifications(self) -> list:
         """
         All the modifications which were applied to the vector field in chronological order.
-        :return: List of modifications.
+
+        Returns:
+            List of modifications.
         """
         return self._mod
 
@@ -1279,7 +1461,9 @@ class ModifyVectorObject:
     def modified_object(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Modified vector field.
-        :return: Modified vector field.
+
+        Returns:
+            Modified vector field.
         """
         return self.vf
 
@@ -1287,15 +1471,21 @@ class ModifyVectorObject:
     def original_object(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Unmodified vector field.
-        :return: Unmodified vector field.
+
+        Returns:
+            Unmodified vector field.
         """
         return self.original_vf
 
     def add(self, second_field: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Adds a number, vector, or a vector field of the same shape to the vector field.
-        :param second_field: a number, vector, or a vector field to be added.
-        :return: Modified vector field.
+
+        Args:
+            second_field: a number, vector, or a vector field to be added.
+
+        Returns:
+            Modified vector field.
         """
         self._mod.append("add")
 
@@ -1310,8 +1500,12 @@ class ModifyVectorObject:
     def subtract(self, second_field: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Subtracts a number, vector, or a vector field of the same shape to the vector field.
-        :param second_field: a number, vector, or a vector field to be subtracted.
-        :return: Modified vector field.
+
+        Args:
+            second_field: a number, vector, or a vector field to be subtracted.
+
+        Returns:
+            Modified vector field.
         """
         self._mod.append("subtract")
 
@@ -1326,8 +1520,12 @@ class ModifyVectorObject:
     def rescale(self, second_field: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Rescales the lengths of vectors in the vector field by a number, vector, or a vector field of the same shape.
-        :param second_field: a number, vector, or a vector field used for rescaling.
-        :return: Modified vector field.
+
+        Args:
+            second_field: a number, vector, or a vector field used for rescaling.
+
+        Returns:
+            Modified vector field.
         """
         self._mod.append("rescale")
 
@@ -1342,8 +1540,12 @@ class ModifyVectorObject:
     def rotate_phi(self, phi: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Rotates vectors in a 3D vector field by some azimuthal angle.
-        :param phi: Spatially dependent or independent angle by which to rotate the vectors in the xy-plane.
-        :return: Modified vector field.
+
+        Args:
+            phi: Spatially dependent or independent angle by which to rotate the vectors in the xy-plane.
+                                  
+        Returns:
+            Modified vector field.
         """
         self._mod.append("rotate_phi")
 
@@ -1358,8 +1560,12 @@ class ModifyVectorObject:
     def rotate_theta(self, theta: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Rotates vectors in a 3D vector field by some polar angle.
-        :param theta: Spatially dependent or independent angle by which to rotate the vectors in the polar direction.
-        :return: Modified vector field.
+
+        Args:
+            theta: Spatially dependent or independent angle by which to rotate the vectors in the polar direction.
+                                  
+        Returns:
+            Modified vector field.
         """
         self._mod.append("rotate_theta")
 
@@ -1374,8 +1580,12 @@ class ModifyVectorObject:
     def rotate_x(self, alpha: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Rotates vectors in a 3D vector field by some angle.
-        :param alpha: Spatially dependent or independent angle by which to rotate the vectors around the x axis.
-        :return: Modified vector field.
+
+        Args:
+            alpha: Spatially dependent or independent angle by which to rotate the vectors around the x axis.
+                                  
+        Returns:
+            Modified vector field.
         """
         self._mod.append("rotate_x")
 
@@ -1390,8 +1600,12 @@ class ModifyVectorObject:
     def rotate_y(self, alpha: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Rotates vectors in a 3D vector field by some angle.
-        :param alpha: Spatially dependent or independent angle by which to rotate the vectors around the y axis.
-        :return: Modified vector field.
+
+        Args:
+            alpha: Spatially dependent or independent angle by which to rotate the vectors around the y axis.
+                                  
+        Returns:
+            Modified vector field.
         """
         self._mod.append("rotate_y")
 
@@ -1406,8 +1620,12 @@ class ModifyVectorObject:
     def rotate_z(self, alpha: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Rotates vectors in a 3D vector field by some angle.
-        :param alpha: Spatially dependent or independent angle by which to rotate the vectors around the z axis.
-        :return: Modified vector field.
+
+        Args:
+            alpha: Spatially dependent or independent angle by which to rotate the vectors around the z axis.
+                                  
+        Returns:
+            Modified vector field.
         """
         self._mod.append("rotate_z")
 
@@ -1424,9 +1642,13 @@ class ModifyVectorObject:
                     alpha: int | float | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Rotates vectors in a 3D vector field by some angle around some axis.
-        :param axis: A single or an array exes around which the vectors in the vector field will be rotated.
-        :param alpha: Spatially dependent or independent angle by which to rotate the vectors around the specified axis.
-        :return: Modified vector field.
+
+        Args:
+            axis: A single or an array exes around which the vectors in the vector field will be rotated.
+            alpha: Spatially dependent or independent angle by which to rotate the vectors around the specified axis.
+                                  
+        Returns:
+            Modified vector field.
         """
         self._mod.append("rotate_axis")
 
@@ -1441,8 +1663,12 @@ class ModifyVectorObject:
     def revolution_x(self, co: np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Revolves a 2D vector field around the x-axis to generate a 3D vector field.
-        :param co: Coordinate system with shape (3, N).
-        :return: Modified vector field.
+
+        Args:
+            co: Coordinate system with shape (3, N).
+                                  
+        Returns:
+            Modified vector field.
         """
         self._mod.append("revolution_x")
 
@@ -1458,8 +1684,12 @@ class ModifyVectorObject:
     def revolution_y(self, co: np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Revolves a 2D vector field around the y-axis to generate a 3D vector field.
-        :param co: Coordinate system with shape (3, N).
-        :return: Modified vector field.
+
+        Args:
+            co: Coordinate system with shape (3, N).
+                                  
+        Returns:
+            Modified vector field.
         """
         self._mod.append("revolution_y")
 
@@ -1474,8 +1704,12 @@ class ModifyVectorObject:
     def revolution_z(self, co: np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Revolves a 2D vector field around the z-axis to generate a 3D vector field.
-        :param co: Coordinate system with shape (3, N).
-        :return: Modified vector field.
+
+        Args:
+            co: Coordinate system with shape (3, N).
+                                  
+        Returns:
+            Modified vector field.
         """
         self._mod.append("revolution_z")
 
@@ -1490,7 +1724,9 @@ class ModifyVectorObject:
     def normalize(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Normalizes the vector field.
-        :return: Modified vector field.
+                                  
+        Returns:
+            Modified vector field.
         """
         self._mod.append("normalize")
 

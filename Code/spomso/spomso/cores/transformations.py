@@ -10,38 +10,77 @@ from typing import Callable
 
 
 class EuclideanTransform:
+    """
+    Class containing the Euclidian transforms which can be applied to a geometry.
+    """
 
     def __init__(self):
-        """
-        Class containing the Euclidian transforms, which can be applied to the geometry.
-        """
-        self._et = []
-        self._center = np.asarray((0.0,0.0,0.0))
-        self._scale = 1.0
-        self._rot_matrix = np.eye(3)
-        self._angle = 0.0
-        self._axis = np.asarray((0.0, 0.0, 1.0))
+        self._et: list = []
+        self._center: np.ndarray | tuple | list = np.asarray((0.0,0.0,0.0))
+        self._scale: float | int = 1.0
+        self._rot_matrix: np.ndarray = np.eye(3)
+        self._angle: float | int = 0.0
+        self._axis: np.ndarray | tuple | list = np.asarray((0.0, 0.0, 1.0))
 
     @property
-    def transformations(self):
+    def transformations(self) -> list:
+        """All the Euclidian transformations which were applied to the geometry in chronological order.
+
+        Returns:
+            List of Euclidian transformations.
+        """
         return self._et
 
     @property
-    def center(self):
+    def center(self) -> np.ndarray | tuple | list:
+        """Center of mass of the geometry.
+
+        Returns:
+            Position vector of the center of mass of the geometry.
+        """
         return self._center
 
     @property
-    def scale(self):
+    def scale(self) -> float | list:
+        """Scale factor of the geometry.
+
+        Returns:
+            Scale factor.
+        """
         return self._scale
 
     @property
-    def rotation_matrix(self):
+    def rotation_matrix(self) -> np.ndarray:
+        """Rotation matrix applied to the geometry.
+
+        Returns:
+            Rotation matrix (3, 3).
+        """
         return self._rot_matrix
 
-    def set_location(self, center: np.ndarray | tuple | list):
+    @property
+    def rotation_axis(self) -> np.ndarray | tuple | list:
+        """Vector representing the axis of rotation.
+
+        Returns:
+            Axis of rotation.
         """
-        Set the position of the geometry in 3D space.
-        :param center: 3vector which defines the new position of the geometry.
+        return self._axis
+
+    @property
+    def rotation_angle(self) -> float | int:
+        """Angle by which the geometry is rotated around the axis of rotation.
+
+        Returns:
+           Angle of rotation.
+        """
+        return self._angle
+
+    def set_location(self, center: np.ndarray | tuple | list):
+        """Set the position of the geometry in 3D space.
+        
+        Args:
+            center: 3vector which defines the new position of the geometry.
         """
         self._et.append("set_location")
 
@@ -54,7 +93,9 @@ class EuclideanTransform:
     def move(self, move_vector: np.ndarray | tuple | list):
         """
         Move the geometry by a vector.
-        :param move_vector: 3vector by which the geometry is moved.
+        
+        Args:
+            move_vector: 3vector by which the geometry is moved.
         """
         self._et.append("move")
 
@@ -67,7 +108,9 @@ class EuclideanTransform:
     def set_scale(self, scale: float | int):
         """
         Sets the scaling of the geometry.
-        :param scale: Scaling factor.
+        
+        Args:
+            scale: Scaling factor.
         """
         self._et.append("set_scale")
 
@@ -79,7 +122,9 @@ class EuclideanTransform:
     def rescale(self, scale: float | int):
         """
         Multiplies the existing scaling of the geometry by the scale factor.
-        :param scale: Scale factor.
+        
+        Args:
+            scale: Scale factor.
         """
         self._et.append("rescale")
 
@@ -89,12 +134,16 @@ class EuclideanTransform:
             raise TypeError("Scale must be a float or an int")
 
     @staticmethod
-    def get_rotation_matrix(angle: float | int, axis: np.ndarray | tuple | list):
+    def get_rotation_matrix(angle: float | int, axis: np.ndarray | tuple | list) -> tuple:
         """
         Get the rotation matrix from the rotation angle and axis of rotation.
-        :param angle: Angle of rotation.
-        :param axis: Axis of rotation.
-        :return: Rotation matrix (3, 3).
+        
+        Args:
+            angle: Angle of rotation.
+            axis: Axis of rotation.
+        
+        Returns:
+            Rotation matrix (3, 3).
         """
         axis = np.asarray(axis)
         if axis.size <= 3:
@@ -114,8 +163,10 @@ class EuclideanTransform:
     def set_rotation(self, angle: float | int, axis: np.ndarray | tuple | list):
         """
         Sets the rotation matrix from the rotation angle and axis.
-        :param angle: Angle of rotation.
-        :param axis: Axis of rotation.
+        
+        Args:
+            angle: Angle of rotation.
+            axis: Axis of rotation.
         """
         self._et.append("set_rotation")
 
@@ -124,9 +175,11 @@ class EuclideanTransform:
     def rotate_rotvec(self, angle: float | int, axis: np.ndarray | tuple | list):
         """
         Multiplies the previous existing rotation matrix by a rotation matrix calculated
-        from the rotation angle and axis of rotation.
-        :param angle: Angle of rotation.
-        :param axis: Axis of rotation.
+        from the angle and axis of rotation.
+        
+        Args:
+            angle: Angle of rotation.
+            axis: Axis of rotation.
         """
         de = np.array_equal(axis, np.zeros(3)[:axis.size])
         if de:
@@ -140,7 +193,9 @@ class EuclideanTransform:
     def rotate_matrix(self, rotation_matrix: np.ndarray | tuple | list):
         """
         Multiplies the previous existing rotation matrix by a given rotation matrix.
-        :param rotation_matrix: Rotation matrix (3, 3).
+        
+        Args:
+            rotation_matrix: Rotation matrix (3, 3).
         """
         self._rot_matrix = np.matmul(rotation_matrix, self._rot_matrix)
 
@@ -154,8 +209,10 @@ class EuclideanTransform:
 
     def rotate(self, *inputs: np.ndarray | tuple):
         """
-        Rotates by a rotation matrix or a rotation vector.
-        :param inputs: Rotation metrix or angle and axis vector.
+        Rotates the geometry by a rotation matrix or a rotation vector.
+        
+        Args:
+            inputs: Rotation metrix or angle and axis vector.
         """
         self._et.append("rotate")
 
@@ -173,10 +230,10 @@ class EuclideanTransform:
             raise SyntaxError("Wrong number of inputs!")
 
     @staticmethod
-    def apply_ec_transforms(function_: Callable[[np.ndarray, tuple], tuple],
+    def apply_ec_transforms(function_: Callable[[np.ndarray, tuple], np.ndarray],
                             co_: np.ndarray,
                             params_: tuple,
-                            rm: np.ndarray, tm: np.ndarray, sm: float | int):
+                            rm: np.ndarray, tm: np.ndarray, sm: float | int) -> np.ndarray:
         rm = rm.T
         co = rm.dot(co_)
         co = co/sm
@@ -184,55 +241,101 @@ class EuclideanTransform:
 
         return sm*function_(co, *params_)
 
-    def apply(self, function_: Callable[[np.ndarray, tuple], tuple], co_: np.ndarray, params_: tuple):
+    def apply(self,
+              function_: Callable[[np.ndarray, tuple], np.ndarray],
+              co_: np.ndarray,
+              params_: tuple) -> np.ndarray:
         """
         Apply the transformations to the geometry (SDF).
-        :param function_: SDF
-        :param co_:  Point cloud of coordinates (D, N);
-        D - number of dimensions (2 or 3);
-        N - number of points in the point cloud.
-        :param params_: Parameters of the SDF.
-        :return: Signed Distance field as a numpy.ndarray of shape (N,).
+        
+        Args:
+            function_: Original SDF
+            co_:  Point cloud of coordinates with shape (D, N);
+                D - number of dimensions (2 or 3);
+                N - number of points in the point cloud.
+            params_: Parameters of the SDF.
+        
+        Returns:
+            Signed Distance field of shape (N,).
         """
         return self.apply_ec_transforms(function_, co_, params_,
-                                     self.rotation_matrix,
-                                     self.center,
-                                     self.scale)
+                                        self.rotation_matrix,
+                                        self.center,
+                                        self.scale)
 
 
 class EuclideanTransformPoints:
+    """
+    Class containing the Euclidian transforms which can be applied to a point cloud.
+    """
 
     def __init__(self):
-        """
-        Class containing the Euclidian transforms, which can be applied to a point cloud.
-        """
-        self._et = []
-        self._center = np.zeros(3)
-        self._scale = np.ones(3)
-        self._rot_matrix = np.eye(3)
-        self._angle = 0.0
-        self._axis = np.asarray((0.0, 0.0, 1.0))
+        self._et: list = []
+        self._center: np.ndarray | tuple | list = np.asarray((0.0, 0.0, 0.0))
+        self._scale: np.ndarray | tuple | list | float | int = 1.0
+        self._rot_matrix: np.ndarray = np.eye(3)
+        self._angle: float | int = 0.0
+        self._axis: np.ndarray | tuple | list = np.asarray((0.0, 0.0, 1.0))
 
     @property
-    def transformations(self):
+    def transformations(self) -> list:
+        """All the Euclidian transformations which were applied to the point cloud in chronological order.
+
+        Returns:
+            List of Euclidian transformations.
+        """
         return self._et
 
     @property
-    def center(self):
+    def center(self) -> np.ndarray | tuple | list:
+        """Center of mass of the point cloud.
+
+        Returns:
+            Position vector of the center of mass of the point cloud.
+        """
         return self._center
 
     @property
-    def scale(self):
+    def scale(self) -> np.ndarray | tuple | list | float | int:
+        """Scale factors of the point cloud.
+
+        Returns:
+            Scale factor.
+        """
         return self._scale
 
     @property
-    def rotation_matrix(self):
+    def rotation_matrix(self) -> np.ndarray:
+        """Rotation matrix applied to the point cloud.
+
+        Returns:
+            Rotation matrix (3, 3).
+        """
         return self._rot_matrix
 
-    def set_location(self, center: np.ndarray | tuple | list):
+    @property
+    def rotation_axis(self) -> np.ndarray | tuple | list:
+        """Vector representing the axis of rotation.
+
+        Returns:
+            Axis of rotation.
         """
-        Set the position of the geometry in 3D space.
-        :param center: 3vector which defines the new position of the geometry.
+        return self._axis
+
+    @property
+    def rotation_angle(self) -> float | int:
+        """Angle by which the point cloud is rotated around the axis of rotation.
+
+        Returns:
+           Angle of rotation.
+        """
+        return self._angle
+
+    def set_location(self, center: np.ndarray | tuple | list):
+        """Set the position of the point cloud in 3D space.
+        
+        Args:
+            center: 3vector which defines the new position of the point cloud.
         """
         self._et.append("set_location")
 
@@ -244,8 +347,10 @@ class EuclideanTransformPoints:
 
     def move(self, move_vector: np.ndarray | tuple | list):
         """
-        Move the geometry by a vector.
-        :param move_vector: 3vector by which the geometry is moved.
+        Move the point cloud by a vector.
+        
+        Args:
+            move_vector: 3vector by which the point cloud is moved.
         """
         self._et.append("move")
 
@@ -257,8 +362,10 @@ class EuclideanTransformPoints:
 
     def set_scale(self, scale: np.ndarray | tuple | list | float | int):
         """
-        Sets the scaling of the geometry.
-        :param scale: Scaling factors.
+        Sets the scaling of the point cloud.
+        
+        Args:
+            scale: Scaling factors.
         """
         self._et.append("set_scale")
 
@@ -274,8 +381,10 @@ class EuclideanTransformPoints:
 
     def rescale(self, scale: np.ndarray | tuple | list | float | int):
         """
-        Multiplies the existing scaling of the geometry by the scale factors.
-        :param scale: Scale factors.
+        Multiplies the existing scaling of the point cloud by the scale factors.
+        
+        Args:
+            scale: Scale factors.
         """
         self._et.append("rescale")
 
@@ -287,12 +396,16 @@ class EuclideanTransformPoints:
             raise TypeError("Wrong data type, try a 3vector (np.ndarray, tuple, list) or a scalar.")
 
     @staticmethod
-    def get_rotation_matrix(angle: float | int, axis: np.ndarray | tuple | list):
+    def get_rotation_matrix(angle: float | int, axis: np.ndarray | tuple | list) -> tuple:
         """
         Get the rotation matrix from the rotation angle and axis of rotation.
-        :param angle: Angle of rotation.
-        :param axis: Axis of rotation.
-        :return: Rotation matrix (3, 3).
+        
+        Args:
+            angle: Angle of rotation.
+            axis: Axis of rotation.
+        
+        Returns:
+            Rotation matrix (3, 3).
         """
         axis = np.asarray(axis)
         if axis.size <= 3:
@@ -312,8 +425,10 @@ class EuclideanTransformPoints:
     def set_rotation(self, angle: float | int, axis: np.ndarray | tuple | list):
         """
         Sets the rotation matrix from the rotation angle and axis.
-        :param angle: Angle of rotation.
-        :param axis: Axis of rotation.
+        
+        Args:
+            angle: Angle of rotation.
+            axis: Axis of rotation.
         """
         self._et.append("set_rotation")
 
@@ -323,8 +438,10 @@ class EuclideanTransformPoints:
         """
         Multiplies the previous existing rotation matrix by a rotation matrix calculated
         from the rotation angle and axis of rotation.
-        :param angle: Angle of rotation.
-        :param axis: Axis of rotation.
+        
+        Args:
+            angle: Angle of rotation.
+            axis: Axis of rotation.
         """
         de = np.array_equal(axis, np.zeros(3)[:axis.size])
         if de:
@@ -338,7 +455,9 @@ class EuclideanTransformPoints:
     def rotate_matrix(self, rotation_matrix: np.ndarray | tuple | list):
         """
         Multiplies the previous existing rotation matrix by a given rotation matrix.
-        :param rotation_matrix: Rotation matrix (3, 3).
+        
+        Args:
+            rotation_matrix: Rotation matrix (3, 3).
         """
         self._rot_matrix = np.matmul(rotation_matrix, self._rot_matrix)
 
@@ -353,7 +472,9 @@ class EuclideanTransformPoints:
     def rotate(self, *inputs: np.ndarray | tuple):
         """
         Rotates by a rotation matrix or a rotation vector.
-        :param inputs: Rotation metrix or angle and axis vector.
+        
+        Args:
+            inputs: Rotation metrix or angle and axis vector.
         """
         self._et.append("rotate")
 
@@ -372,7 +493,7 @@ class EuclideanTransformPoints:
 
     @staticmethod
     def apply_ec_transforms(points_: np.ndarray,
-                            rm: np.ndarray, tm: np.ndarray, sm: np.ndarray):
+                            rm: np.ndarray, tm: np.ndarray, sm: np.ndarray) -> np.ndarray:
 
         co = np.multiply(points_.T, sm).T
         rm = rm.T
@@ -381,13 +502,17 @@ class EuclideanTransformPoints:
 
         return co
 
-    def apply(self, points_: np.ndarray):
+    def apply(self, points_: np.ndarray) -> np.ndarray:
         """
-        Apply the transformations to the geometry (SDF).
-        :param points_: Point cloud as a np.ndarray of shape (D, N)
-        :return: Transformed point cloud as a np.ndarray of shape (D, N).
+        Apply the transformations to the point cloud.
+        
+        Args:
+            points_: Point cloud of shape (D, N)
+        
+        Returns:
+            Transformed point cloud of shape (D, N).
         """
         return self.apply_ec_transforms(points_,
-                                     self.rotation_matrix,
-                                     self.center,
-                                     self.scale)
+                                        self.rotation_matrix,
+                                        self.center,
+                                        self.scale)
