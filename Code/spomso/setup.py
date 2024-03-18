@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '1.2.0'
+VERSION = '1.2.1'
 DESCRIPTION = 'SPOMSO'
 LONG_DESCRIPTION = 'Python package for generating geometry with SDFs.'
 
@@ -12,16 +12,14 @@ setup(
     author_email="<peter.ropac@fmf.uni-lj.si>",
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    url='https://github.com/peterropac/SPOMSO/tree/master/Code',
+    url='https://github.com/peterropac/Aegolius/tree/main',
     packages=find_packages(),
     install_requires=['numpy', 'scipy'],
     keywords=['python', 'geometry'],
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Education",
         "Programming Language :: Python :: 3",
-        "Operating System :: MacOS :: MacOS X",
-        "Operating System :: Linux :: Ubuntu",
-        "Operating System :: Microsoft :: Windows",
+        "Operating System :: OS Independent",
     ]
 )
