@@ -70,7 +70,7 @@ coordinates = np.asarray(coordinates).T
 
 # create a point cloud object
 points = Points(coordinates)
-# create a SDF from the point cloud
+# create an SDF from the point cloud
 point_cloud = PointCloud2D(points.cloud)
 
 # evaluate the SDF to create a signed distance field 2D map

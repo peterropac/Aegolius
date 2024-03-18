@@ -1,19 +1,22 @@
+import os
 
+import numpy as np
 import matplotlib.pyplot as plt
-
+from PIL import Image
+from pathlib import Path
 from time import process_time
 
-from spomso.cores.helper_functions import generate_grid, smarter_reshape
-from spomso.cores.post_processing import hard_binarization
-from spomso.cores.geom_2d import SegmentedParametricCurve, SegmentedLine
+from spomso.cores.helper_functions import generate_grid, smarter_reshape, hard_binarization
+from spomso.cores.geom_2d import PointCloud2D
+from spomso.cores.geom import Points
 
 # ----------------------------------------------------------------------------------------------------------------------
 # PARAMETERS
 
 # size of the volume
-co_size = 4, 6
+co_size = 4, 4
 # resolution of the volume
-co_resolution = 400, 600
+co_resolution = 400, 400
 
 show = "FIELD" # BINARY, FIELD
 show_midplane = True
@@ -27,57 +30,48 @@ coor, co_res_new = generate_grid(co_size, co_resolution)
 
 start_time = process_time()
 
-# there are two ways how to evaluate a segmented line
-# the parametric approach allows us to calculate the SDF for only a section of the segmented line
-# with the non-parametric approach the SDF will be calculated for the whole segmented line
-parametric_evaluate = True
+# import an image from a directory and convert the image to greyscale
+image_file_name = "dilation_erosion.png"
+spomso_dir = Path(os.getcwd()).resolve().parents[2]
+image_path = os.path.join(spomso_dir, "Files", "test_images", image_file_name)
+image = Image.open(image_path).convert("LA")
 
-# create a polygon from the closed segmented line
-polygon = True
+# display the greyscale image
+plt.imshow(image, cmap="binary_r")
+plt.show()
 
-points = [[-1, -2, 0], [1, 2, 0], [-1, 2, 0],  [1, -2, 0]]
+# create a point cloud object
+points = Points([])
+# extract the point cloud from the greyscale image (first parameter)
+# all the pixels in the image with a brightness value below the binary threshold (third parameter)
+# are included in the point cloud
+# and the positions of the points are calculated from the specified image size (second parameter)
+points.from_image(image, (3, 1.5), binary_threshold=0.5)
+cloud = points.cloud
 
-# create a segmented line from the points. The line is closed on itself by setting closed=True.
-if parametric_evaluate:
-    spc = SegmentedParametricCurve(points, (0, 4, 200), closed=True)
-# or
-else:
-    spc = SegmentedLine(points, closed=True)
+# create an SDF from the point cloud
+final = PointCloud2D(cloud)
+# give the lines a thickness of 0.01
+final.onion(0.01)
 
-# create a polygon
-# this only works if the line is closed and has zero thickness
-if polygon:
-    spc.polygon()
-
-# to get the sign of an SDF:
-# spc_sign = spc.sign(direct=True)
-# the line can be recovered with:
-# spc.boundary()
-
-# the interior can be recovered with a function:
-# spc.recover_volume(spc_sign)
-
-# the interior can be redefined with a function:
-# spc.define_volume(some_sign_function, some_sign_function_parameters)
-
-# thicken the line to a thickness of 0.1 to create a shape
-if not polygon:
-    spc.rounding(0.1)
-
-# evaluate the SDF of the segmented line to create a signed distance field 2d map
-segmented_line_pattern = spc.create(coor)
+# evaluate the SDF of the geometry to create a signed distance field 2D map
+final_pattern = final.create(coor)
 
 end_time = process_time()
 print("Evaluation Completed in {:.2f} seconds".format(end_time-start_time))
 
 # ----------------------------------------------------------------------------------------------------------------------
 # BINARIZATION
-# distance field to a binary voxel map, where 1 corresponds to the interior and 0 to the exterior of the geometry.
+# Convert the distance field to a binary voxel map
+# where 1 corresponds to the interior and 0 to the exterior of the geometry.
 
 if show_midplane:
-    field = smarter_reshape(segmented_line_pattern, co_resolution)
+    field = smarter_reshape(final_pattern, co_resolution)
     if show=="BINARY":
         pattern_2d = hard_binarization(field, 0)
+
+if show=="BINARY":
+    pattern = hard_binarization(final_pattern, 0)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # PLOT
@@ -85,7 +79,7 @@ if show_midplane:
 print("Drawing results...")
 # Mid-plane cross-section plot
 if show_midplane and show=="BINARY":
-    fig, ax = plt.subplots(1,1, figsize=(8.25, 8.25))
+    fig, ax = plt.subplots(1, 1, figsize=(8.25, 8.25))
     ax.imshow(pattern_2d[:, :].T,
               cmap="binary_r",
               extent=(-co_size[0]/2, co_size[0]/2,
@@ -109,20 +103,11 @@ if show_midplane and show == "FIELD":
     cs = ax.contour(coor[0].reshape(co_res_new[0], co_res_new[1]),
                     coor[1].reshape(co_res_new[0], co_res_new[1]),
                     field[:, :],
-                    cmap="plasma_r")
+                    cmap="plasma_r",
+                    linewidths=2)
     ax.clabel(cs, inline=True, fontsize=10)
     ax.grid()
-
     fig.tight_layout()
     plt.show()
-
-
-
-
-
-
-
-
-
 
 
