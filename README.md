@@ -45,7 +45,7 @@ For each of the examples there is both a *python script (.py)* version and an *i
 
 ## Install
 
-See `aegolius_install.ipynb` in [Code/examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples).
+See `aegolius_install.ipynb` in the [Examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples).
 
 
 ## Future developments
@@ -60,10 +60,7 @@ I kindly request that you cite the latest archived repository of Aegolius (SPOMS
 
 ## Documentation
 
-Official website with the documentation TO BE ADDED.
-
-[//]: # (See the [manual on readthedocs]&#40;&#41; for the latest documentation.)
-
+Official website with the [Documentation](https://aegolius.readthedocs.io/en/latest/).
 
 ## Acknowledgements
 
