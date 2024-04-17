@@ -40,7 +40,7 @@ class GenericGeometry(EuclideanTransform, ModifyObject):
             Signed Distance Field of shape (N,).
         """
         self._sdf = self.modified_object
-        return self.apply(self._sdf, co, self.geo_parameters)
+        return self.apply(self._sdf, co, self._geo_parameters)
 
     def propagate(self, co: np.ndarray, *parameters_: tuple) -> np.ndarray:
         """
@@ -57,7 +57,7 @@ class GenericGeometry(EuclideanTransform, ModifyObject):
             Signed Distance Field of shape (N,).
         """
         self._sdf = self.modified_object
-        return self.apply(self._sdf, co, self.geo_parameters)
+        return self.apply(self._sdf, co, self._geo_parameters)
 
     def point_cloud(self, co: np.ndarray) -> np.ndarray:
         """Creates a point cloud from the interior points of the SDF.
