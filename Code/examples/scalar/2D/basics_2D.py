@@ -17,7 +17,7 @@ co_size = 4, 4
 co_resolution = 400, 400
 
 show = "FIELD" # BINARY, FIELD
-show_midplane = False
+show_midplane = True
 
 # ----------------------------------------------------------------------------------------------------------------------
 # COORDINATE SYSTEM
