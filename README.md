@@ -39,7 +39,7 @@ This python package is intended for procedural construction of geometry and vect
 
 ## Examples
 
-There are 24 [2D examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/2D) and 16 [3D examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/3D) showing how to construct geometry and use many of the features included in SPOMSO.
+There are 25 [2D examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/2D) and 16 [3D examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/3D) showing how to construct geometry and use many of the features included in SPOMSO.
 There are 5 [Vector examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/vector) showing how to construct and manipulate vector fields.
 For each of the examples there is both a *python script (.py)* version and an *interactive python notebook (.ipynb)* version.
 
