@@ -50,7 +50,7 @@ circles = union.combine(non_euclidian_circle_1,
                         non_euclidian_circle_3,
                         non_euclidian_circle_4)
 
-# evaluate the SDF of the rectangle to create a signed distance field 2D map
+# evaluate the SDF of the non-euclidian circle to create a signed distance field 2D map
 pattern = circles.create(coor)
 
 end_time = process_time()
