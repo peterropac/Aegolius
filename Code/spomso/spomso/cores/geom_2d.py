@@ -69,7 +69,7 @@ class NEUCircle(GenericGeometry):
 
     @property
     def order(self) -> float | int:
-        """Order of the circle."""
+        """Order of the norm."""
         return self._order
 
 
