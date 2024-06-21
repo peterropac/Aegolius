@@ -54,7 +54,7 @@ class NEUCircle(GenericGeometry):
 
     Args:
         radius: Radius of the circle.
-        order: Order of the circle.
+        order: Order of the norm.
     """
 
     def __init__(self, radius: float | int, order: float | int):
