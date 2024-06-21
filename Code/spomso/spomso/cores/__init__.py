@@ -22,8 +22,10 @@ from .sdf_2D import sdf_circle, sdf_segment_2d, sdf_box_2d, sdf_rounded_box_2d, 
 from .sdf_2D import sdf_arc, sdf_sector, sdf_inf_sector, sdf_ngon
 from .sdf_2D import sdf_segmented_curve_2d, sdf_segmented_line_2d, sdf_parametric_curve_2d
 from .sdf_2D import sdf_point_cloud_2d
+from .sdf_2D import sdf_neu_circle
 
-from .geom_2d import Circle, NGon, Rectangle, RoundedRectangle, Segment, Triangle, Sector, InfiniteSector, Arc
+from .geom_2d import Circle, NEUCircle, NGon, Rectangle, RoundedRectangle
+from .geom_2d import Segment, Triangle, Sector, InfiniteSector, Arc
 from .geom_2d import ParametricCurve, SegmentedParametricCurve, SegmentedLine
 from .geom_2d import PointCloud2D
 

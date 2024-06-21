@@ -15,6 +15,11 @@ def sdf_circle(co, radius):
     return length - radius
 
 
+def sdf_neu_circle(co, radius, norm):
+    length = np.linalg.norm(co[:2], axis=0, ord=norm)
+    return length - radius
+
+
 def sdf_box_2d(co, size):
     d = np.subtract(np.abs(co[:2, :]).T, size).T
 

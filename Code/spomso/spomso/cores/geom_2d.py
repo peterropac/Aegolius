@@ -9,7 +9,7 @@ from typing import Callable
 from spomso.cores.geom import GenericGeometry
 from spomso.cores.transformations import EuclideanTransform
 from spomso.cores.modifications import ModifyObject
-from spomso.cores.sdf_2D import sdf_circle, sdf_box_2d, sdf_segment_2d, sdf_triangle_2d, sdf_rounded_box_2d
+from spomso.cores.sdf_2D import sdf_circle, sdf_neu_circle, sdf_box_2d, sdf_segment_2d, sdf_triangle_2d, sdf_rounded_box_2d
 from spomso.cores.sdf_2D import sdf_sector, sdf_inf_sector, sdf_sector_old, sdf_ngon, sdf_arc
 from spomso.cores.sdf_2D import sdf_parametric_curve_2d, sdf_segmented_curve_2d, sdf_segmented_line_2d
 from spomso.cores.sdf_2D import sdf_point_cloud_2d
@@ -47,6 +47,30 @@ class Circle(GenericGeometry):
     def radius(self) -> float | int:
         """Radius of the circle."""
         return self._radius
+
+
+class NEUCircle(GenericGeometry):
+    """Non-euclidian circle defined by its radius and order parameter.
+
+    Args:
+        radius: Radius of the circle.
+        order: Order of the circle.
+    """
+
+    def __init__(self, radius: float | int, order: float | int):
+        GenericGeometry.__init__(self, sdf_neu_circle, radius, order)
+        self._radius = radius
+        self._order = order
+
+    @property
+    def radius(self) -> float | int:
+        """Radius of the circle."""
+        return self._radius
+
+    @property
+    def order(self) -> float | int:
+        """Order of the circle."""
+        return self._order
 
 
 class NGon(GenericGeometry):
