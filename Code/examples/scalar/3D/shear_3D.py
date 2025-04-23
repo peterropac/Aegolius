@@ -7,17 +7,18 @@ from time import process_time
 
 from spomso.cores.helper_functions import generate_grid, smarter_reshape
 from spomso.cores.post_processing import hard_binarization
-from spomso.cores.geom_3d import SolidAngle
+from spomso.cores.geom_3d import Box
+from spomso.cores.geom import GenericGeometry
 
 # ----------------------------------------------------------------------------------------------------------------------
 # PARAMETERS
 
 # size of the volume
-co_size = 2., 2., 2.
+co_size = 4, 4, 4
 # resolution of the volume
-co_resolution = 150, 150, 150
+co_resolution = 100, 100, 100
 
-show = "BINARY" # BINARY, FIELD
+show = "FIELD" # BINARY, FIELD
 show_midplane = True
 show_3d = True
 
@@ -30,23 +31,16 @@ coor, co_res_new = generate_grid(co_size, co_resolution)
 
 start_time = process_time()
 
-# define the angles constraining the solid_angle
-angle_1 = np.pi/3
-angle_2 = -np.pi/4
-# and the radius of the solid_angle
-radius = 1
+# create a box with side lengths 1, 1 and 1
+box = Box(1, 1, 1)
 
-# create the solid_angle from the angles and the radius
-# the solid_angle will span along the shortest path
-solid_angle = SolidAngle(radius, angle_1, angle_2)
+# apply the shear transformation
+# in this case the points along the y-axis (1) are sheared by the shear factor tan(pi/6) times the x-coordinate
+# the z-axis (2) is independent/fixed
+box.shear(np.pi/6, 1, 2)
 
-# center the solid_angle at the origin
-mid_angle = (angle_2 + angle_1)/2
-solid_angle_center = radius*np.asarray((np.cos(mid_angle), np.sin(mid_angle)))/2
-solid_angle.set_location(-solid_angle_center)
-
-# evaluate the SDF of the solid angle to create a signed distance field 3D map
-solid_angle_pattern = solid_angle.create(coor)
+# evaluate the SDF of the box to create a signed distance field 3D map
+box_pattern = box.create(coor)
 
 end_time = process_time()
 print("Evaluation Completed in {:.2f} seconds".format(end_time-start_time))
@@ -56,12 +50,12 @@ print("Evaluation Completed in {:.2f} seconds".format(end_time-start_time))
 # distance field to a binary voxel map, where 1 corresponds to the interior and 0 to the exterior of the geometry.
 
 if show_midplane:
-    field = smarter_reshape(solid_angle_pattern, co_resolution)
+    field = smarter_reshape(box_pattern, co_resolution)
     if show=="BINARY":
         pattern_2d = hard_binarization(field, 0)
 
 if show=="BINARY":
-    pattern = hard_binarization(solid_angle_pattern, 0)
+    pattern = hard_binarization(box_pattern, 0)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # PLOT
@@ -120,7 +114,7 @@ if show_3d and show=="FIELD":
         x=coor[0],
         y=coor[1],
         z=coor[2],
-        value=solid_angle_pattern,
+        value=box_pattern,
         isomin=-0,
         isomax=0.5,
         opacity=0.1,
