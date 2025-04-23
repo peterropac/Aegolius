@@ -72,25 +72,25 @@ class ModifyObject:
         """
         return self.original_geo_object
 
-    def elongation(self, elon_vector: np.ndarray | tuple | list) -> Callable[[np.ndarray, tuple], np.ndarray]:
+    def elongation(self, elongate_vector: np.ndarray | tuple | list) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Elongates the geometry along a certain vector by the length of the vector in each respective direction.
 
         Args:
-            elon_vector: 3vector defining the direction and distance of the elongation.
+            elongate_vector: A vector, with shape (3,), defining the direction and distance of the elongation.
         
         Returns: 
             Modified SDF.
         """
         self._mod.append("elongation")
-        elon_vector = np.asarray(elon_vector)/2
+        ev = np.asarray(elongate_vector)/2
 
         geo_object = self.geo_object
 
         def new_geo_object(co, *params):
-            qo0 = co[0] - np.clip(co[0], -elon_vector[0]/2, elon_vector[0]/2)
-            qo1 = co[1] - np.clip(co[1], -elon_vector[1] / 2, elon_vector[1] / 2)
-            qo2 = co[2] - np.clip(co[2], -elon_vector[2] / 2, elon_vector[2] / 2)
+            qo0 = co[0] - np.clip(co[0], -ev[0] / 2, ev[0] / 2)
+            qo1 = co[1] - np.clip(co[1], -ev[1] / 2, ev[1] / 2)
+            qo2 = co[2] - np.clip(co[2], -ev[2] / 2, ev[2] / 2)
             qo = np.asarray([qo0, qo1, qo2])
             return geo_object(qo, *params)
 
@@ -100,7 +100,9 @@ class ModifyObject:
     def rounding(self, rounding_radius: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Rounds off the geometry - effectively thickening it by the rounding radius.
-        rounding_radius: Radius by which the edges are rounded and the object thickened.
+
+        Args:
+            rounding_radius: Radius by which the edges are rounded and the object thickened.
         
         Returns: 
             Modified SDF.
@@ -134,7 +136,8 @@ class ModifyObject:
         geo_object = self.geo_object
 
         def new_geo_object(co, *params):
-            scale = (1 - rounding_radius/bb_size)
+            scale = 1 - 2 * rounding_radius / bb_size + 1e-8
+            scale = np.maximum(scale, 1e-8)
             return scale*geo_object(co/scale, *params) - rounding_radius
 
         self.geo_object = new_geo_object
@@ -142,7 +145,7 @@ class ModifyObject:
 
     def boundary(self) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Get the boundary of a shape.
+        Get the boundary of the SDF.
         
         Returns: 
             Modified SDF.
@@ -273,11 +276,13 @@ class ModifyObject:
 
     def invert(self, direct: bool = False) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Invert the sign of the SDF.
+        Inverts the sign of the SDF.
 
         Args:
-            direct: If True a function which returns inverts the sign of the SDF is returned without modifying the SDF.
-                If False the same happens as described above but the SDF is also modified.
+            direct: If False the sign of the SDF is inverted.
+                    If True only the sign of the returned function is inverted.
+                    In that case all subsequent operations on the SDF ignore this modification.
+
         
         Returns: 
             Modified SDF.
@@ -298,8 +303,9 @@ class ModifyObject:
         Get the sign of the SDF.
 
         Args:
-            direct: If True a function which returns the sign of the SDF is returned without modifying the SDF.
-                If False the same happens as described above but the SDF is also modified.
+            direct: If False the sign of the SDF is calculated at each point.
+                    If True the sign of the SDF is calculated at each point only for the returned function.
+                    In that case all subsequent operations on the SDF ignore this modification.
         
         Returns: 
             Modified SDF.
@@ -317,7 +323,7 @@ class ModifyObject:
         return new_geo_object
 
     def recover_volume(self,
-                      interior: Callable[[np.ndarray, tuple], np.ndarray]) -> Callable[[np.ndarray, tuple], np.ndarray]:
+                       interior: Callable[[np.ndarray, tuple], np.ndarray]) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
         Recovers the interior of the SDF if a function which outputs the correct value (-1 or 1) is provided.
         This function should take the same parameters as the SDF.
@@ -383,7 +389,7 @@ class ModifyObject:
 
     def concentric(self, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Transforms an isosurface into two concentric isosurfaces which are apart by the value of width.
+        Transforms an isosurface into two concentric isosurfaces which are apart by the value of width parameter.
         Transforms a volume into an isosurface and rounds it by width/2.
 
         Args:
@@ -449,7 +455,7 @@ class ModifyObject:
 
         def new_geo_object(co, *params):
 
-            rot = np.asarray([[np.cos(angle), np.sin(angle)],[-np.sin(angle), np.cos(angle)]])
+            rot = np.asarray([[np.cos(angle), np.sin(angle)], [-np.sin(angle), np.cos(angle)]])
             co[:2, :] = rot.dot(co[:2])
 
             mag_xz = np.linalg.norm([co[0, :], co[2, :]], axis=0)
@@ -480,7 +486,9 @@ class ModifyObject:
         geo_object = self.geo_object
 
         def new_geo_object(co, *params):
-            d = geo_object(co[:2], *params)
+            qo = co.copy()
+            qo[2, :] = 0
+            d = geo_object(qo, *params)
             w = np.asarray((d, np.abs(co[2]) - distance/2))
 
             first_term = np.minimum(np.maximum(w[0], w[1]), 0)
@@ -511,43 +519,9 @@ class ModifyObject:
             s = np.sin(pitch * co[2])
             rot = np.asarray([[c,s],[-s,c]])
             qo = co.copy()
-            qo[:2,:] = rot[0, :, :] * co[0, :] + rot[1, :, :] * co[1, :]
+            qo[:2, :] = rot[0, :, :] * co[0, :] + rot[1, :, :] * co[1, :]
 
             return geo_object(qo, *params)
-
-        self.geo_object = new_geo_object
-        return new_geo_object
-
-    def bend2(self, radius, angle):
-        # NOT WORKING!!!!!!
-        self._mod.append("bend")
-
-        geo_object = self.geo_object
-
-        def new_geo_object(co, *params):
-
-
-            f = np.clip(co[0]/radius, -angle/2, angle/2)
-            c = np.cos(f)
-            s = np.sin(f)
-
-            qo = co.copy()
-            qo[0] = s*radius - co[0] -s*co[1]
-            qo[1] = radius*(1-c) + co[1]*(c-1)
-            qo[2] = 0
-
-            bo = co.copy()
-            absco = np.abs(co[0])
-            sco = np.sign(co[0])
-            bo[2] = 0
-            bo[0] = sco*(absco - radius*angle/2)*np.cos(angle/2)
-            bo[1] = sco*bo[0] * np.tan(angle / 2)
-
-            wo = qo + co + bo*(absco>radius*angle/2)
-
-            # qo[:2, :] = rot[0, :, :] * co[0, :] + rot[1, :, :] * co[1, :]
-
-            return geo_object(co, *params)
 
         self.geo_object = new_geo_object
         return new_geo_object
@@ -602,6 +576,203 @@ class ModifyObject:
         self.geo_object = new_geo_object
         return new_geo_object
 
+    def shear_xz(self, angle: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Displaces the points parallel to the x-axis of the coordinate system around the z-axis by the specified angle.
+
+        Args:
+            angle: Shearing angle - the shear factor is given as tan(angle).
+
+        Returns:
+            Modified SDF.
+        """
+        self._mod.append("shear_xz")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            t = np.tan(angle)
+            o = np.asarray([[1, 0, 0], [-t, 1, 0], [0, 0, 1]])
+            qo = o.T.dot(np.asarray(co.copy()))
+
+            return geo_object(qo, *params)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def shear_yz(self, angle: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Displaces the points parallel to the y-axis of the coordinate system around the z-axis by the specified angle.
+
+        Args:
+            angle: Shearing angle - the shear factor is given as tan(angle).
+
+        Returns:
+            Modified SDF.
+        """
+        self._mod.append("shear_yz")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            t = np.tan(angle)
+            o = np.asarray([[1, 0, 0], [-t, 1, 0], [0, 0, 1]])
+            qo = o.dot(np.asarray(co.copy()))
+
+            return geo_object(qo, *params)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def shear_xy(self, angle: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Displaces the points parallel to the x-axis of the coordinate system around the y-axis by the specified angle.
+
+        Args:
+            angle: Shearing angle - the shear factor is given as tan(angle).
+
+        Returns:
+            Modified SDF.
+        """
+        self._mod.append("shear_xy")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            t = np.tan(angle)
+            o = np.asarray([[1, 0, 0], [0, 1, 0], [-t, 0, 1]])
+            qo = o.T.dot(np.asarray(co.copy()))
+
+            return geo_object(qo, *params)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def shear_zy(self, angle: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Displaces the points parallel to the z-axis of the coordinate system around the y-axis by the specified angle.
+
+        Args:
+            angle: Shearing angle - the shear factor is given as tan(angle).
+
+        Returns:
+            Modified SDF.
+        """
+        self._mod.append("shear_zy")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            t = np.tan(angle)
+            o = np.asarray([[1, 0, 0], [0, 1, 0], [-t, 0, 1]])
+            qo = o.dot(np.asarray(co.copy()))
+
+            return geo_object(qo, *params)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def shear_yx(self, angle: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Displaces the points parallel to the y-axis of the coordinate system around the x-axis by the specified angle.
+
+        Args:
+            angle: Shearing angle - the shear factor is given as tan(angle).
+
+        Returns:
+            Modified SDF.
+        """
+        self._mod.append("shear_yx")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            t = np.tan(angle)
+            o = np.asarray([[1, 0, 0], [0, 1, 0], [0, -t, 1]])
+            qo = o.T.dot(np.asarray(co.copy()))
+
+            return geo_object(qo, *params)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def shear_zx(self, angle: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Displaces the points parallel to the z-axis of the coordinate system around the x-axis by the specified angle.
+
+        Args:
+            angle: Shearing angle - the shear factor is given as tan(angle).
+
+        Returns:
+            Modified SDF.
+        """
+        self._mod.append("shear_zx")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            t = np.tan(angle)
+            o = np.asarray([[1, 0, 0], [0, 1, 0], [0, -t, 1]])
+            qo = o.dot(np.asarray(co.copy()))
+
+            return geo_object(qo, *params)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def shear(self,
+              angle: float | int,
+              sheared_axis: int, fixed_axis: int) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Displaces the points parallel to the sheared axis of the coordinate system
+        around the fixed axis by the specified angle.
+
+        Args:
+            angle: Shearing angle - the shear factor is given as tan(angle).
+            sheared_axis: Axis parallel to which the points are displaced.
+            fixed_axis: Axis perpendicular to the 'sheared_axis' and the other axis.
+
+        Returns:
+            Modified SDF.
+        """
+        self._mod.append("shear")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            t = np.tan(angle)
+
+            if sheared_axis == 0:
+                if fixed_axis == 1:
+                    o = np.asarray([[1, 0, 0], [0, 1, 0], [-t, 0, 1]]).T
+                elif fixed_axis == 2:
+                    o = np.asarray([[1, 0, 0], [-t, 1, 0], [0, 0, 1]]).T
+                else:
+                    raise ValueError("Specify a valid axis index")
+            elif sheared_axis == 1:
+                if fixed_axis == 0:
+                    o = np.asarray([[1, 0, 0], [0, 1, 0], [0, -t, 1]]).T
+                elif fixed_axis == 2:
+                    o = np.asarray([[1, 0, 0], [-t, 1, 0], [0, 0, 1]])
+                else:
+                    raise ValueError("Specify a valid axis index")
+            elif sheared_axis == 2:
+                if fixed_axis == 0:
+                    o = np.asarray([[1, 0, 0], [0, 1, 0], [0, -t, 1]])
+                elif fixed_axis == 1:
+                    o = np.asarray([[1, 0, 0], [0, 1, 0], [-t, 0, 1]])
+                else:
+                    raise ValueError("Specify a valid axis index")
+            else:
+                raise ValueError("Specify a valid axis index")
+
+            qo = o.dot(np.asarray(co.copy()))
+
+            return geo_object(qo, *params)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
     def displacement(self,
                      displacement_function: Callable[[np.ndarray, tuple], np.ndarray],
                      displacement_function_parameters: tuple) -> Callable[[np.ndarray, tuple], np.ndarray]:
@@ -634,7 +805,7 @@ class ModifyObject:
         Infinitely repeats geometry in space on a cubic lattice.
         
         Args:
-            distances: 3vector determining the distances between instances along each axis.
+            distances: A vector, with shape (3,), determining the distances between instances along each axis.
         
         Returns: 
             Modified SDF.
@@ -1094,6 +1265,68 @@ class ModifyObject:
         self.geo_object = new_geo_object
         return new_geo_object
 
+    def move_sdf(self, move_vector: tuple | list | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Modifies the original SDF so that the origin is translated by the 'move_vector'.
+
+        Args:
+            move_vector: A vector, with shape (3,), by which the origin is translated.
+
+        Returns:
+            Modified SDF.
+        """
+        self._mod.append("move_sdf")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            p = np.subtract(co.T - move_vector).T
+            return geo_object(p, *params)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def scale_sdf(self, scale_factor: int | float) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Modifies the original SDF by scaling it by the 'scale_factor'.
+
+        Args:
+            scale_factor: A scalar factor by which the SDF is scaled.
+        Returns:
+            Modified SDF.
+        """
+        self._mod.append("scale_sdf")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            return scale_factor * geo_object(co/scale_factor, *params)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
+    def rotate_sdf(self, rotation_matrix: tuple | list | np.ndarray) -> Callable[[np.ndarray, tuple], np.ndarray]:
+        """
+        Modifies the original SDF by rotating it by the 'rotation_matrix'.
+
+        Args:
+            rotation_matrix: 3x3 rotation matrix.
+
+        Returns:
+            Modified SDF.
+        """
+        self._mod.append("rotate_sdf")
+
+        geo_object = self.geo_object
+
+        def new_geo_object(co, *params):
+            rm = rotation_matrix.T
+            co = rm.dot(co)
+            return geo_object(co, *params)
+
+        self.geo_object = new_geo_object
+        return new_geo_object
+
     def custom_modification(self,
                             modification: Callable[[Callable[[np.ndarray, tuple], np.ndarray],
                                                     np.ndarray,
@@ -1103,7 +1336,7 @@ class ModifyObject:
                             modification_parameters: tuple,
                             modification_name: str = "custom") -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Applies a custom user-specified modification to a scalar (Signed Distance Function) field.
+        Applies a custom user-specified modification to the function defining the scalar field (Signed Distance Function).
 
         Args:
             modification: A custom modification which takes the SDF as a first argument,
@@ -1127,7 +1360,7 @@ class ModifyObject:
 
     def sigmoid_falloff(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Applies a sigmoid to the scalar (Signed Distance Function) field.
+        Applies a sigmoid to the function defining the scalar field (Signed Distance Function).
 
         Args:
             amplitude: Maximum value of the transformed scalar field.
@@ -1150,8 +1383,8 @@ class ModifyObject:
                                  amplitude: float | int,
                                  width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Applies a sigmoid, shifted to the positive velues by the value of the width parameter,
-        to the scalar (Signed Distance Function) field.
+        Applies a sigmoid to the function defining the scalar field (Signed Distance Function).
+        The sigmoid is shifted towards the positive values by the value of the width parameter.
 
         Args:
             amplitude: Maximum value of the transformed scalar field.
@@ -1174,8 +1407,7 @@ class ModifyObject:
                            amplitude: float | int,
                            width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Applies a decreasing exponential functon to the scalar (Signed Distance Function) field.
-        to the scalar (Signed Distance Function) field.
+        Applies the Capped Exponential function to the function defining the scalar field (Signed Distance Function).
 
         Args:
             amplitude: Maximum value of the transformed scalar field.
@@ -1196,7 +1428,7 @@ class ModifyObject:
 
     def hard_binarization(self, threshold: float) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Binarizes the Signed Distance field/pattern based on a threshold.
+        Binarizes the output of a function defining a scalar field (Signed Distance Function).
         Values below the threshold are 1 and values above are 0.
 
         Args:
@@ -1217,7 +1449,7 @@ class ModifyObject:
 
     def linear_falloff(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Applies a decreasing linear function to the scalar (Signed Distance Function) field.
+        Applies a decreasing linear function to the function defining the scalar field (Signed Distance Function).
 
         Args:
             amplitude: Maximum value of the transformed scalar field.
@@ -1238,7 +1470,7 @@ class ModifyObject:
 
     def relu(self, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Applies the ReLU function to the scalar (Signed Distance Function) field.
+        Applies the ReLU function to the function defining the scalar field (Signed Distance Function).
 
         Args:
             width: Range at which the value of the transformed field reaches one.
@@ -1259,7 +1491,7 @@ class ModifyObject:
     def smooth_relu(self, smooth_width: float | int,
                     width: float | int = 1, threshold: int | float = 0.01) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Applies the "squareplus" function to the scalar (Signed Distance Function) field.
+        Applies the "squareplus" function to the function defining the scalar field (Signed Distance Function).
         https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
 
         Args:
@@ -1288,7 +1520,7 @@ class ModifyObject:
                   threshold: int | float = 0.01,
                   ground: bool = True) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Applies the SlowStart function to the scalar (Signed Distance Function) field.
+        Applies the SlowStart function to the function defining the scalar field (Signed Distance Function).
 
         Args:
             smooth_width: Distance from the origin at which the SlowStart function
@@ -1314,7 +1546,7 @@ class ModifyObject:
 
     def gaussian_boundary(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Applies the Gaussian to the scalar (Signed Distance Function) field.
+        Applies the Gaussian function to the function defining the scalar field (Signed Distance Function).
 
         Args:
             amplitude: Maximum value of the transformed scalar field.
@@ -1335,7 +1567,7 @@ class ModifyObject:
 
     def gaussian_falloff(self, amplitude: float | int, width: float | int) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Applies the Gaussian to the positive values of the scalar (Signed Distance Function) field.
+        Applies the Gaussian Falloff function to the function defining the scalar field (Signed Distance Function).
 
         Args:
             amplitude: Maximum value of the transformed scalar field (and points at which the scalar field was < 0).
@@ -1385,7 +1617,7 @@ class ModifyObject:
     def conv_edge_detection(self,
                             co_resolution: tuple) -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Edge detection based ona 3x3 convolutional kernel.
+        Edge detection with a 3x3 convolutional kernel.
 
         Args:
             co_resolution: Resolution of the coordinate system.
@@ -1409,7 +1641,7 @@ class ModifyObject:
                             parameters: tuple,
                             post_process_name: str = "custom") -> Callable[[np.ndarray, tuple], np.ndarray]:
         """
-        Applies a custom user-specified post-processing function to a scalar (Signed Distance Function) field.
+        Applies a custom user-specified post-processing function to the function defining the scalar field (Signed Distance Function).
 
         Args:
             function: A custom post-processing function which takes the SDF as a first argument

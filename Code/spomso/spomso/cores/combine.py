@@ -8,6 +8,7 @@ import numpy as np
 from spomso.cores.geom import GenericGeometry
 from typing import Callable
 
+
 def smoothmin_poly2(x, y, a):
     # https://iquilezles.org/articles/smin/
     h = np.maximum(a - np.abs(x - y), 0.0)/a
@@ -50,6 +51,8 @@ class CombineGeometry:
                                  "SUBTRACT2": lambda obj1, obj2: np.maximum(obj1, -obj2),
                                  "INTERSECT2": lambda obj1, obj2: np.maximum(obj1, obj2),
                                  "INTERSECT": lambda *objs: np.amax(objs, axis=0),
+                                 "SUM": lambda obj1, obj2: np.add(obj1, obj2),
+                                 "DIFFERENCE": lambda obj1, obj2: np.subtract(obj1, obj2),
                                  }
 
         self.parametric_operations: dict = {"SMOOTH_UNION2_2": lambda obj1, obj2, width: smoothmin_poly2(obj1,

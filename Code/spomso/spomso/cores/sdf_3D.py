@@ -102,7 +102,7 @@ def sdf_plane(co, normal, offset):
 def sudf_plane(co, normal, thickness):
     n = normal/np.linalg.norm(normal)
     d = np.abs(np.dot(co.T, n).T)
-    return d - thickness
+    return d - thickness/2
 
 
 def sdf_segment_3d(co, a, b):
@@ -137,7 +137,7 @@ def sdf_oriented_infinite_cone(co, angle):
     v = np.asarray([np.sin(angle), np.cos(angle)])
     q = np.asarray((np.linalg.norm(co[:2], axis=0), -co[2]))
     qv = np.outer(v, np.maximum(np.dot(q.T, v).T, 0.0))
-    d = np.linalg.norm(q - qv)
+    d = np.linalg.norm(q - qv, axis=0)
 
     f = -2*(q[0] * v[1] - q[1] * v[0] < 0.0) + 1
 
@@ -148,11 +148,9 @@ def sdf_infinite_cone(co, angle):
     v = np.asarray([np.sin(angle), np.cos(angle)])
     q = np.asarray((np.linalg.norm(co[:2], axis=0), -co[2]))
     qv = np.outer(v, np.maximum(np.dot(q.T, v).T, 0.0))
-    d = np.linalg.norm(q - qv)
+    d = np.linalg.norm(q - qv, axis=0)
 
-    f = -2 * (q[0] * v[1] - q[1] * v[0] < 0.0) + 1
-
-    return np.abs(d * f)
+    return d
 
 
 def sdf_solid_angle(co, radius, angle_1, angle_2):
@@ -260,7 +258,7 @@ def sdf_segmented_curve_3d(co, points, t):
 
 def sdf_segmented_line_3d(co, points):
 
-    out = np.ones(co.shape[1])*10000
+    out = np.ones(co.shape[1]) * 1e16
     for i in range(points.shape[1]-1):
         part = sdf_segment_3d(co, points[:, i], points[:, i+1])
         out = np.minimum(out, part)

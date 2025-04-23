@@ -5,9 +5,8 @@
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-from scipy.interpolate import NearestNDInterpolator
-from scipy.spatial.distance import cdist
 from scipy.spatial import KDTree
+from spomso.cores.triangulation_functions import interior_polygon
 
 
 def sdf_circle(co, radius):
@@ -176,7 +175,7 @@ def sdf_inf_sector(co, angle_1, angle_2):
     outer = np.outer(c, np.clip( np.dot(co.T, c).T, 0, np.inf))
     m = np.linalg.norm(co - outer, axis=0)
 
-    sign = (phi - angle_diff)
+    sign = np.sign(phi - angle_diff)
     out = sign*m
 
     return out
@@ -222,12 +221,25 @@ def sdf_segmented_curve_2d(co, points, t):
 
 def sdf_segmented_line_2d(co, points):
 
-    out = np.ones(co.shape[1])*10000
+    out = np.ones(co.shape[1])*1e16
     for i in range(points.shape[1]-1):
         part = sdf_segment_2d(co, points[:, i], points[:, i+1])
-        out = np.minimum(out, part)
+        out[:] = np.minimum(out, part)
 
     return out
+
+
+def sdf_polygon_2d(co, points):
+
+    out = np.ones(co.shape[1])*1e16
+    for i in range(points.shape[1]):
+        j = np.mod(i+1, points.shape[1])
+        part = sdf_segment_2d(co, points[:, i], points[:, j])
+        out[:] = np.minimum(out, part)
+
+    interior = interior_polygon(co, points)
+
+    return out*interior
 
 
 def sdf_parametric_curve_2d(co, f, f_parameters, t):

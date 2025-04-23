@@ -396,7 +396,7 @@ def sigmoid_falloff(u: np.ndarray, amplitude: float | int, width: float | int) -
 
 def positive_sigmoid_falloff(u: np.ndarray, amplitude: float | int, width: float | int) -> np.ndarray:
     """
-    Applies a sigmoid, shifted to the positive velues by the value of the width parameter,
+    Applies a sigmoid, shifted to the positive values by the value of the width parameter,
     to the scalar (Signed Distance Function) field.
     
     Args:
@@ -594,7 +594,7 @@ def conv_averaging(u: np.ndarray, kernel_size: int | tuple | list | np.ndarray, 
     filter_ = np.ones(kernel_size) / norm_
 
     new = convolve(u, filter_)
-    for i in range(iterations):
+    for i in range(iterations - 1):
         new = convolve(new, filter_)
 
     return new
@@ -602,7 +602,7 @@ def conv_averaging(u: np.ndarray, kernel_size: int | tuple | list | np.ndarray, 
 
 def conv_edge_detection(u: np.ndarray) -> np.ndarray:
     """
-    Edge detection based on a 3x3 convolutional kernel.
+    Edge detection with a 3x3 convolutional kernel.
     
     Args:
         u: Signed Distance field or any scalar field.

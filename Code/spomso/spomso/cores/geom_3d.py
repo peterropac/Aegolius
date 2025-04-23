@@ -135,7 +135,7 @@ class Cylinder(GenericGeometry):
 
 class Sphere(GenericGeometry):
     """
-    Sphere defined by the radius.
+    Sphere defined by its radius.
 
     Args:
         radius: Radius of the sphere.
@@ -153,7 +153,7 @@ class Sphere(GenericGeometry):
 
 class Box(GenericGeometry):
     """
-    Box defined by the side lengths a, b, c.
+    Box defined by its side lengths a, b, c.
 
     Args:
         a: Side length along the x-axis.
@@ -185,7 +185,7 @@ class Box(GenericGeometry):
 
 class Plane(GenericGeometry):
     """
-    Plane defined by the normal vector.
+    Plane defined by its normal vector.
     
     Args:
         normal: Normal vector of the plane.
@@ -210,7 +210,7 @@ class Plane(GenericGeometry):
 
 class OrientedPlane(GenericGeometry):
     """
-    Plane defined by a normal vector. SDF has a negative value for points below the plane.
+    Plane defined by its normal vector. SDF has a negative value for points below the plane.
     Args:
         normal: Normal vector of the plane.
         offset: Offset of the origin along the normal vector.
@@ -234,7 +234,7 @@ class OrientedPlane(GenericGeometry):
 
 class Line(GenericGeometry):
     """
-    Line defined by the starting and ending point.
+    Line defined by its starting and ending points.
     
     Args:
         a: Vector defining the starting point.
@@ -259,7 +259,7 @@ class Line(GenericGeometry):
     
 class Triangle3D(GenericGeometry):
     """
-    Triangle defined by the three vertices.
+    Triangle defined by its three vertices.
 
     Args:
         a: Vector defining the position of the first vertex.
@@ -291,7 +291,7 @@ class Triangle3D(GenericGeometry):
 
 class Quad(GenericGeometry):
     """
-    Quadrilateral defined by the four vertices.
+    Quadrilateral defined by its four vertices.
     
     Args:
         a: Vector defining the position of the first vertex.
@@ -331,7 +331,7 @@ class Quad(GenericGeometry):
 
 class Torus(GenericGeometry):
     """
-    Torus defined by the primary and the secondary radius.
+    Torus defined by its primary and the secondary radius.
 
     Args:
         primary_radius: Primary radius of the torus.
@@ -508,7 +508,7 @@ class Cone(GenericGeometry):
 
 class InfiniteCone(GenericGeometry):
     """
-    Cone with infinite height defined by the angle of its slope. The tip of the cone is in the origin.
+    Cone with infinite height defined by the angle of its slope. The tip of the cone is at the origin.
 
     Args:
         angle: Angle of the slope.
@@ -526,7 +526,7 @@ class InfiniteCone(GenericGeometry):
 
 class OrientedInfiniteCone(GenericGeometry):
     """
-    Cone with infinite height defined by the angle of its slope. The tip of the cone is in the origin.
+    Cone with infinite height defined by the angle of its slope. The tip of the cone is at the origin.
     Values of the SDF below the cone are negative.
 
     Args:

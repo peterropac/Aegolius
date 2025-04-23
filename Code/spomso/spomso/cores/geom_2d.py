@@ -11,8 +11,9 @@ from spomso.cores.transformations import EuclideanTransform
 from spomso.cores.modifications import ModifyObject
 from spomso.cores.sdf_2D import sdf_circle, sdf_neu_circle, sdf_box_2d, sdf_segment_2d, sdf_triangle_2d, sdf_rounded_box_2d
 from spomso.cores.sdf_2D import sdf_sector, sdf_inf_sector, sdf_sector_old, sdf_ngon, sdf_arc
-from spomso.cores.sdf_2D import sdf_parametric_curve_2d, sdf_segmented_curve_2d, sdf_segmented_line_2d
+from spomso.cores.sdf_2D import sdf_parametric_curve_2d, sdf_segmented_curve_2d, sdf_segmented_line_2d, sdf_polygon_2d
 from spomso.cores.sdf_2D import sdf_point_cloud_2d
+from spomso.cores.triangulation_functions import interior_polygon
 
 
 class GenericGeometry2D(EuclideanTransform, ModifyObject):
@@ -89,12 +90,38 @@ class NGon(GenericGeometry):
 
     @property
     def radius(self) -> float | int:
-        """Radius of the n-gon"""
+        """Radius of the n-gon."""
         return self._radius
 
     @property
     def n_sides(self) -> int:
-        """Number of sides in the n-gon"""
+        """Number of sides in the n-gon."""
+        return self._n_sides
+
+
+class Polygon(GenericGeometry):
+    """
+    N-sided polygon, defined by the coordinates of the vertices.
+
+    Args:
+        vertices: Coordinates of the vertices with shape (3, N), where N is the number of vertices.
+    """
+
+    def __init__(self, vertices: tuple | list | np.ndarray):
+        GenericGeometry.__init__(self, sdf_polygon_2d, vertices)
+        vertices = np.array(vertices)
+        if not (vertices.shape[1] >= 3 and vertices.shape[0] >= 3):
+            raise ValueError("There must be at least 3 vertices defined by their coordinates in 3D space.")
+        if 3 not in vertices.shape:
+            raise ValueError("The coordinates of vertices should be defined in 3D space.")
+        if not (vertices.shape[0] == 3):
+            vertices = vertices.T
+        self._vertices = vertices
+        self._n_sides = vertices.shape[1]
+
+    @property
+    def n_sides(self) -> int:
+        """Number of sides in the n-sided polygon."""
         return self._n_sides
 
 
@@ -537,25 +564,9 @@ class SegmentedParametricCurve(GenericGeometry):
             if np.any(d < 0):
                 return geo_object(co, *params)
 
-            points = np.zeros((self._points.shape[0], self._points.shape[1] + 1))
-            points[:, :self._points.shape[1]] = self._points
-            points[:, -1] = self._points[:, 0]
-
-            interior = np.ones(co.shape[1])
-            for i in range(points.shape[1] - 1):
-                t = points[:, i + 1] - points[:, i]
-                t = t / np.linalg.norm(t)
-                n = np.asarray([-t[1], t[0], 0])
-                n[1] = n[1] - 2 * (n[1] < 0) * n[1]
-
-                lx = np.minimum(points[0, i], points[0, i + 1])
-                ux = np.maximum(points[0, i], points[0, i + 1])
-                mask = (co[0, :] >= lx) * (co[0, :] < ux)
-
-                s = np.sign(np.dot(co[:, mask].T - points[:, i], n))
-                interior[mask] *= s
-
-            return geo_object(co, *params) * interior
+            points = self._points.copy()
+            interior = interior_polygon(co, points)
+            return d * interior
 
         self.geo_object = new_geo_object
         return new_geo_object
@@ -563,7 +574,7 @@ class SegmentedParametricCurve(GenericGeometry):
 
 class SegmentedLine(GenericGeometry):
     """
-    Segmented line connecting the user provided points.
+    Segmented line connecting the provided points.
 
     Args:
         points: Points to connect.
@@ -621,28 +632,12 @@ class SegmentedLine(GenericGeometry):
         def new_geo_object(co, *params):
 
             d = geo_object(co, *params)
-            if np.any(d<0):
+            if np.any(d < 0):
                 return geo_object(co, *params)
 
-            points = np.zeros((self._points.shape[0], self._points.shape[1] + 1))
-            points[:, :self._points.shape[1]] = self._points
-            points[:, -1] = self._points[:, 0]
-
-            interior = np.ones(co.shape[1])
-            for i in range(points.shape[1]-1):
-                t = points[:, i+1] - points[:, i]
-                t = t/np.linalg.norm(t)
-                n = np.asarray([-t[1], t[0], 0])
-                n[1] = n[1] - 2*(n[1] < 0)*n[1]
-
-                lx = np.minimum(points[0, i], points[0, i+1])
-                ux = np.maximum(points[0, i], points[0, i + 1])
-                mask = (co[0, :] >= lx) * (co[0, :] < ux)
-
-                s = np.sign(np.dot(co[:, mask].T - points[:, i], n))
-                interior[mask] *= s
-
-            return geo_object(co, *params)*interior
+            points = self._points.copy()
+            interior = interior_polygon(co, points)
+            return d * interior
 
         self.geo_object = new_geo_object
         return new_geo_object

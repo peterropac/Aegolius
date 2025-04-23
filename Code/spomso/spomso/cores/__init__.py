@@ -8,8 +8,10 @@ from .combine import CombineGeometry, smoothmax_boltz, smoothmin_poly2, smoothmi
 from .transformations import EuclideanTransform, EuclideanTransformPoints
 from .modifications import ModifyObject, ModifyVectorObject
 from .geom import GenericGeometry, Points
+
 from .helper_functions import resolution_conversion, generate_grid
 from .helper_functions import smarter_reshape, vector_smarter_reshape, nd_vector_smarter_reshape
+
 from .post_processing import sigmoid_falloff, positive_sigmoid_falloff, capped_exponential
 from .post_processing import linear_falloff, relu, smooth_relu, slowstart
 from .post_processing import hard_binarization
@@ -18,14 +20,17 @@ from .post_processing import conv_averaging, conv_edge_detection
 from .post_processing import custom_post_process
 from .post_processing import PostProcess
 
+from .triangulation_functions import interior_triangle, interior_convex, interior_polygon
+from .triangulation_functions import check_convex, check_convex_all, is_inside_triangle, is_ear, triangulate
+
 from .sdf_2D import sdf_circle, sdf_segment_2d, sdf_box_2d, sdf_rounded_box_2d, sdf_triangle_2d
-from .sdf_2D import sdf_arc, sdf_sector, sdf_inf_sector, sdf_ngon
+from .sdf_2D import sdf_arc, sdf_sector, sdf_inf_sector, sdf_ngon, sdf_polygon_2d
 from .sdf_2D import sdf_segmented_curve_2d, sdf_segmented_line_2d, sdf_parametric_curve_2d
 from .sdf_2D import sdf_point_cloud_2d
 from .sdf_2D import sdf_neu_circle
 
 from .geom_2d import Circle, NEUCircle, NGon, Rectangle, RoundedRectangle
-from .geom_2d import Segment, Triangle, Sector, InfiniteSector, Arc
+from .geom_2d import Segment, Triangle, Sector, InfiniteSector, Arc, Polygon
 from .geom_2d import ParametricCurve, SegmentedParametricCurve, SegmentedLine
 from .geom_2d import PointCloud2D
 

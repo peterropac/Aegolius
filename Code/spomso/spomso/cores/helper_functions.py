@@ -102,7 +102,7 @@ def smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.ndarray) 
         resolution: Resolution of the grid, determining the number of points along each axis.
 
     Returns:
-        Signed distance field in a grid.
+        Signed distance field on a rectilinear grid.
     """
 
     n_ele = pattern.shape[0]
@@ -157,7 +157,7 @@ def vector_smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np.nd
         resolution: Resolution of the grid, determining the number of points along each axis.
 
     Returns:
-        Vector field on a grid of shape (3, resolution[0], resolution[1], resolution[2]).
+        Vector field on a rectilinear grid of shape (3, resolution[0], resolution[1], resolution[2]).
     """
 
     x = smarter_reshape(pattern[0], resolution)
@@ -176,7 +176,7 @@ def nd_vector_smarter_reshape(pattern: np.ndarray, resolution: tuple | list | np
         resolution: Resolution of the grid, determining the number of points along each axis.
 
     Returns:
-        Vector field on a grid of shape (ND, resolution[0], resolution[1], resolution[2]).
+        Vector field on a rectilinear grid of shape (ND, resolution[0], resolution[1], resolution[2]).
     """
 
     c = smarter_reshape(pattern[0], resolution)
