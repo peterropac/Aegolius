@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '1.2.3'
+VERSION = '1.3.0'
 DESCRIPTION = 'SPOMSO'
 LONG_DESCRIPTION = 'Python package for generating geometry with SDFs.'
 
@@ -15,6 +15,9 @@ setup(
     url='https://github.com/peterropac/Aegolius',
     packages=find_packages(),
     install_requires=['numpy', 'scipy'],
+    extras_require={"autodiff": ["jax", "jaxlib"],
+                    "plot": ["matplotlib", "plotly"],
+                    "all": ["jax", "jaxlib", "matplotlib", "plotly"]},
     keywords=['python', 'geometry'],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
