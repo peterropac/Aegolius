@@ -1,22 +1,45 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
+from PIL import Image
+from pathlib import Path
 from time import process_time
 
 from spomso.cores.helper_functions import generate_grid, smarter_reshape
 from spomso.cores.post_processing import hard_binarization
 from spomso.cores.geom_2d import PointCloud2D
-from spomso.cores.geom import Points
+from spomso.cores.geom import Points, GenericGeometry
+from spomso.cores.combine import CombineGeometry
+
+# ----------------------------------------------------------------------------------------------------------------------
+# FUNCTIONS
+
+
+def alpha_greyscale_combine(image_):
+    image_ = np.asarray(image_)
+    print(image_.shape)
+
+    image_ = image_/255.0
+    out = 1-image_[:, :, 1]
+
+    out = np.maximum(out, image_[:,:,0])
+    return out
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # PARAMETERS
 
 # size of the volume
-co_size = 3, 3
+co_size = 8, 6
 # resolution of the volume
-co_resolution = 400, 400
+co_resolution = 800, 600
 
 show = "FIELD" # BINARY, FIELD
 show_midplane = True
+
+# set the morphology operation: ERODE or DILATE
+morphology = "NOTHING"
 
 # ----------------------------------------------------------------------------------------------------------------------
 # COORDINATE SYSTEM
@@ -27,35 +50,45 @@ coor, co_res_new = generate_grid(co_size, co_resolution)
 
 start_time = process_time()
 
-# define 4 points in 3D space
-coordinates = [[-1, -1, 0], [-1, 1, 0], [1, 1, 0], [1, -1, 0]]
-coordinates = np.asarray(coordinates).T
+# import an image from a directory and convert the image to greyscale
+image_file_name = "owl_logo.png"
+spomso_dir = Path(os.getcwd()).resolve().parents[3]
+image_path = os.path.join(spomso_dir, "Files", "test_images", image_file_name)
+# if an image contains an alpha channel it must be converted as such:
+image = Image.open(image_path).convert("LA")
+# combine greyscale and alpha channels
+image = alpha_greyscale_combine(image)
+
+# display the greyscale image
+plt.imshow(image, cmap="binary_r")
+plt.show()
 
 # create a point cloud object
-points = Points(coordinates)
+points = Points([])
+# extract the point cloud from the greyscale image [first parameter] (make sure values are between 0 and 1)
+# the binary-threshold determines which pixels are included and which are not.
+# all the pixels in the image with a brightness value below the binary threshold [third parameter]
+# are included in the point cloud
+# and the positions of the points are calculated from the specified image size [second parameter]
+# first calculate the exterior SDF
+points.from_image(image, (9, 16), binary_threshold=0.0)
+exterior = PointCloud2D(points.cloud)
+# repeat the same process for the interior, but this time invert the pixel values
+points.from_image(1 - image, (9, 16), binary_threshold=0.0)
+interior = PointCloud2D(points.cloud)
 
-# rotate the points around the z-axis by 30˘
-points.rotate(np.pi/6, (0, 0, 1))
+# combine both SDFs
+union = CombineGeometry("DIFFERENCE")
+final = union.combine(exterior, interior)
 
-# scale the points by 0.5 along the x-axis and 0.75 along the y-axis
-points.rescale((0.5, 0.75, 1))
-
-# move the points by a vector (0.2, 0.1, 0)
-points.move((0.2, 0.1, 0))
-
-# the order of transformations is always (no matter the order in the code): rescale, rotate, translate
-# to change the order one can create a new points object for each transform
-# to create a new points object from the existing one, call:
-# new_points = Points(points.cloud)
-
-# get the new coordinates of points
-cloud = points.cloud
-
-# create an SDF from the point cloud
-final = PointCloud2D(cloud)
-
-# transform the points into circles with width 0.1
-final.onion(0.1)
+# dilate for 0.01
+if morphology=="DILATE":
+    final.rounding(0.5)
+# or erode for 0.01
+elif morphology=="ERODE":
+    final.rounding(-0.5)
+else:
+    pass
 
 # evaluate the SDF of the geometry to create a signed distance field 2D map
 final_pattern = final.create(coor)
@@ -103,8 +136,10 @@ if show_midplane and show == "FIELD":
     cs = ax.contour(coor[0].reshape(co_res_new[0], co_res_new[1]),
                     coor[1].reshape(co_res_new[0], co_res_new[1]),
                     field[:, :],
-                    cmap="plasma_r",
-                    linewidths=2)
+                    cmap="BrBG",
+                    linewidths=2,
+                    vmin=-1, vmax=1,
+                    levels=11)
     ax.clabel(cs, inline=True, fontsize=10)
     ax.grid()
     fig.tight_layout()

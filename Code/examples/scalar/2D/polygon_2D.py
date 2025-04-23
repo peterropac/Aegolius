@@ -5,13 +5,13 @@ from time import process_time
 
 from spomso.cores.helper_functions import generate_grid, smarter_reshape
 from spomso.cores.post_processing import hard_binarization
-from spomso.cores.geom import GenericGeometry
+from spomso.cores.geom_2d import Polygon
 
 # ----------------------------------------------------------------------------------------------------------------------
 # PARAMETERS
 
 # size of the volume
-co_size = 4, 4
+co_size = 5, 5
 # resolution of the volume
 co_resolution = 400, 400
 
@@ -27,21 +27,28 @@ coor, co_res_new = generate_grid(co_size, co_resolution)
 
 start_time = process_time()
 
+# define the vertices of a non-self-intersecting polygon
+points = [[-0.5, 0, 0], [-1, -1, 0], [1, 0, 0], [-1, 1, 0]]
 
-# define the custom scalar field/SDF as a function
-# in this case the custom scalar field is a circle for which it is possible to define the norm
-# (possibly non-euclidean)
-# the parameters are the radius of the circle and the norm
-def custom_circle(co_cloud_, radius_, order_):
-    q = co_cloud_.copy()
-    return np.linalg.norm(q, axis=0, ord=order_) - radius_
+# some other example sets of vertices
+# points = [[-1, 1, 0], [-0.5, 0, 0], [-1, -1, 0], [1, 0, 0]]
+# points = [[1, 1, 0],[-1, 1, 0], [-0.5, 0, 0], [-1, -1, 0], [0.8, -1, 0], [1, 0, 0]]
+# points = [[1, 1, 0],[-1, 1, 0], [-1.5, 0, 0], [-1, -1, 0], [1, -1, 0], [1, 0, 0]]
+# points = [[-1, -1, 0], [-1, 1, 0], [1, -1, 0], [1, 1, 0]]
+# points = [[1, 1, 0], [-1, -1, 0], [-1, 1, 0], [1, -1, 0]]
+# points = [[1, 1, 0], [-1, -1, 0], [-1.5, 0, 0], [-1, 1, 0], [1, -1, 0]]
+# points = [[1, 1, 0], [-1, -1, 0], [-1.5, 0, 0], [-1, 1, 0], [1, -1, 0], [1.5, 1, 0], [1.75, 0, 0], [1.5, -1, 0]]
+# points = [[1, 1.5, 0], [-1, -1, 0], [-1.5, 0, 0], [-1, 1, 0], [1.5, 1, 0], [1.75, 0, 0], [1.5, -1, 0]]
+# points = [[-2, 0, 0], [2, 0, 0], [2, -1, 0], [1.5, -1, 0], [1, 1, 0], [0.5, -1, 0], [0, 1, 0], [-0.5, -1, 0]]
 
+# convert to an array and orient the axes correctly (D - dimensions, N - number of vertices)
+points = np.asarray(points).T
 
-# create geometry from the custom circle function
-custom_circle = GenericGeometry(custom_circle, 0.5, np.inf)
+# create the polygon from the vertices
+polygon = Polygon(points)
 
-# evaluate the SDF of the  custom circle to create a signed distance field 2D map
-circle_pattern = custom_circle.create(coor)
+# evaluate the SDF of the polygon to create a signed distance field 2d map
+polygon_pattern = polygon.create(coor)
 
 end_time = process_time()
 print("Evaluation Completed in {:.2f} seconds".format(end_time-start_time))
@@ -51,7 +58,7 @@ print("Evaluation Completed in {:.2f} seconds".format(end_time-start_time))
 # distance field to a binary voxel map, where 1 corresponds to the interior and 0 to the exterior of the geometry.
 
 if show_midplane:
-    field = smarter_reshape(circle_pattern, co_resolution)
+    field = smarter_reshape(polygon_pattern, co_resolution)
     if show=="BINARY":
         pattern_2d = hard_binarization(field, 0)
 
