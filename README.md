@@ -12,9 +12,9 @@ This python package is intended for procedural construction of geometry and vect
 -   Geometry can be defined in **2D** and **3D**.
 -   Object-oriented and function-oriented approach to defining geometry, with pre-defined 2D and 3D objects.
 -   Built-in [Euclidian Transformations](https://en.wikipedia.org/wiki/Rigid_transformation) (translation, rotation, scaling)
--   Point clouds can be converted into SDFs and vice-versa.
+-   Point clouds can be converted into SDFs and vice versa.
 -   Euclidian transformations for SDFs and point clouds.
--   In total 40 possible modifications of SDFs, including:
+-   In total 50 possible modifications of SDFs, including:
     * extrusion, revolution, twist, bend, elongation
     * mirror, symmetry, rotational symmetry
     * finite and infinite instancing
@@ -22,7 +22,7 @@ This python package is intended for procedural construction of geometry and vect
     * surface-to-volume and volume-to-surface operations
     * various post-processing functions
     * custom user-defined modifications
--   In total 11 ways to combine different geometric objects together - different implementations of:
+-   In total 13 ways to combine different geometric objects together - different implementations of:
     * union, intersection, subtraction
     * smooth union, smooth intersection, smooth subtraction
 
@@ -37,20 +37,21 @@ This python package is intended for procedural construction of geometry and vect
     * element-wise rotations around arbitrary axes
     * revolutions of 2D vector fields around one of the principal axes
 
+## Key Features - Automatic Differentiation
+There is a [JAX](https://jax.readthedocs.io/en/latest/) implementation of almost all SDFs, modifications, combination functions and post-processing functions. 
+Therefore, it is possible to run the computationally demanding part of the code on a GPU from within Python, with support for [Automatic Differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation).
+**JAX** is an optional dependency, so if you don't need these features it isn't necessary to install, and it won't be installed when you install **SPOMSO**.
+
 ## Examples
 
-There are 25 [2D examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/2D) and 16 [3D examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/3D) showing how to construct geometry and use many of the features included in SPOMSO.
+There are 27 [2D examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/2D) and 17 [3D examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/3D) showing how to construct geometry and use many of the features included in SPOMSO.
 There are 5 [Vector examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/vector) showing how to construct and manipulate vector fields.
+There are 7 [Automatic differentiation examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/autodiff) showing how to use the JAX implemented functions.
 For each of the examples there is both a *python script (.py)* version and an *interactive python notebook (.ipynb)* version.
 
 ## Install
 
 See `aegolius_install.ipynb` in the [Examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples).
-
-
-## Future developments
-
-In the future it will be possible to run the code on a GPU from within Python, with support for [Automatic Differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation) based on [JAX](https://jax.readthedocs.io/en/latest/).
 
 ## Citing
 

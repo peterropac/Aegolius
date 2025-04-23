@@ -14,7 +14,6 @@ markdown_extensions:
 extra_javascript:
     - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
 
-
 plugins:
   - search
   - mkdocstrings:
@@ -46,13 +45,23 @@ nav:
     - 'Advanced': 'SDF_Tutorials/Advanced.md'
 - 'Vector Fields Tutorials':
     - 'Introduction': 'Vector_Fields_Tutorials/Introduction.md'
+- 'AutoDiff Tutorials':
+    - 'Introduction': 'Automatic_Differentiation_Tutorials/Introduction.md'
 - 'User Interface':
     - 'Geometry': 'User_Interface/Geometry.md'
-    - '2D SDFS': 'User_Interface/2D_SDFs.md'
+    - '2D SDFs': 'User_Interface/2D_SDFs.md'
     - '3D SDFs': 'User_Interface/3D_SDFs.md'
     - 'Vector Fields': 'User_Interface/VectorFields.md'
-    - 'Euclidian Transformations': 'User_Interface/SDF_Transform.md'
+    - 'Euclidean Transformations': 'User_Interface/SDF_Transform.md'
     - 'Combinations': 'User_Interface/Combinations.md'
     - 'Modifications': 'User_Interface/SDF_Modifications.md'
     - 'Post-Processing': 'User_Interface/SDF_PostProcessing.md'
     - 'Helper Functions': 'User_Interface/Helper_Functions.md'
+- 'AutoDiff User Interface':
+    - '2D SDFs': 'User_Interface_Automatic_Differentiation/2D_SDFs.md'
+    - '3D SDFs': 'User_Interface_Automatic_Differentiation/3D_SDFs.md'
+    - 'Euclidean Transformations': 'User_Interface_Automatic_Differentiation/SDF_Transform.md'
+    - 'Combinations': 'User_Interface_Automatic_Differentiation/Combinations.md'
+    - 'Modifications': 'User_Interface_Automatic_Differentiation/SDF_Modifications.md'
+    - 'Post-Processing': 'User_Interface_Automatic_Differentiation/SDF_PostProcessing.md'
+    - 'Helper Functions': 'User_Interface_Automatic_Differentiation/Helper_Functions.md'
