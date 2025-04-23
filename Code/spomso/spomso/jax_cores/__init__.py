@@ -6,7 +6,7 @@
 
 
 from .combine_jax import combine_2_sdfs, combine_multiple_sdfs, parametric_combine_2_sdfs
-from .combine_jax import union, union2, subtract2, intersect, intersect2
+from .combine_jax import union, union2, subtract2, intersect, intersect2, add, difference
 from .combine_jax import smooth_union2_2o, smooth_union2_3o
 from .combine_jax import smooth_intersect2_2o, smooth_intersect2_3o
 from .combine_jax import smooth_subtract2_2o, smooth_subtract2_3o
