@@ -2,4 +2,4 @@
 # Geometry
 ---
 
-::: Code.spomso.spomso.cores.geom
+::: spomso.cores.geom

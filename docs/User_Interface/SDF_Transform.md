@@ -2,4 +2,4 @@
 # Euclidian Transformations
 ---
 
-::: Code.spomso.spomso.cores.transformations
+::: spomso.cores.transformations

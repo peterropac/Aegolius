@@ -2,4 +2,4 @@
 # Modifications
 ---
 
-::: Code.spomso.spomso.cores.modifications
+::: spomso.cores.modifications

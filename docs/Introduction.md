@@ -25,8 +25,11 @@ Euclidian transformations to the SDFs are done by manipulating the coordinate sy
 For example ***translating*** the SDF by a ***vector*** is done by ***subtracting*** a ***vector*** from the ***position vectors*** in the coordinate system. 
 To ***rotate*** the SDF the ***position vectors*** are rotated. To ***scale*** the SDF the ***position vectors*** are scaled.
 
-$$ \mathbf{r_{ET}} = \mathbf{R} (\mathbf{r} - \mathbf{r_T})/S $$
-$$ f_{ET}(r) = S \cdot f(\mathbf{r_{ET}}), $$
+$$
+\mathbf{r_{ET}} = \mathbf{R} (\mathbf{r} - \mathbf{r_T})/S
+\qquad
+f_{ET}(r) = S \times f(\mathbf{r_{ET}})
+$$
 
 where $\mathbf{r}$ is the ***position vector***, $\mathbf{r_T}$ is the ***translation vector***, $\mathbf{R}$ is the ***rotation matrix***, $S$ in the ***scale factor***, 
 ***$f$*** is the SDF before the ***Euclidian transformation***, and ***$f_{ET}$*** is the transformed SDF.
@@ -54,18 +57,26 @@ The alternative is to use ***Boolean*** or ***Smooth/Parametric Boolean*** ***op
 
 ***Boolean operations*** between two SDFs such as ***union***, ***intersection***, ***difference/subtraction*** can be written as:
 
-$$ f_{\textrm{union}} = \textrm{min} ( f_1 (\mathbf{r} ), f_2 (\mathbf{r} ) ) $$
-$$ f_{\textrm{intersection}} = \textrm{max} ( f_1 (\mathbf{r} ), f_2 (\mathbf{r} ) ) $$
-$$ f_{\textrm{subtraction}} = \textrm{max} ( f_1 (\mathbf{r} ), -f_2 (\mathbf{r} ) ),$$
+$$
+\begin{align}
+f_{\textrm{union}} &= \textrm{min} ( f_1 (\mathbf{r} ), f_2 (\mathbf{r} ) ) \\
+f_{\textrm{intersection}} &= \textrm{max} ( f_1 (\mathbf{r} ), f_2 (\mathbf{r} ) ) \\
+f_{\textrm{subtraction}} &= \textrm{max} ( f_1 (\mathbf{r} ), -f_2 (\mathbf{r} ) )
+\end{align}
+$$
 
 where $f_1$ and $f_2$ are the SDFs, and $\textrm{min}$ and $\textrm{max}$ functions find the minimum/maximum of both SDFs at $\mathbf{r}$.
 
 ***Smooth/Parametric Boolean operations*** allow us to combine SDFs so that there is a smooth transition between them. 
 For example the functions for ***smooth union***, ***smooth intersection*** and ***smooth subtraction*** can be written as:
 
-$$ f_{\textrm{union}} = smin( f_1 (\mathbf{r} ), f_2 (\mathbf{r} ), a)$$
-$$ f_{\textrm{intersection}} = -smin( -f_1 (\mathbf{r} ), -f_2 (\mathbf{r}), a )$$
-$$ f_{\textrm{subtraction}} = -smin( -f_1 (\mathbf{r} ), f_2 (\mathbf{r} ), a ),$$
+$$
+\begin{align}
+f_{\textrm{union}} &= smin( f_1 (\mathbf{r} ), f_2 (\mathbf{r} ), a) \\
+f_{\textrm{intersection}} &= -smin( -f_1 (\mathbf{r} ), -f_2 (\mathbf{r}), a ) \\
+f_{\textrm{subtraction}} &= -smin( -f_1 (\mathbf{r} ), f_2 (\mathbf{r} ), a )
+\end{align}
+$$
 
 where $\textrm{smin}$ is a ***[Smooth Minimum Function](https://iquilezles.org/articles/smin/)*** ([others](https://en.wikipedia.org/wiki/Smooth_maximum)),
 ***$a$*** is the ***smoothing parameter***, and $f_1$ and $f_2$ are the SDFs.

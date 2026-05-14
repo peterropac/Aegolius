@@ -2,4 +2,4 @@
 # Combinations
 ---
 
-::: Code.spomso.spomso.cores.combine
+::: spomso.cores.combine
