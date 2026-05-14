@@ -2,7 +2,7 @@
 # Introduction
 ---
 
-Here are a few tutorials how to define ***Geometry*** and perform ***Euclidian transformations*** and basic ***Modifications***:
+Here are a few tutorials how to define ***Geometry*** and perform ***Euclidean transformations*** and basic ***Modifications***:
 
 ## 2D
 - [Boilerplate tutorial](https://nbviewer.org/github/peterropac/Aegolius/blob/main/Code/examples/scalar/2D/boilerplate_2D.ipynb)

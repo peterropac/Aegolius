@@ -1,5 +1,5 @@
 ---
-# Euclidian Transformations
+# Euclidean Transformations
 ---
 
 ::: spomso.jax_cores.transformations_jax

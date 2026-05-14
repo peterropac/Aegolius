@@ -1,5 +1,5 @@
 ---
-# Euclidian Transformations
+# Euclidean Transformations
 ---
 
 ::: spomso.cores.transformations

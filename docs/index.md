@@ -41,6 +41,7 @@ A [JAX](https://jax.readthedocs.io/en/latest/) implementation is available for n
 ## Examples
 
 The repository contains a wide variety of use cases:
+
 -   [2D Examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/2D) (27 scripts) and [3D Examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/3D) (17 scripts) demonstrating geometry construction.
 -   [Vector Examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/vector) (5 scripts) for vector field manipulation.
 -   [Automatic Differentiation Examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/autodiff) (7 scripts) showcasing JAX integration.

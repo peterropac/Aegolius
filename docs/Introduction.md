@@ -8,7 +8,7 @@ These features, combined with manipulation of the underlying metric space (coord
 
 SDFs allow us to create complex geometry with:
 
-- ***Euclidian Transformations***
+- ***Euclidean Transformations***
 - ***Modifications***:
     - to the coordinate system
     - to the surface
@@ -19,9 +19,9 @@ Please see the ***[Tutorials](SDF_Tutorials/Introduction.md)*** for more informa
 
 SDFs also allow us to create complex procedural ***Vector Fields*** based on the **gradient** and the **value** of the SDF.
 
-## Euclidian Transformations
+## Euclidean Transformations
 
-Euclidian transformations to the SDFs are done by manipulating the coordinate system. 
+Euclidean transformations to the SDFs are done by manipulating the coordinate system. 
 For example ***translating*** the SDF by a ***vector*** is done by ***subtracting*** a ***vector*** from the ***position vectors*** in the coordinate system. 
 To ***rotate*** the SDF the ***position vectors*** are rotated. To ***scale*** the SDF the ***position vectors*** are scaled.
 
@@ -32,13 +32,13 @@ f_{ET}(r) = S \times f(\mathbf{r_{ET}})
 $$
 
 where $\mathbf{r}$ is the ***position vector***, $\mathbf{r_T}$ is the ***translation vector***, $\mathbf{R}$ is the ***rotation matrix***, $S$ in the ***scale factor***, 
-***$f$*** is the SDF before the ***Euclidian transformation***, and ***$f_{ET}$*** is the transformed SDF.
+***$f$*** is the SDF before the ***Euclidean transformation***, and ***$f_{ET}$*** is the transformed SDF.
 
 ***[Example](https://nbviewer.org/github/peterropac/Aegolius/blob/main/Code/examples/scalar/2D/basics_2D.ipynb)***
 
 ## Modifications
 
-Geometry defined with SDFs can be modified in a similar fashion to Euclidian transforms - 
+Geometry defined with SDFs can be modified in a similar fashion to Euclidean transforms - 
 by modifying the underlying vector of position vectors or by applying a transformation to the values of SDF itself.
 For example the ***Onion*** modification, which transforms a volume into a shell with some thickness is written as:
 
