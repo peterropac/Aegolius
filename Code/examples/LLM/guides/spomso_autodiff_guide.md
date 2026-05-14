@@ -61,7 +61,7 @@ config.update("jax_debug_nans", True)   # optional but useful during development
 |---|---|---|
 | Backend | NumPy | JAX (jit-compiled) |
 | Usage style | Method calls on objects | Function composition |
-| Transformations | `.move()`, `.rotate()` etc. | `compound_euclidian_transform_sdf(sdf, R, v, s)` |
+| Transformations | `.move()`, `.rotate()` etc. | `compound_euclidean_transform_sdf(sdf, R, v, s)` |
 | Modifications | `.rounding()`, `.onion()` etc. | `rounding(sdf, r)`, `onion(sdf, t)` etc. |
 | Combinations | `CombineGeometry("UNION").combine(a, b)` | `combine_2_sdfs(a, b, pa, pb, union2)` |
 | Differentiability | ✗ | ✓ via `jax.jacfwd`, `jax.jvp`, `jax.grad` |
@@ -114,10 +114,10 @@ Crucially, `radius` here is a plain Python float or JAX scalar — JAX can diffe
 
 ## 5. Euclidean Transformations in the Functional API
 
-Transformations are applied by **wrapping** an SDF function with `compound_euclidian_transform_sdf`:
+Transformations are applied by **wrapping** an SDF function with `compound_euclidean_transform_sdf`:
 
 ```python
-from spomso.jax_cores.transformations_jax import compound_euclidian_transform_sdf
+from spomso.jax_cores.transformations_jax import compound_euclidean_transform_sdf
 import jax.numpy as jnp
 from jax.scipy.spatial.transform import Rotation
 
@@ -126,7 +126,7 @@ vec = jnp.asarray([1.0, 0.5, 0.0])
 rot = jnp.eye(3)
 scale = 1.0
 
-moved_circle = compound_euclidian_transform_sdf(sdf_circle, rot, vec, scale)
+moved_circle = compound_euclidean_transform_sdf(sdf_circle, rot, vec, scale)
 
 # moved_circle is now a callable: moved_circle(co, *params)
 field = moved_circle(coor, radius)
@@ -136,10 +136,10 @@ To rotate, build a rotation matrix using `jax.scipy.spatial.transform.Rotation`:
 
 ```python
 rot_mat = Rotation.from_euler('z', 45, degrees=True).as_matrix()
-rotated_circle = compound_euclidian_transform_sdf(sdf_circle, rot_mat, jnp.zeros(3), 1.0)
+rotated_circle = compound_euclidean_transform_sdf(sdf_circle, rot_mat, jnp.zeros(3), 1.0)
 ```
 
-> **Key pattern:** `compound_euclidian_transform_sdf` returns a **new SDF function**. It does not evaluate the field — it produces a composed callable that you evaluate later.
+> **Key pattern:** `compound_euclidean_transform_sdf` returns a **new SDF function**. It does not evaluate the field — it produces a composed callable that you evaluate later.
 
 ---
 
@@ -167,7 +167,7 @@ sdf = onion(sdf, 0.2)
 sdf = mirror(sdf, [-d/2, 0, 0], [d/2, 0, 0])
 
 # Apply a Euclidean transform
-sdf = compound_euclidian_transform_sdf(sdf, rot_mat, vec, scale)
+sdf = compound_euclidean_transform_sdf(sdf, rot_mat, vec, scale)
 
 # Evaluate — all modifications + transforms are applied here
 field = sdf(coor, radius)   # radius is passed to the base sdf_circle
@@ -265,7 +265,7 @@ Wrap your geometry construction in a Python function where the **geometric param
 from jax import jacfwd
 from spomso.cores.helper_functions import generate_grid, smarter_reshape
 from spomso.jax_cores.sdf_2D_jax import sdf_circle
-from spomso.jax_cores.transformations_jax import compound_euclidian_transform_sdf
+from spomso.jax_cores.transformations_jax import compound_euclidean_transform_sdf
 import jax.numpy as jnp
 
 coor, res = generate_grid((4, 4), (200, 200))
@@ -273,7 +273,7 @@ coor, res = generate_grid((4, 4), (200, 200))
 def my_geometry(x0, y0, r):
     """Returns the SDF field for a circle at (x0, y0) with radius r."""
     vec = jnp.asarray([x0, y0, 0.0])
-    sdf = compound_euclidian_transform_sdf(sdf_circle, jnp.eye(3), vec, 1.0)
+    sdf = compound_euclidean_transform_sdf(sdf_circle, jnp.eye(3), vec, 1.0)
     return sdf(coor, r)
 
 # Evaluate the field
@@ -293,7 +293,7 @@ from jax.scipy.spatial.transform import Rotation
 from spomso.jax_cores.sdf_3D_jax import sdf_arc_3d
 from spomso.jax_cores.modifications_jax import concentric, elongation, onion
 from spomso.jax_cores.combine_jax import combine_2_sdfs, parametric_combine_2_sdfs, union2, smooth_union2_3o
-from spomso.jax_cores.transformations_jax import compound_euclidian_transform_sdf
+from spomso.jax_cores.transformations_jax import compound_euclidean_transform_sdf
 
 coor, res = generate_grid((6, 6, 6), (100, 100, 100))
 
@@ -306,8 +306,8 @@ def geometry(r, angle_deg, concentric_w, smooth_dist):
     rot_p = Rotation.from_euler('z',  angle_deg, degrees=True).as_matrix()
     rot_m = Rotation.from_euler('z', -angle_deg, degrees=True).as_matrix()
 
-    f1 = compound_euclidian_transform_sdf(f, rot_p, jnp.asarray([0, 0,  1.5]), 1.2)
-    f2 = compound_euclidian_transform_sdf(f, rot_m, jnp.asarray([0, 0, -1.5]), 1.2)
+    f1 = compound_euclidean_transform_sdf(f, rot_p, jnp.asarray([0, 0,  1.5]), 1.2)
+    f2 = compound_euclidean_transform_sdf(f, rot_m, jnp.asarray([0, 0, -1.5]), 1.2)
 
     combined = combine_2_sdfs(f1, f2, sdf_p, sdf_p, union2)
     combined = parametric_combine_2_sdfs(combined, f, (), sdf_p, smooth_union2_3o, smooth_dist)
@@ -387,7 +387,7 @@ import optax
 
 from spomso.jax_cores.sdf_2D_jax import sdf_circle
 from spomso.jax_cores.modifications_jax import gaussian_falloff
-from spomso.jax_cores.transformations_jax import compound_euclidian_transform_sdf
+from spomso.jax_cores.transformations_jax import compound_euclidean_transform_sdf
 
 config.update("jax_enable_x64", True)
 
@@ -495,7 +495,7 @@ The coordinate grid is constant — it's fine to capture it from the enclosing s
 def geometry(angle_rad):
     c, s = jnp.cos(angle_rad), jnp.sin(angle_rad)
     rot = jnp.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
-    sdf = compound_euclidian_transform_sdf(sdf_circle, rot, jnp.zeros(3), 1.0)
+    sdf = compound_euclidean_transform_sdf(sdf_circle, rot, jnp.zeros(3), 1.0)
     return sdf(coor, radius)
 
 grad = jacfwd(geometry)(np.pi/4)
@@ -520,7 +520,7 @@ import optax
 from spomso.cores.helper_functions import generate_grid, smarter_reshape
 from spomso.jax_cores.sdf_2D_jax import sdf_circle, sdf_box_2d
 from spomso.jax_cores.sdf_3D_jax import sdf_sphere, sdf_cylinder, sdf_box, sdf_arc_3d
-from spomso.jax_cores.transformations_jax import compound_euclidian_transform_sdf
+from spomso.jax_cores.transformations_jax import compound_euclidean_transform_sdf
 from spomso.jax_cores.modifications_jax import onion, rounding, mirror, gaussian_falloff
 from spomso.jax_cores.combine_jax import (
     combine_2_sdfs, combine_multiple_sdfs, parametric_combine_2_sdfs,
@@ -541,7 +541,7 @@ coor, res = generate_grid((4, 4), (200, 200))
 
 def my_shape(r, x0):
     vec = jnp.asarray([x0, 0.0, 0.0])
-    sdf = compound_euclidian_transform_sdf(sdf_circle, jnp.eye(3), vec, 1.0)
+    sdf = compound_euclidean_transform_sdf(sdf_circle, jnp.eye(3), vec, 1.0)
     return sdf(coor, r)
 
 # Evaluate
