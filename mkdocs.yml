@@ -24,7 +24,7 @@ plugins:
                     show_source: false
                     members_order: source
                     heading_level: 1
-                    show_rot_toc_entry: false
+                    show_root_toc_entry: false
                     show_root_heading: false
                     show_root_members_full_path: false
 
