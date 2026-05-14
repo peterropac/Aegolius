@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
-VERSION = '1.3.0'
+VERSION = '1.3.1'
 DESCRIPTION = 'SPOMSO'
-LONG_DESCRIPTION = 'Python package for generating geometry with SDFs.'
+LONG_DESCRIPTION = 'Python package for generating geometry and vector fields with SDFs.'
 
 # Setting up
 setup(
