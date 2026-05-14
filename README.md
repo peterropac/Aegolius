@@ -1,5 +1,5 @@
-![](Files/Images/comb_20230623_2.png#gh-dark-mode-only)
-![](Files/Images/comb_20240224_0.png#gh-light-mode-only)
+![](Files/Images/comb_230623_2.png#gh-dark-mode-only)
+![](Files/Images/comb_220224_0.png#gh-light-mode-only)
 
 **Aegolius** is the public repository for the Python package **SPOMSO**.
 
