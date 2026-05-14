@@ -74,9 +74,9 @@ rectangle.set_rotation(np.pi/6, (0, 0, 1))
 rectangle.rotate(-np.pi/6, (0, 0, 1))
 
 
-# to see the applied euclidian transformations use:
+# to see the applied euclidean transformations use:
 applied_transformations = rectangle.transformations
-print("Euclidian Transformations:", applied_transformations)
+print("Euclidean Transformations:", applied_transformations)
 
 # to see the location of the geometry use:
 center = rectangle.center
@@ -105,7 +105,7 @@ rectangle.mirror((-1, 0, 0), (1, 0, 0))
 rectangle = GenericGeometry(rectangle.propagate)
 # apply the mirror operation once more, but this time along the y-axis
 rectangle.mirror((0, -0.5, 0), (0, 0.5, 0))
-# in certain cases it does not matter if the Euclidian transformations are applied after the modifications
+# in certain cases it does not matter if the Euclidean transformations are applied after the modifications
 # this is true for modifications where the location of the geometry does not change
 # for mirror, repetitions, and instancing modifications the order does matter
 

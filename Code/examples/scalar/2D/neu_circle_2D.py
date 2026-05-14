@@ -27,30 +27,30 @@ coor, co_res_new = generate_grid(co_size, co_resolution)
 
 start_time = process_time()
 
-# create non-euclidian circles with radius of 1 and  different order parameters
+# create non-euclidean circles with radius of 1 and  different order parameters
 # order 0.5
-non_euclidian_circle_1 = NEUCircle(1, 0.5)
+non_euclidean_circle_1 = NEUCircle(1, 0.5)
 # order 1
-non_euclidian_circle_2 = NEUCircle(1, 1)
+non_euclidean_circle_2 = NEUCircle(1, 1)
 # order 2
-non_euclidian_circle_3 = NEUCircle(1, 2)
+non_euclidean_circle_3 = NEUCircle(1, 2)
 # order 5
-non_euclidian_circle_4 = NEUCircle(1, 5)
+non_euclidean_circle_4 = NEUCircle(1, 5)
 
-# move the non-euclidian circles
-non_euclidian_circle_1.move((-1, 1, 0))
-non_euclidian_circle_2.move((1, 1, 0))
-non_euclidian_circle_3.move((1, -1, 0))
-non_euclidian_circle_4.move((-1, -1, 0))
+# move the non-euclidean circles
+non_euclidean_circle_1.move((-1, 1, 0))
+non_euclidean_circle_2.move((1, 1, 0))
+non_euclidean_circle_3.move((1, -1, 0))
+non_euclidean_circle_4.move((-1, -1, 0))
 
 # combine geometries
 union = CombineGeometry("UNION")
-circles = union.combine(non_euclidian_circle_1,
-                        non_euclidian_circle_2,
-                        non_euclidian_circle_3,
-                        non_euclidian_circle_4)
+circles = union.combine(non_euclidean_circle_1,
+                        non_euclidean_circle_2,
+                        non_euclidean_circle_3,
+                        non_euclidean_circle_4)
 
-# evaluate the SDF of the non-euclidian circle to create a signed distance field 2D map
+# evaluate the SDF of the non-euclidean circle to create a signed distance field 2D map
 pattern = circles.create(coor)
 
 end_time = process_time()
