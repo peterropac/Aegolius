@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "SPOMSO"
-version = "1.3.1"
+version = "1.4.0"
 authors = [
     { name = "Peter Ropač", email = "peter.ropac@fmf.uni-lj.si" }
 ]
@@ -20,12 +20,13 @@ classifiers = [
 dependencies = ["numpy", "scipy"]
 
 [project.optional-dependencies]
-autodiff = ["jax", "jaxlib"]
+autodiff = ["jax", "jaxlib", "optax"]
 plot = ["matplotlib", "plotly"]
 all = ["jax", "jaxlib", "matplotlib", "plotly"]
 
 [project.urls]
-Repository = "https://github.com/peterropac/Aegolius"
+Homepage = "https://github.com/peterropac/Aegolius"
+Changelog = "https://github.com/peterropac/Aegolius/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["."]
