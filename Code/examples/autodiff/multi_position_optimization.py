@@ -11,7 +11,7 @@ import optax
 
 from spomso.cores.helper_functions import generate_grid, smarter_reshape
 from spomso.jax_cores.sdf_2D_jax import sdf_circle
-from spomso.jax_cores.transformations_jax import compound_euclidian_transform_sdf
+from spomso.jax_cores.transformations_jax import compound_euclidean_transform_sdf
 from spomso.jax_cores.modifications_jax import gaussian_falloff
 
 from spomso.jax_cores.combine_jax import combine_2_sdfs, parametric_combine_2_sdfs
@@ -68,17 +68,17 @@ start_time = process_time()
 def target_sdf(x0, y0):
 
     vec = jnp.asarray([x0[0], y0[0], 0])
-    sdf = compound_euclidian_transform_sdf(sdf_circle, jnp.eye(3), vec, 1.)
+    sdf = compound_euclidean_transform_sdf(sdf_circle, jnp.eye(3), vec, 1.)
 
     vect = jnp.asarray([x0[1], y0[1], 0])
-    sdf_t = compound_euclidian_transform_sdf(sdf_circle, jnp.eye(3), vect, 1.)
+    sdf_t = compound_euclidean_transform_sdf(sdf_circle, jnp.eye(3), vect, 1.)
 
     sdf = parametric_combine_2_sdfs(sdf, sdf_t, (radius[0],), (radius[1],), smooth_union2_3o, 0.75)
 
     if len(x0) > 2:
         for i in range(2, len(x0)):
             vect = jnp.asarray([x0[i], y0[i], 0])
-            sdf_t = compound_euclidian_transform_sdf(sdf_circle, jnp.eye(3), vect, 1.)
+            sdf_t = compound_euclidean_transform_sdf(sdf_circle, jnp.eye(3), vect, 1.)
             sdf = parametric_combine_2_sdfs(sdf, sdf_t, (), (radius[i],), smooth_union2_3o, 0.75)
 
     if not pure_sdf:

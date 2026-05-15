@@ -11,7 +11,7 @@ import jax.numpy as jnp
 from spomso.cores.helper_functions import generate_grid, smarter_reshape
 from spomso.jax_cores.sdf_2D_jax import sdf_circle
 
-from spomso.jax_cores.transformations_jax import compound_euclidian_transform_sdf
+from spomso.jax_cores.transformations_jax import compound_euclidean_transform_sdf
 
 from spomso.jax_cores.post_processing_jax import hard_binarization_jax
 from spomso.jax_cores.post_processing_jax import relu_jax, linear_falloff_jax
@@ -49,7 +49,7 @@ y = 0.
 # define a function where the translation and radius of the circle are the parameters
 def transformed_circle(x0, y0, r):
     vec = jnp.asarray([x0, y0, 0])
-    return compound_euclidian_transform_sdf(sdf_circle, jnp.eye(3), vec, 1.)(coor, r)
+    return compound_euclidean_transform_sdf(sdf_circle, jnp.eye(3), vec, 1.)(coor, r)
 
 
 # evaluate the SDF of the geometry to create a signed distance field 2D map

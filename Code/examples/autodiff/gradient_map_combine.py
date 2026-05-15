@@ -16,7 +16,7 @@ from spomso.jax_cores.combine_jax import combine_2_sdfs, combine_multiple_sdfs, 
 from spomso.jax_cores.combine_jax import union, union2, smooth_union2_3o
 
 from spomso.jax_cores.modifications_jax import onion
-from spomso.jax_cores.transformations_jax import compound_euclidian_transform_sdf
+from spomso.jax_cores.transformations_jax import compound_euclidean_transform_sdf
 from spomso.jax_cores.post_processing_jax import gaussian_falloff_jax
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -54,10 +54,10 @@ smooth = 0.2
 # define a new SDF where the radius, distance, width, and smoothing distance are the parameters
 def combined_circle(r, d, w, s):
     sdf_1 = sdf_circle
-    sdf_1 = compound_euclidian_transform_sdf(sdf_1, jnp.eye(3), jnp.asarray([-d/2, 0, 0]), 1.)
+    sdf_1 = compound_euclidean_transform_sdf(sdf_1, jnp.eye(3), jnp.asarray([-d/2, 0, 0]), 1.)
 
     sdf_2 = sdf_circle
-    sdf_2 = compound_euclidian_transform_sdf(sdf_2, jnp.eye(3), jnp.asarray([d/2, 0, 0]), 1.)
+    sdf_2 = compound_euclidean_transform_sdf(sdf_2, jnp.eye(3), jnp.asarray([d/2, 0, 0]), 1.)
 
     # sdf = combine_2_sdfs(sdf_1, sdf_2, (radius,), (radius,), union2)
     # sdf = combine_multiple_sdfs((sdf_1, sdf_2), ((radius,), (radius,)), union)
@@ -68,7 +68,7 @@ def combined_circle(r, d, w, s):
     vec = jnp.asarray([0, 0, 0])
     rot_mat = Rotation.from_euler('z', 45, degrees=True).as_matrix()
     scale = 1.
-    f_euclidean = compound_euclidian_transform_sdf(onioned_circle, rot_mat, vec, scale)
+    f_euclidean = compound_euclidean_transform_sdf(onioned_circle, rot_mat, vec, scale)
 
     out = f_euclidean(coor, r)
     return out

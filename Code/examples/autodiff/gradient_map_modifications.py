@@ -13,7 +13,7 @@ from spomso.cores.helper_functions import generate_grid, smarter_reshape
 from spomso.jax_cores.sdf_2D_jax import sdf_circle
 
 from spomso.jax_cores.modifications_jax import onion, mirror, gaussian_falloff
-from spomso.jax_cores.transformations_jax import compound_euclidian_transform_sdf
+from spomso.jax_cores.transformations_jax import compound_euclidean_transform_sdf
 from spomso.jax_cores.post_processing_jax import gaussian_falloff_jax
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ def transformed_circle(r, d, w):
     vec = jnp.asarray([0, 0, 0])
     rot_mat = Rotation.from_euler('z', 45, degrees=True).as_matrix()
     scale = 1.
-    f_euclidean = compound_euclidian_transform_sdf(f_main, rot_mat, vec, scale)
+    f_euclidean = compound_euclidean_transform_sdf(f_main, rot_mat, vec, scale)
 
     # f_euclidean = gaussian_falloff(f_euclidean, 1., 0.5)
 

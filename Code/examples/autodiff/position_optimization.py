@@ -11,7 +11,7 @@ import optax
 
 from spomso.cores.helper_functions import generate_grid, smarter_reshape
 from spomso.jax_cores.sdf_2D_jax import sdf_circle
-from spomso.jax_cores.transformations_jax import compound_euclidian_transform_sdf
+from spomso.jax_cores.transformations_jax import compound_euclidean_transform_sdf
 from spomso.jax_cores.modifications_jax import gaussian_falloff
 
 
@@ -63,10 +63,10 @@ def target_circle(x0, y0):
     vec = jnp.asarray([x0, y0, 0])
 
     if pure_sdf:
-        out = compound_euclidian_transform_sdf(sdf_circle, jnp.eye(3), vec, 1.)(coor, radius)
+        out = compound_euclidean_transform_sdf(sdf_circle, jnp.eye(3), vec, 1.)(coor, radius)
     else:
         circle = gaussian_falloff(sdf_circle, 1., 0.5)
-        circle = compound_euclidian_transform_sdf(circle, jnp.eye(3), vec, 1.)
+        circle = compound_euclidean_transform_sdf(circle, jnp.eye(3), vec, 1.)
         out = circle(coor, radius)
 
     return out

@@ -18,7 +18,7 @@ from spomso.jax_cores.modifications_jax import elongation, onion, concentric
 from spomso.jax_cores.combine_jax import combine_2_sdfs, parametric_combine_2_sdfs
 from spomso.jax_cores.combine_jax import union2, smooth_union2_3o
 
-from spomso.jax_cores.transformations_jax import compound_euclidian_transform_sdf
+from spomso.jax_cores.transformations_jax import compound_euclidean_transform_sdf
 from spomso.jax_cores.post_processing_jax import gaussian_falloff_jax
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -57,13 +57,13 @@ def geometry(r, a, w, s):
     sdf_p = r, 0., np.pi*5/6, -np.pi*5/6
 
     f_modified = concentric(sdf, w)
-    f_modified = elongation(f_modified, jnp.asarray([0., 0., 0.75]))
+    f_modified = elongation(f_modified, jnp.asarray([0., 0., 0.75/2]))
 
     rot_mat_p = Rotation.from_euler('z', a, degrees=True).as_matrix()
-    f_modified_1 = compound_euclidian_transform_sdf(f_modified, rot_mat_p, jnp.asarray([0, 0, 1.5]), 1.2)
+    f_modified_1 = compound_euclidean_transform_sdf(f_modified, rot_mat_p, jnp.asarray([0, 0, 1.5]), 1.2)
 
     rot_mat_m = Rotation.from_euler('z', -a, degrees=True).as_matrix()
-    f_modified_2 = compound_euclidian_transform_sdf(f_modified, rot_mat_m, jnp.asarray([0, 0, -1.5]), 1.2)
+    f_modified_2 = compound_euclidean_transform_sdf(f_modified, rot_mat_m, jnp.asarray([0, 0, -1.5]), 1.2)
 
     csdf = combine_2_sdfs(f_modified_1, f_modified_2, sdf_p, sdf_p, union2)
     csdf = parametric_combine_2_sdfs(csdf, f_modified, (), sdf_p, smooth_union2_3o, s)
