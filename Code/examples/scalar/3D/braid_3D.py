@@ -18,7 +18,7 @@ co_size = 1.5, 1.5, 4
 # resolution of the volume
 co_resolution = 150, 150, 200
 
-show = "BINARY" # BINARY, FIELD
+show = "FIELD" # BINARY, FIELD
 show_midplane = True
 show_3d = True
 
@@ -33,8 +33,8 @@ start_time = process_time()
 
 # create a torus with both radii
 torus = Torus(0.25, 0.2)
-# elongate the torus along the x-axis to create a chin link
-torus.elongation((4., 0., 0.0))
+# elongate the torus along the x-axis to create a chain link
+torus.elongation((2., 0., 0.0))
 # rotate the torus by 90° around the y-axis
 torus.rotate(np.pi/2, (0, 1, 0))
 # print the modifications applied to the torus
