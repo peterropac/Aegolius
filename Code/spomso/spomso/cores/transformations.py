@@ -11,7 +11,7 @@ from typing import Callable
 
 class EuclideanTransform:
     """
-    Class containing the Euclidian transforms which can be applied to a geometry.
+    Class containing the Euclidean transforms which can be applied to a geometry.
     """
 
     def __init__(self):
@@ -24,10 +24,10 @@ class EuclideanTransform:
 
     @property
     def transformations(self) -> list:
-        """All the Euclidian transformations which were applied to the geometry in chronological order.
+        """All the Euclidean transformations which were applied to the geometry in chronological order.
 
         Returns:
-            List of Euclidian transformations.
+            List of Euclidean transformations.
         """
         return self._et
 
@@ -266,7 +266,7 @@ class EuclideanTransform:
 
 class EuclideanTransformPoints:
     """
-    Class containing the Euclidian transforms which can be applied to a point cloud.
+    Class containing the Euclidean transforms which can be applied to a point cloud.
     """
 
     def __init__(self):
@@ -279,10 +279,10 @@ class EuclideanTransformPoints:
 
     @property
     def transformations(self) -> list:
-        """All the Euclidian transformations which were applied to the point cloud in chronological order.
+        """All the Euclidean transformations which were applied to the point cloud in chronological order.
 
         Returns:
-            List of Euclidian transformations.
+            List of Euclidean transformations.
         """
         return self._et
 
