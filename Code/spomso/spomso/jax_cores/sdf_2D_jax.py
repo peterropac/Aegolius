@@ -8,7 +8,6 @@ import jax.numpy as jnp
 import numpy as np
 import jax
 from jax.lax import fori_loop
-from functools import partial
 
 array_like_type = jnp.ndarray | np.ndarray | list | tuple
 scalar_like_type = float | int

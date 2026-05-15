@@ -28,7 +28,7 @@ def move_sdf(function_: Callable[[array_like_type, tuple], array_like_type],
     """
     @jax.jit
     def moved(co, *args):
-        p = jnp.subtract(co.T - move_vector).T
+        p = jnp.subtract(co.T, move_vector).T
         return function_(p, *args)
 
     return moved
@@ -74,12 +74,12 @@ def rotate_sdf(function_: Callable[[array_like_type, tuple], array_like_type],
     return rotated
 
 
-def compound_euclidian_transform_sdf(function_: Callable[[array_like_type, tuple], array_like_type],
+def compound_euclidean_transform_sdf(function_: Callable[[array_like_type, tuple], array_like_type],
                                      rotation_matrix: array_like_type,
                                      move_vector: array_like_type,
                                      scale_factor: scalar_like_type) -> function_like_type:
     """
-    Apply the euclidian transformations to the geometry (SDF).
+    Apply the Euclidean transformations to the geometry (SDF).
 
     Args:
         function_: Original SDF

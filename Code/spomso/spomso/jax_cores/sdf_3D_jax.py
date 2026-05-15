@@ -391,9 +391,9 @@ def sdf_triangle_3d(co: array_like_type, a: array_like_type, b: array_like_type,
         SDF, with shape (N,), evaluated at the provided coordinate points.
     """
     # https://iquilezles.org/articles/distfunctions/
-    s1 = (b - a) / 1
-    s2 = (c - b) / 1
-    s3 = (a - c) / 1
+    s1 = (b - a)
+    s2 = (c - b)
+    s3 = (a - c)
 
     coa = jnp.subtract(co.T, a).T
     cob = jnp.subtract(co.T, b).T

@@ -37,7 +37,7 @@ def elongation(function_: function_like_type,
     Returns:
         Modified SDF.
     """
-    ev = jnp.asarray(elongate_vector)/2
+    ev = jnp.asarray(elongate_vector)
 
     @jax.jit
     def new_geo_object(co, *params):

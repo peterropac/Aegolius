@@ -24,7 +24,7 @@ from .modifications_jax import boundary, invert, sign, define_volume, onion, con
 from .modifications_jax import elongation, revolution, axis_revolution, extrusion, twist, bend, displacement
 from .modifications_jax import infinite_repetition, finite_repetition, finite_repetition_rescaled, linear_instancing
 from .modifications_jax import symmetry, mirror, rotational_symmetry
-from .modifications_jax import shear_xz, shear_yz, shear_xy, shear_zy, shear_zx, shear_zy
+from .modifications_jax import shear_xz, shear_yz, shear_xy, shear_zy, shear_yx, shear_zx
 from .modifications_jax import custom_modification, custom_post_process
 
 from .modifications_jax import sigmoid_falloff, positive_sigmoid_falloff, capped_exponential
