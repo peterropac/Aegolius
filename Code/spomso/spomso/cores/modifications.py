@@ -83,7 +83,7 @@ class ModifyObject:
             Modified SDF.
         """
         self._mod.append("elongation")
-        ev = np.asarray(elongate_vector)/2
+        ev = np.asarray(elongate_vector)
 
         geo_object = self.geo_object
 
@@ -449,7 +449,7 @@ class ModifyObject:
         Returns: 
             Modified SDF.
         """
-        self._mod.append("revolution")
+        self._mod.append("axis_revolution")
 
         geo_object = self.geo_object
 
@@ -1105,7 +1105,7 @@ class ModifyObject:
         Returns: 
             Modified SDF.
         """
-        self._mod.append("parametric_curve_instancing")
+        self._mod.append("curve_instancing")
 
         geo_object = self.geo_object
 
@@ -1151,7 +1151,7 @@ class ModifyObject:
             Modified SDF.
         """
         # approximation with the binormal (dy) and normal (dz) vector!!!
-        self._mod.append("aligned_parametric_curve_instancing")
+        self._mod.append("aligned_curve_instancing")
 
         geo_object = self.geo_object
         tol = 0.001
@@ -1216,7 +1216,7 @@ class ModifyObject:
         Returns: 
             Modified SDF.
         """
-        self._mod.append("fully_aligned_parametric_curve_instancing")
+        self._mod.append("fully_aligned_curve_instancing")
 
         geo_object = self.geo_object
         tol = 0.001
@@ -1280,7 +1280,7 @@ class ModifyObject:
         geo_object = self.geo_object
 
         def new_geo_object(co, *params):
-            p = np.subtract(co.T - move_vector).T
+            p = np.subtract(co.T, move_vector).T
             return geo_object(p, *params)
 
         self.geo_object = new_geo_object
@@ -1369,7 +1369,7 @@ class ModifyObject:
         Returns:
             Modified Scalar Field.
         """
-        self._pmod.append("sigmoid_falloff")
+        self._mod.append("sigmoid_falloff")
         geo_object = self.geo_object
 
         def new_geo_object(co, *params):

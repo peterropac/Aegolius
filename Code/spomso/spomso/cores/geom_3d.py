@@ -162,10 +162,10 @@ class Box(GenericGeometry):
     """
     
     def __init__(self, a: float | int, b: float | int, c: float | int):
-        GenericGeometry.__init__(self, sdf_box, a/2, b/2, c/2)
-        self._a = a/2
-        self._b = b/2
-        self._c = c/2
+        GenericGeometry.__init__(self, sdf_box, (a, b, c))
+        self._a = a
+        self._b = b
+        self._c = c
 
     @property
     def a(self) -> float | int:

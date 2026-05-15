@@ -20,7 +20,8 @@ def sdf_neu_circle(co, radius, norm):
 
 
 def sdf_box_2d(co, size):
-    d = np.subtract(np.abs(co[:2, :]).T, size).T
+    v = np.asarray(size) / 2
+    d = np.subtract(np.abs(co[:2, :]).T, v).T
 
     term1 = np.linalg.norm(np.maximum(d, 0), axis=0)
     term2 = np.minimum(np.maximum(d[0],d[1]), 0)
@@ -48,7 +49,8 @@ def sdf_rounded_box_2d(co, size, rounding):
     r[m2] = rounding[2]
     r[m3*m2] = rounding[3]
 
-    d = np.subtract(np.abs(co[:2, :]).T, size).T + r
+    v = np.asarray(size) / 2
+    d = np.subtract(np.abs(co[:2, :]).T, v).T + r
     o = np.linalg.norm(np.maximum(d, 0), axis=0)
     u = np.minimum(np.maximum(d[0], d[1]), 0) - r
 
@@ -80,26 +82,6 @@ def sdf_triangle_2d(co, p0, p1, p2):
     return -np.sqrt(d[0])*np.sign(d[1])
 
 
-def sdf_arc_positive_only(co, radius, start_angle, end_angle):
-
-    co = co[:2]
-
-    phi = np.arctan2(co[1], co[0])
-    phi[phi < 0] = 2 * np.pi + phi[phi < 0]
-
-    ad = end_angle - start_angle
-    h = np.clip((phi - start_angle)/ad, 0, 1)
-    psi = ad*h + start_angle
-    oc = np.asarray((radius*np.cos(psi),
-                    radius*np.sin(psi) ))
-
-    poc = np.subtract(co, oc)
-
-    length = np.linalg.norm(poc, axis=0)
-    start_length = np.linalg.norm(np.subtract(co.T, (radius*np.cos(start_angle), radius*np.sin(start_angle))).T, axis=0)
-    return np.minimum(length, start_length)
-
-
 def sdf_arc(co, radius, start_angle, end_angle):
 
     co = co[:2]
@@ -119,19 +101,6 @@ def sdf_arc(co, radius, start_angle, end_angle):
 
     length = np.linalg.norm(poc, axis=0)
     return length
-
-
-def sdf_sector_old(co, radius, angle):
-    # UNFINISHED
-    c = np.asarray([np.sin(angle), np.cos(angle)])
-    co = co[:2]
-    co[0] = np.abs(co[0])
-
-    l = np.linalg.norm(co, axis=0) - radius
-    m = np.linalg.norm(co - np.outer(c, np.clip( np.dot(co.T, c), 0, radius)))
-
-    return np.maximum(l, m*np.sign(c[1]*co[0] - c[0]*co[1]))
-
 
 def sdf_sector(co, radius, angle_1, angle_2):
 

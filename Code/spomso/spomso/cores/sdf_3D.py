@@ -37,9 +37,9 @@ def sdf_cylinder(co, radius, height):
     return term1 + term2
 
 
-def sdf_box(co, a, b, c):
+def sdf_box(co, size):
 
-    v = np.asarray((a,b,c))
+    v = np.asarray(size)/2
     qo = np.abs(co).T - v
 
     t1 = np.linalg.norm(np.maximum(qo, 0.0), axis=1)
@@ -54,6 +54,7 @@ def sdf_torus(co, R, r):
 
 
 def sdf_chainlink(co, R, r, length):
+    co = co.copy()
     co[0] = co[0] - np.clip(co[0], -length/2, length/2)
     p = np.linalg.norm(co[:2], axis=0) - R
     q = np.linalg.norm([p, co[2]], axis=0)
@@ -61,6 +62,7 @@ def sdf_chainlink(co, R, r, length):
 
 
 def sdf_braid(co, length, R, r, pitch):
+    co = co.copy()
     c = np.cos(pitch * co[2])
     s = np.sin(pitch * co[2])
     rot = np.asarray([[c, s], [-s, c]])
@@ -77,6 +79,7 @@ def sdf_arc_3d(co, R, r, start_angle, end_angle):
 
     c_angle = (start_angle + end_angle) / 2
     rot = np.asarray([[np.cos(c_angle), np.sin(c_angle)], [-np.sin(c_angle), np.cos(c_angle)]])
+    co = co.copy()
     co[:2] = rot.dot(co[:2])
     co[1] = np.abs(co[1])
     phi = np.arctan2(co[1], co[0])
@@ -117,6 +120,7 @@ def sdf_segment_3d(co, a, b):
 
 def sdf_cone(co, height, angle):
     # https://iquilezles.org/articles/distfunctions/
+    co = co.copy()
     q = np.asarray((np.tan(angle), -1))*height
     co[2] -= height*(0.5**(1/3))
 
@@ -157,6 +161,7 @@ def sdf_solid_angle(co, radius, angle_1, angle_2):
     angle_diff = np.abs(angle_2 - angle_1)/2
     c_angle = (angle_2 + angle_1)/2
     rot = np.asarray([[np.cos(c_angle), np.sin(c_angle)], [-np.sin(c_angle), np.cos(c_angle)]])
+    co = co.copy()
     co[:2] = rot.dot(co[:2])
     co[1] = np.linalg.norm(co[1:,:], axis=0)
 
@@ -180,9 +185,9 @@ def sdf_solid_angle(co, radius, angle_1, angle_2):
 
 def sdf_triangle_3d(co, a, b, c):
     # https://iquilezles.org/articles/distfunctions/
-    s1 = (b-a)/1
-    s2 = (c-b)/1
-    s3 = (a-c)/1
+    s1 = (b-a)
+    s2 = (c-b)
+    s3 = (a-c)
     
     coa = np.subtract(co.T, a).T
     cob = np.subtract(co.T, b).T

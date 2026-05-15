@@ -10,7 +10,7 @@ from spomso.cores.geom import GenericGeometry
 from spomso.cores.transformations import EuclideanTransform
 from spomso.cores.modifications import ModifyObject
 from spomso.cores.sdf_2D import sdf_circle, sdf_neu_circle, sdf_box_2d, sdf_segment_2d, sdf_triangle_2d, sdf_rounded_box_2d
-from spomso.cores.sdf_2D import sdf_sector, sdf_inf_sector, sdf_sector_old, sdf_ngon, sdf_arc
+from spomso.cores.sdf_2D import sdf_sector, sdf_inf_sector, sdf_ngon, sdf_arc
 from spomso.cores.sdf_2D import sdf_parametric_curve_2d, sdf_segmented_curve_2d, sdf_segmented_line_2d, sdf_polygon_2d
 from spomso.cores.sdf_2D import sdf_point_cloud_2d
 from spomso.cores.triangulation_functions import interior_polygon
@@ -51,7 +51,7 @@ class Circle(GenericGeometry):
 
 
 class NEUCircle(GenericGeometry):
-    """Non-euclidian circle defined by its radius and order parameter.
+    """Non-euclidean circle defined by its radius and order parameter.
 
     Args:
         radius: Radius of the circle.
@@ -135,9 +135,9 @@ class Rectangle(GenericGeometry):
     """
 
     def __init__(self, a: float | int, b: float | int):
-        GenericGeometry.__init__(self, sdf_box_2d, (a/2, b/2))
-        self._a = a/2
-        self._b = b/2
+        GenericGeometry.__init__(self, sdf_box_2d, (a, b))
+        self._a = a
+        self._b = b
 
     @property
     def a(self) -> float | int:
@@ -166,9 +166,9 @@ class RoundedRectangle(GenericGeometry):
     """
 
     def __init__(self, a: float, b: float, rounding: tuple | list | np.ndarray):
-        GenericGeometry.__init__(self, sdf_rounded_box_2d, (a/2, b/2), rounding[:4])
-        self._a = a/2
-        self._b = b/2
+        GenericGeometry.__init__(self, sdf_rounded_box_2d, (a, b), rounding[:4])
+        self._a = a
+        self._b = b
         self._round_corners = rounding[:4]
 
     @property
@@ -247,23 +247,6 @@ class Triangle(GenericGeometry):
     def c(self) -> np.ndarray:
         """Vector defining the position of the third vertex."""
         return self._c
-
-
-class SectorOld(GenericGeometry):
-
-    def __init__(self, radius, angle):
-        GenericGeometry.__init__(self, sdf_sector_old, radius, angle/2)
-        self._radius = radius
-        self._angle = angle/2
-
-    @property
-    def radius(self):
-        return self._radius
-
-    @property
-    def angle(self):
-        return self._angle
-
 
 class Sector(GenericGeometry):
     """

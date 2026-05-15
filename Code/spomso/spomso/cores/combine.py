@@ -11,9 +11,11 @@ from typing import Callable
 
 def smoothmin_poly2(x, y, a):
     # https://iquilezles.org/articles/smin/
-    h = np.maximum(a - np.abs(x - y), 0.0)/a
-    return np.minimum(x, y) - h * h * a/4.0
-
+    if not a==0.0:
+        h = np.maximum(a - np.abs(x - y), 0.0)/a
+        return np.minimum(x, y) - h * h * a/4.0
+    else:
+        return np.minimum(x, y)
 
 def smoothmin_poly3(x, y, a):
     # https://iquilezles.org/articles/smin/
@@ -21,13 +23,13 @@ def smoothmin_poly3(x, y, a):
         h = np.maximum(a - np.abs(x - y), 0.0)/a
         return np.minimum(x, y) - h * h * h * a / 6.0
     else:
-        return np.minimum(y, y)
+        return np.minimum(x, y)
 
 
-def smoothmax_boltz(x, y, width):
+def smoothmax_boltz(x, y, a):
     # https: // en.wikipedia.org / wiki / Smooth_maximum
-    exp1 = np.exp(x/width)
-    exp2 = np.exp(y/width)
+    exp1 = np.exp(x / a)
+    exp2 = np.exp(y / a)
 
     return (x*exp1 + y*exp2)/(exp1 + exp2)
 

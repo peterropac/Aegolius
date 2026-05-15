@@ -31,9 +31,9 @@ def add_vectors(vec, add_vec):
 def subtract_vectors(vec, subtract_vec):
     subtract_vec = np.asarray(subtract_vec)
     if subtract_vec.size == 3:
-        return np.add(vec.T, subtract_vec).T
+        return np.subtract(vec.T, subtract_vec).T
     else:
-        return np.add(vec, subtract_vec)
+        return np.subtract(vec, subtract_vec)
 
 
 def rescale_vectors(vec, scale):
