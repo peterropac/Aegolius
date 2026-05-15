@@ -18,7 +18,7 @@ co_size = 1.4, 1.4, 2.2
 # resolution of the volume
 co_resolution = 100, 100, 200
 
-show = "BINARY" # BINARY, FIELD
+show = "FIELD" # BINARY, FIELD
 show_midplane = True
 show_3d = True
 
@@ -32,7 +32,7 @@ coor, co_res_new = generate_grid(co_size, co_resolution)
 start_time = process_time()
 
 # define the torso of a chess pawn as a cone with a height of 1.2 and the slope angle of PI/10
-torso = Cone(1.2, np.pi/10)
+torso = Cone(1.8, np.pi/10)
 # position the torso in space
 torso.move((0, 0, -0.55))
 # round the torso with the rounding radius of 0.1 while preserving its maximum radius of 0.4
@@ -137,8 +137,7 @@ if show_3d and show=="BINARY":
         isomax=1,
         opacity=0.1,
         surface_count=2,
-    ))
-    fig.show()
+        ))
 
 if show_3d and show=="FIELD":
     fig = go.Figure(data=go.Volume(
@@ -152,7 +151,6 @@ if show_3d and show=="FIELD":
         surface_count=5,
     ))
     fig.show()
-
 
 
 
