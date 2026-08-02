@@ -114,7 +114,6 @@ def radial_vector_field_cylindrical(r: array_like_type) -> jnp.ndarray:
         r: Coordinates of points on which the vector field is evaluated.
             Shape must be (D, N), where D is the dimension (D = 3) and N is the
             number of coordinate points.
-        p: Placeholder for extra parameters (unused).
 
     Returns:
         Vector field with shape (3, N), unit-normalized.
