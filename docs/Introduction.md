@@ -34,7 +34,7 @@ $$
 where $\mathbf{r}$ is the ***position vector***, $\mathbf{r_T}$ is the ***translation vector***, $\mathbf{R}$ is the ***rotation matrix***, $S$ in the ***scale factor***, 
 ***$f$*** is the SDF before the ***Euclidean transformation***, and ***$f_{ET}$*** is the transformed SDF.
 
-***[Example](https://nbviewer.org/github/peterropac/Aegolius/blob/main/Code/examples/scalar/2D/basics_2D.ipynb)***
+***[Example](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/scalar/2D/basics_2D.ipynb)***
 
 ## Modifications
 
@@ -47,7 +47,7 @@ $$ f_{onion}( \mathbf{r} ) = | f(\mathbf{r}) | - w,$$
 where $\mathbf{r}$ is the ***position vector***, $w$ is the ***shell thickness***, ***$f$*** is the SDF before the ***Onion modification***, 
 and ***$f_{onion}$*** is the modified SDF.
 
-***[Example](https://nbviewer.org/github/peterropac/Aegolius/blob/main/Code/examples/scalar/2D/olympic_rings_2D.ipynb)***
+***[Example](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/scalar/2D/olympic_rings_2D.ipynb)***
 
 ## Boolean Operations
 
@@ -81,9 +81,9 @@ $$
 where $\textrm{smin}$ is a ***[Smooth Minimum Function](https://iquilezles.org/articles/smin/)*** ([others](https://en.wikipedia.org/wiki/Smooth_maximum)),
 ***$a$*** is the ***smoothing parameter***, and $f_1$ and $f_2$ are the SDFs.
 
-***[Boolean Example](https://nbviewer.org/github/peterropac/Aegolius/blob/main/Code/examples/scalar/2D/olympic_rings_2D.ipynb)***, 
-***[Boolean and Smooth Boolean Example](https://nbviewer.org/github/peterropac/Aegolius/blob/main/Code/examples/scalar/3D/plate_3D.ipynb)***,
-***[Smooth Boolean Example](https://nbviewer.org/github/peterropac/Aegolius/blob/main/Code/examples/scalar/3D/pawn_3D.ipynb)***
+***[Boolean Example](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/scalar/2D/olympic_rings_2D.ipynb)***, 
+***[Boolean and Smooth Boolean Example](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/scalar/3D/plate_3D.ipynb)***,
+***[Smooth Boolean Example](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/scalar/3D/pawn_3D.ipynb)***
 
 ## Vector Fields
 
@@ -91,7 +91,7 @@ SDF is a spatially dependent scalar field but by calculating the gradient of the
 In this manner we can create vector fields around complex shapes. Additionally, the SDF itself can be used to modify the orientation of the vectors based on the distance from the surface.
 There are also several built-in vector fields available, which can also be further modified using SDFs.
 
-***[SDF Vector Fields](https://nbviewer.org/github/peterropac/Aegolius/blob/main/Code/examples/vector/sdf_vector_field.ipynb)***, ***[Build-in Vector Fields](https://nbviewer.org/github/peterropac/Aegolius/blob/main/Code/examples/vector/buildin_vector_fields.ipynb)*** 
+***[SDF Vector Fields](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/vector/sdf_vector_field.ipynb)***, ***[Build-in Vector Fields](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/vector/buildin_vector_fields.ipynb)*** 
 
 ## References
 

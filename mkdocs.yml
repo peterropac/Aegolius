@@ -21,7 +21,7 @@ plugins:
         default_handler: python
         handlers:
             python:
-                paths: [Code/spomso]
+                paths: [spomso]
                 options:
                     show_source: false
                     members_order: source
@@ -66,4 +66,6 @@ nav:
     - 'Combinations': 'User_Interface_Automatic_Differentiation/Combinations.md'
     - 'Modifications': 'User_Interface_Automatic_Differentiation/SDF_Modifications.md'
     - 'Post-Processing': 'User_Interface_Automatic_Differentiation/SDF_PostProcessing.md'
+    - 'Vector Fields': 'User_Interface_Automatic_Differentiation/VectorFields.md'
+    - 'Vector Fields Modifications': 'User_Interface_Automatic_Differentiation/VectorFields_Modifications.md'
     - 'Helper Functions': 'User_Interface_Automatic_Differentiation/Helper_Functions.md'

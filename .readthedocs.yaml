@@ -15,4 +15,4 @@ python:
   install:
   - requirements: docs/requirements.txt
   - method: pip
-    path: Code/spomso
+    path: spomso

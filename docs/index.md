@@ -34,7 +34,8 @@
 
 ## Key Features - Automatic Differentiation
 
-A [JAX](https://jax.readthedocs.io/en/latest/) implementation is available for nearly all SDFs, modifications, combinations, and post-processing functions. This enables computationally demanding operations to be offloaded to the GPU, with full support for [Automatic Differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation).
+A [JAX](https://jax.readthedocs.io/en/latest/) implementation is available for nearly all SDFs, modifications, combinations, and post-processing functions. 
+This enables computationally demanding operations to be offloaded to the GPU, with full support for [Automatic Differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation).
 
 **JAX** is an optional dependency and will not be installed by default.
 
@@ -42,19 +43,19 @@ A [JAX](https://jax.readthedocs.io/en/latest/) implementation is available for n
 
 The repository contains a wide variety of use cases:
 
--   [2D Examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/2D) (27 scripts) and [3D Examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/scalar/3D) (17 scripts) demonstrating geometry construction.
--   [Vector Examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/vector) (5 scripts) for vector field manipulation.
--   [Automatic Differentiation Examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/autodiff) (7 scripts) showcasing JAX integration.
+-   [2D Examples](https://github.com/peterropac/Aegolius/tree/main/examples/scalar/2D) (27 scripts) and [3D Examples](https://github.com/peterropac/Aegolius/tree/main/examples/scalar/3D) (17 scripts) demonstrating geometry construction.
+-   [Vector Examples](https://github.com/peterropac/Aegolius/tree/main/examples/vector) (7 scripts) for vector field manipulation.
+-   [Automatic Differentiation Examples](https://github.com/peterropac/Aegolius/tree/main/examples/autodiff) (8 scripts) showcasing JAX integration.
 
 All examples are provided in both Python script (`.py`) and interactive Jupyter Notebook (`.ipynb`) formats.
 
-There are also [LLM Examples](https://github.com/peterropac/Aegolius/tree/main/Code/examples/LLM) demonstrating how to use various (open-source) LLMs to generate complex geometry.
+There are also [LLM Examples](https://github.com/peterropac/Aegolius/tree/main/examples/LLM) demonstrating how to use various (open-source) LLMs to generate complex geometry.
 
 ## Installation
 
 The simplest method to install SPOMSO is via `pip install SPOMSO`.
 
-For more information, see the [Installation Guide](https://nbviewer.org/github/peterropac/Aegolius/blob/main/Code/examples/aegolius_install.ipynb).
+For more information, see the [Installation Guide](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/aegolius_install.ipynb).
 
 ## Citing
 
