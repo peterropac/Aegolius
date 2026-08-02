@@ -1,15 +1,15 @@
 __pycache__/
-   *.py[cod]
-   *$py.class
-   *.egg-info/
-   build/
-   dist/
-   .idea/
-   .vscode/
-   .DS_Store
-   .ipynb_checkpoints/
-   site/
-   spomso/SPOMSO.egg-info/
-   spomso/build/
-   spomso/dist/
-   *.blend
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+.idea/
+.vscode/
+.DS_Store
+.ipynb_checkpoints/
+site/
+spomso/SPOMSO.egg-info/
+spomso/build/
+spomso/dist/
+*.blend
