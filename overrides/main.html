@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {{ super() }}
+  {% set title = page.title if page and page.title else config.site_name %}
+  {% set card = config.site_url ~ "assets/smp_110926.png" %}
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ config.site_description }}">
+  <meta property="og:image" content="{{ card }}">
+  <meta property="og:url" content="{{ page.canonical_url }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{{ card }}">
+{% endblock %}

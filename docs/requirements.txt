@@ -1,4 +1,7 @@
-mkdocs
+mkdocs>=1.6,<2
+mkdocs-material>=9.7.7
 mkdocstrings[python]
+mkdocs-autorefs>=1.2
 markdown-include
 pymdown-extensions
+ruff

@@ -2,7 +2,7 @@
 # Introduction
 ---
 
-Some tutorials how to use ***Automatic Differentiation*** features in **SPOMSO**:
+Some tutorials on how to use ***Automatic Differentiation*** features in **SPOMSO**:
 
 ## Parameters
 - [Differentiate an SDF with respect to its parameters](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/autodiff/gradient_map_parameters.ipynb)

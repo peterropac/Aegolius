@@ -5,6 +5,14 @@
 
 **SPOMSO** is free and open-source software distributed under the [GNU LGPL](https://www.gnu.org/licenses/lgpl-3.0.html). This package is designed for the procedural construction of geometry and vector fields based on [Signed Distance Functions](https://en.wikipedia.org/wiki/Signed_distance_function) (SDFs).
 
+[![PyPI version](https://img.shields.io/pypi/v/spomso)](https://pypi.org/project/spomso/)
+[![License](https://img.shields.io/github/license/peterropac/Aegolius)](https://github.com/peterropac/Aegolius/blob/main/LICENSE)
+[![Docs](https://img.shields.io/readthedocs/aegolius)](https://aegolius.readthedocs.io/en/latest/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8090670.svg)](https://doi.org/10.5281/zenodo.8090670)
+[![GitHub stars](https://img.shields.io/github/stars/peterropac/Aegolius)](https://github.com/peterropac/Aegolius/stargazers)
+
+---
+
 ## Key Features - SDFs
 
 -   Support for both **2D** and **3D** geometry.
@@ -40,6 +48,8 @@ This enables computationally demanding operations to be offloaded to the GPU, wi
 
 **JAX** is an optional dependency and will not be installed by default.
 
+---
+
 ## Examples
 
 The repository contains a wide variety of use cases:
@@ -51,11 +61,15 @@ All examples are provided in both Python script (`.py`) and interactive Jupyter 
 
 There are also [LLM Examples](https://github.com/peterropac/Aegolius/tree/main/examples/LLM) demonstrating how to use various (open-source) LLMs to generate complex geometry.
 
+---
+
 ## Installation
 
-The simplest method to install SPOMSO is via `pip install SPOMSO`.
+The simplest method to install SPOMSO is via `pip install spomso`.
 
 For more information, please refer to `aegolius_install.ipynb` in the [Examples](https://github.com/peterropac/Aegolius/tree/main/examples) folder.
+
+---
 
 ## Citing
 
@@ -63,9 +77,13 @@ If you use SPOMSO in your research, please cite the latest archived repository o
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8090670.svg)](https://doi.org/10.5281/zenodo.8090670)
 
+---
+
 ## Documentation
 
 Access the official [Documentation here](https://aegolius.readthedocs.io/en/latest/).
+
+---
 
 ## Acknowledgements
 

@@ -1,4 +1,59 @@
+---
 # Changelog
+---
+
+## [1.5.1] — 2026-09-14
+
+A packaging and documentation release. There are no API changes and no
+behavioural changes to geometry, fields or the JAX backend. The version bump
+exists so that the corrected package metadata and README reach PyPI, since
+those are only published as part of a release.
+
+---
+
+### Packaging
+
+- **README on PyPI.** Added a `README.md` pypi.org.
+
+- **Summary rewritten.** The one-line description shown in PyPI search results
+  now mentions GPU execution and automatic differentiation.
+
+- **Updated keywords.** Such as: signed distance
+  function/field, implicit surface, procedural geometry, constructive solid
+  geometry, level set, vector field, JAX, automatic differentiation.
+
+- **Trove classifiers.** Expanded to a full set: intended audience
+  (Science/Research, Developers, Education), supported Python versions
+  (3.10–3.13), and subject topics under
+  `Scientific/Engineering` (Mathematics, Physics, Visualization) and
+  `Multimedia :: Graphics :: 3D Modeling`.
+
+### Documentation
+
+- **Material for MkDocs.** The documentation theme moved from the built-in
+  `readthedocs` theme to Material. 
+
+- **Open in Colab badges** added to every example notebook.
+  Each notebook gains a badge linking to Colab and a setup cell that installs
+  SPOMSO only when running there, so examples can be run in a browser with no
+  local installation.
+
+- **Status badges** in the README.
+
+### Fixes
+
+- Corrected the docstring of `sdf_rounded_box_2D`.
+
+### Project
+
+- **`CITATION.cff`** added, so GitHub renders a "Cite this repository" button
+  with one-click APA and BibTeX export pointing at the Zenodo DOI.
+
+- **GitHub Discussions** enabled for questions and usage help.
+
+- SPOMSO submitted to the `awesome-jax` curated list.
+
+---
 
 ## [1.5.0] — 2026-07-31
 

@@ -2,7 +2,7 @@
 # Combining Geometry
 ---
 
-Tutorials how to ***Combine*** different SDFs to form more complex geometry:
+Tutorials on how to ***Combine*** different SDFs to form more complex geometry:
 
 ## 2D
 - [Boolean Operations](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/scalar/2D/olympic_rings_2D.ipynb)

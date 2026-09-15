@@ -2,7 +2,7 @@
 # Modifications
 ---
 
-A list of a few more advanced tutorials how to apply different ***Modifications***:
+A list of a few more advanced tutorials on how to apply different ***Modifications***:
 
 ## 2D
 - [Mirror Symmetry](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/scalar/2D/mirror_symmetry_2D.ipynb)

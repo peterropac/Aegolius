@@ -1,10 +1,12 @@
----
-# Summary
----
-
-![](images/comb_220224_0.png#only-light)
-![](images/comb_230623_2.png#only-dark)
-
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)"
+            srcset="https://raw.githubusercontent.com/peterropac/Aegolius/main/files/Images/comb_230623_2.png">
+    <img alt="SPOMSO: geometry and vector fields from signed distance functions"
+         src="https://raw.githubusercontent.com/peterropac/Aegolius/main/files/Images/comb_220224_0.png"
+         width="700">
+  </picture>
+</div>
 
 **Aegolius** is the public repository for the Python package **SPOMSO**.
 
@@ -12,6 +14,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/spomso)](https://pypi.org/project/spomso/)
 [![License](https://img.shields.io/github/license/peterropac/Aegolius)](https://github.com/peterropac/Aegolius/blob/main/LICENSE)
+[![Docs](https://img.shields.io/readthedocs/aegolius)](https://aegolius.readthedocs.io/en/latest/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8090670.svg)](https://doi.org/10.5281/zenodo.8090670)
 [![GitHub stars](https://img.shields.io/github/stars/peterropac/Aegolius)](https://github.com/peterropac/Aegolius/stargazers)
 
@@ -57,7 +60,6 @@ This enables computationally demanding operations to be offloaded to the GPU, wi
 ## Examples
 
 The repository contains a wide variety of use cases:
-
 -   [2D Examples](https://github.com/peterropac/Aegolius/tree/main/examples/scalar/2D) (27 scripts) and [3D Examples](https://github.com/peterropac/Aegolius/tree/main/examples/scalar/3D) (17 scripts) demonstrating geometry construction.
 -   [Vector Examples](https://github.com/peterropac/Aegolius/tree/main/examples/vector) (7 scripts) for vector field manipulation.
 -   [Automatic Differentiation Examples](https://github.com/peterropac/Aegolius/tree/main/examples/autodiff) (8 scripts) showcasing JAX integration.
@@ -72,9 +74,7 @@ There are also [LLM Examples](https://github.com/peterropac/Aegolius/tree/main/e
 
 The simplest method to install SPOMSO is via `pip install spomso`.
 
-For more information, see the [Installation Guide](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/aegolius_install.ipynb).
-
----
+For more information, please refer to `aegolius_install.ipynb` in the [Examples](https://github.com/peterropac/Aegolius/tree/main/examples) folder.
 
 ## Citing
 
@@ -82,7 +82,9 @@ If you use SPOMSO in your research, please cite the latest archived repository o
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8090670.svg)](https://doi.org/10.5281/zenodo.8090670)
 
----
+## Documentation
+
+Access the official [Documentation here](https://aegolius.readthedocs.io/en/latest/).
 
 ## Acknowledgements
 

@@ -2,7 +2,7 @@
 # Vector Fields
 ---
 
-Tutorials how to ***define*** and ***modify*** ***Vector Fields***:
+Tutorials on how to ***define*** and ***modify*** ***Vector Fields***:
 
 ## Define
 - [Build-in Vector Fields](https://nbviewer.org/github/peterropac/Aegolius/blob/main/examples/vector/buildin_vector_fields.ipynb)

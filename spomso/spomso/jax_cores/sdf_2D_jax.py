@@ -83,7 +83,7 @@ def sdf_segment_2d(co: array_like_type, a: array_like_type, b: array_like_type) 
 @jax.jit
 def sdf_rounded_box_2d(co: array_like_type, size: array_like_type, rounding: array_like_type) -> jnp.ndarray:
     """
-    Rectangle defined by its side lengths.
+    Rectangle defined by its side lengths and rounding radii for each vertex.
 
     Args:
         co: coordinates of points on which the SDF is evaluated.

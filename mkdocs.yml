@@ -1,71 +1,195 @@
 site_name: SPOMSO Documentation
 site_author: Peter Ropač
-repo_url: https://github.com/peterropac/Aegolius/
+site_description: SPOMSO is a free and open-source Python package designed for procedural generation of complex geometry and vector fields. Its key features also include automatic differentiation, enabling sophisticated gradient-based shape optimization workflows, and strong compatibility with LLM-based tools.
+site_url: https://aegolius.readthedocs.io/en/latest/
 
+repo_url: https://github.com/peterropac/Aegolius/
+repo_name: peterropac/Aegolius
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; Peter Ropač — GNU LGPL-3.0
 
 theme:
-  name: readthedocs
-  nav_style: dark
+  name: material
+  custom_dir: overrides
+  language: en
+
+  logo: assets/project_logo_140926_0.svg
+  favicon: assets/project_logo_140926_1.png
+
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+  font:
+      text: Inter
+      code: JetBrains Mono
+
+  features:
+      - navigation.sections
+      - navigation.top
+      - navigation.footer
+      - toc.follow
+
+      - search.suggest
+      - search.highlight
+      - search.share
+
+      - content.code.copy
+      - content.code.annotate
+      - content.tabs.link
+
+  icon:
+      repo: fontawesome/brands/github
+
+extra:
+  social:
+      - icon: fontawesome/brands/github
+        link: https://github.com/peterropac/Aegolius
+        name: Aegolius on GitHub
+      - icon: fontawesome/brands/python
+        link: https://pypi.org/project/spomso/
+        name: SPOMSO on PyPI
+      - icon: simple/zenodo
+        link: https://doi.org/10.5281/zenodo.8090670
+        name: Cite SPOMSO on Zenodo
+
+extra_css: [stylesheets/extra.css]
 
 markdown_extensions:
-    - pymdownx.arithmatex:
-        generic: true
+  - pymdownx.arithmatex:
+      generic: true
+
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
+
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+
+  - pymdownx.inlinehilite
+
+  - pymdownx.tabbed:
+      alternate_style: true
+
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+
+  - toc:
+      permalink: true
+      toc_depth: 3
 
 extra_javascript:
-    - javascripts/mathjax.js
-    - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
 
 plugins:
   - search
   - mkdocstrings:
-        default_handler: python
-        handlers:
-            python:
-                paths: [spomso]
-                options:
-                    show_source: false
-                    members_order: source
-                    heading_level: 1
-                    show_root_toc_entry: false
-                    show_root_heading: false
-                    show_root_members_full_path: false
+      default_handler: python
+      handlers:
+          python:
+             paths: [spomso]
+             options:
+                 show_source: false
+                 members_order: source
+                 heading_level: 2
+                 show_root_toc_entry: false
+                 show_root_heading: false
+                 show_root_members_full_path: false
+
+                 separate_signature: true
+                 line_length: 60
+                 show_signature_annotations: true
+                 signature_crossrefs: true
+
+                 show_symbol_type_heading: true
+                 show_symbol_type_toc: true
+
+                 docstring_style: google
+                 docstring_section_style: table
+
+                 docstring_options:
+                   ignore_init_summary: true
+                   trim_doctest_flags: true
+                 merge_init_into_class: true
+
+                 show_docstring_attributes: true
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  nav:
+    omitted_files: warn
+    not_found: warn
+
 
 nav:
-- 'Main': 'index.md'
+- 'Summary': 'index.md'
 - 'Introduction': 'Introduction.md'
 - 'Download': 'Download.md'
+- 'Change Log': 'Changelog.md'
 - 'Acknowledgements': 'Acknowledgements.md'
 - 'License and Copyright': 'License_and_Copyright.md'
 - 'Citing': 'Citing.md'
-- 'SDF Tutorials':
-    - 'Introduction': 'SDF_Tutorials/Introduction.md'
-    - 'Point Clouds': 'SDF_Tutorials/Point_Clouds.md'
-    - 'Modifications': 'SDF_Tutorials/Modifications.md'
-    - 'Combining Geometry': 'SDF_Tutorials/Combining_Geometry.md'
-    - 'Post-Processing': 'SDF_Tutorials/Post_Processing.md'
-    - 'Custom Functions': 'SDF_Tutorials/Custom_Functions.md'
-    - 'Advanced': 'SDF_Tutorials/Advanced.md'
-- 'Vector Fields Tutorials':
-    - 'Introduction': 'Vector_Fields_Tutorials/Introduction.md'
-- 'AutoDiff Tutorials':
-    - 'Introduction': 'Automatic_Differentiation_Tutorials/Introduction.md'
+
+- 'Tutorials':
+      - 'Signed Distance Functions':
+          - 'Introduction': 'SDF_Tutorials/Introduction.md'
+          - 'Point Clouds': 'SDF_Tutorials/Point_Clouds.md'
+          - 'Modifications': 'SDF_Tutorials/Modifications.md'
+          - 'Combining Geometry': 'SDF_Tutorials/Combining_Geometry.md'
+          - 'Post-Processing': 'SDF_Tutorials/Post_Processing.md'
+          - 'Custom Functions': 'SDF_Tutorials/Custom_Functions.md'
+          - 'Advanced': 'SDF_Tutorials/Advanced.md'
+
+      - 'Vector Fields':
+          - 'Introduction': 'Vector_Fields_Tutorials/Introduction.md'
+
+      - 'Automatic Differentiation':
+          - 'Introduction': 'Automatic_Differentiation_Tutorials/Introduction.md'
+
 - 'User Interface':
-    - 'Geometry': 'User_Interface/Geometry.md'
-    - '2D SDFs': 'User_Interface/2D_SDFs.md'
-    - '3D SDFs': 'User_Interface/3D_SDFs.md'
-    - 'Vector Fields': 'User_Interface/VectorFields.md'
-    - 'Euclidean Transformations': 'User_Interface/SDF_Transform.md'
-    - 'Combinations': 'User_Interface/Combinations.md'
-    - 'Modifications': 'User_Interface/SDF_Modifications.md'
-    - 'Post-Processing': 'User_Interface/SDF_PostProcessing.md'
-    - 'Helper Functions': 'User_Interface/Helper_Functions.md'
-- 'AutoDiff User Interface':
-    - '2D SDFs': 'User_Interface_Automatic_Differentiation/2D_SDFs.md'
-    - '3D SDFs': 'User_Interface_Automatic_Differentiation/3D_SDFs.md'
-    - 'Euclidean Transformations': 'User_Interface_Automatic_Differentiation/SDF_Transform.md'
-    - 'Combinations': 'User_Interface_Automatic_Differentiation/Combinations.md'
-    - 'Modifications': 'User_Interface_Automatic_Differentiation/SDF_Modifications.md'
-    - 'Post-Processing': 'User_Interface_Automatic_Differentiation/SDF_PostProcessing.md'
-    - 'Vector Fields': 'User_Interface_Automatic_Differentiation/VectorFields.md'
-    - 'Vector Fields Modifications': 'User_Interface_Automatic_Differentiation/VectorFields_Modifications.md'
-    - 'Helper Functions': 'User_Interface_Automatic_Differentiation/Helper_Functions.md'
+    - 'Numpy':
+        - 'Geometry': 'User_Interface/Geometry.md'
+        - '2D SDFs': 'User_Interface/2D_SDFs.md'
+        - '3D SDFs': 'User_Interface/3D_SDFs.md'
+        - 'Vector Fields': 'User_Interface/VectorFields.md'
+        - 'Euclidean Transformations': 'User_Interface/SDF_Transform.md'
+        - 'Combinations': 'User_Interface/Combinations.md'
+        - 'Modifications': 'User_Interface/SDF_Modifications.md'
+        - 'Post-Processing': 'User_Interface/SDF_PostProcessing.md'
+        - 'Helper Functions': 'User_Interface/Helper_Functions.md'
+
+    - 'JAX':
+        - '2D SDFs': 'User_Interface_Automatic_Differentiation/2D_SDFs.md'
+        - '3D SDFs': 'User_Interface_Automatic_Differentiation/3D_SDFs.md'
+        - 'Euclidean Transformations': 'User_Interface_Automatic_Differentiation/SDF_Transform.md'
+        - 'Combinations': 'User_Interface_Automatic_Differentiation/Combinations.md'
+        - 'Modifications': 'User_Interface_Automatic_Differentiation/SDF_Modifications.md'
+        - 'Post-Processing': 'User_Interface_Automatic_Differentiation/SDF_PostProcessing.md'
+        - 'Vector Fields': 'User_Interface_Automatic_Differentiation/VectorFields.md'
+        - 'Vector Fields Modifications': 'User_Interface_Automatic_Differentiation/VectorFields_Modifications.md'
+        - 'Helper Functions': 'User_Interface_Automatic_Differentiation/Helper_Functions.md'

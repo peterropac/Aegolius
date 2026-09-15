@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: "SPOMSO"
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+authors:
+  - family-names: "Ropač"
+    given-names: "Peter"
+    orcid: "https://orcid.org/0000-0001-5002-7939"
+    affiliation: "Faculty of Mathematics and Physics, University of Ljubljana; Jožef Stefan Institute"
+abstract: >-
+  SPOMSO is a Python package for the procedural construction of 2D and 3D
+  geometry and vector fields based on Signed Distance Functions (SDFs). It provides
+  object-oriented and functional interfaces to predefined primitives,
+  Euclidean transformations, modifications, and combination operators. The optional JAX backend that enables GPU
+  execution, automatic differentiation of geometry and fields, and by extension gradient-based optimisation.
+repository-code: "https://github.com/peterropac/Aegolius"
+url: "https://github.com/peterropac/Aegolius"
+license: LGPL-3.0-or-later
+version: "1.5.0"
+date-released: "2026-08-02"
+doi: 10.5281/zenodo.8090670
+keywords:
+  - signed distance function
+  - signed distance field
+  - procedural geometry
+  - vector field
+  - automatic differentiation
+  - jax
+  - computational geometry
+  - python
+  - shape optimisation
+  - inverse design

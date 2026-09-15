@@ -1,21 +1,55 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "SPOMSO"
-version = "1.5.0"
+version = "1.5.1"
 authors = [
     { name = "Peter Ropač", email = "peter.ropac@fmf.uni-lj.si" }
 ]
-description = "Python package for generating geometry and vector fields with SDFs."
+maintainers = [
+    { name = "Peter Ropač", email = "peter.ropac@fmf.uni-lj.si" }
+]
+description = "Python package for generating geometry and vector fields with SDFs, with GPU support and automatic differentiation."
+readme = "README.md"
 requires-python = ">=3.10"
-keywords = ["python", "geometry"]
+license = "LGPL-3.0-or-later"
+license-files = ["LICENSE"]
+keywords = ["python",
+    "geometry",
+    "sdf",
+    "signed distance function",
+    "signed distance field",
+    "procedural geometry",
+    "level set",
+    "vector field",
+    "director field",
+    "computational geometry",
+    "jax",
+    "automatic differentiation",
+    "gpu",
+    "optimization",
+    "shape optimization",
+    "inverse design"
+]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
+    "Topic :: Multimedia :: Graphics :: 3D Modeling",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = ["numpy", "scipy"]
 
@@ -26,6 +60,9 @@ all = ["jax", "jaxlib", "matplotlib", "plotly", "optax"]
 
 [project.urls]
 Homepage = "https://github.com/peterropac/Aegolius"
+Documentation = "https://aegolius.readthedocs.io/en/latest/"
+Repository = "https://github.com/peterropac/Aegolius"
+Issues = "https://github.com/peterropac/Aegolius/issues"
 Changelog = "https://github.com/peterropac/Aegolius/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
