@@ -2,7 +2,20 @@
 # Changelog
 ---
 
-## [1.5.1] — 2026-09-14
+## [1.5.2.dev1] — 2026-09-16
+
+### Documentation
+
+- Added the `privacy` plugin to `mkdocs.yml`.
+
+### Fixes
+
+- Fixed some docstring typos.
+
+
+---
+
+## [1.5.1] — 2026-09-15
 
 A packaging and documentation release. There are no API changes and no
 behavioural changes to geometry, fields or the JAX backend. The version bump

@@ -193,6 +193,7 @@ class Plane(GenericGeometry):
 class OrientedPlane(GenericGeometry):
     """
     Plane defined by its normal vector. SDF has a negative value for points below the plane.
+
     Args:
         normal: Normal vector of the plane.
         offset: Offset of the origin along the normal vector.
@@ -453,16 +454,17 @@ class Arc3D(GenericGeometry):
 
 
 class Cone(GenericGeometry):
+    """
+    Cone defined by its height and the angle of the slope.
+    The base of the cone is moved down by: height - height_offset.
+
+    Args:
+        height: Height of the cone.
+        angle: Angle of the slope.
+    """
 
     def __init__(self, height: float | int, angle: float | int):
-        """
-        Cone defined by its height and the angle of the slope.
-        The base of the cone is moved down by: height - height_offset.
 
-        Args:
-            height: Height of the cone.
-            angle: Angle of the slope.
-        """
         GenericGeometry.__init__(self, sdf_cone, height, angle)
         self._height = height
         self._angle = angle
@@ -514,6 +516,7 @@ class OrientedInfiniteCone(GenericGeometry):
     Args:
         angle: Angle of the slope.
     """
+
     def __init__(self, angle: float | int):
         GenericGeometry.__init__(self, sdf_oriented_infinite_cone, angle)
         self._angle = angle
@@ -633,6 +636,8 @@ class ParametricCurve3D(GenericGeometry):
 class SegmentedParametricCurve3D(GenericGeometry):
     """
     Segmented line connecting the user provided points.
+
+    Args:
         points: Points to connect.
         t_range: Range of the t parameter.
             t_range[0] -  start, t_range[1] - end, t_range[2] -  number of steps in between.

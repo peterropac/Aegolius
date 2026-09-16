@@ -19,7 +19,7 @@ def sdf_x(co: array_like_type, offset: scalar_like_type) -> jnp.ndarray:
     Value of the X coordinate zeroed at some offset value.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         offset: Value at which the field is zero.
@@ -37,7 +37,7 @@ def sdf_y(co: array_like_type, offset: scalar_like_type) -> jnp.ndarray:
     Value of the Y coordinate zeroed at some offset value.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         offset: Value at which the field is zero.
@@ -55,7 +55,7 @@ def sdf_z(co: array_like_type, offset: scalar_like_type) -> jnp.ndarray:
     Value of the Z coordinate zeroed at some offset value.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         offset: Value at which the field is zero.
@@ -73,7 +73,7 @@ def sdf_sphere(co: array_like_type, radius: scalar_like_type) -> jnp.ndarray:
     Sphere defined by its radius.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         radius: Radius of the sphere.
@@ -92,7 +92,7 @@ def sdf_cylinder(co: array_like_type, radius: scalar_like_type, height: scalar_l
     Cylinder defined by the radius and height.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         radius: Radius of the cylinder.
@@ -117,7 +117,7 @@ def sdf_box(co: array_like_type, size: array_like_type) -> jnp.ndarray:
     Box defined by its side lengths.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         size: Side lengths (a, b, c).
@@ -140,7 +140,7 @@ def sdf_torus(co: array_like_type, R: scalar_like_type, r: scalar_like_type) -> 
     Torus defined by its primary and the secondary radius.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         R: Primary radius of the torus.
@@ -163,7 +163,7 @@ def sdf_arc_3d(co: array_like_type,
     Arc defined by the radius, thickness, and the angles of both ends.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         R: Radius of the arc.
@@ -199,7 +199,7 @@ def sdf_plane(co: array_like_type, normal: array_like_type, offset: scalar_like_
     Plane defined by its normal vector. SDF has a negative value for points below the plane.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         normal: Normal vector of the plane.
@@ -222,7 +222,7 @@ def sudf_plane(co: array_like_type, normal: array_like_type, thickness: scalar_l
     Plane defined by its normal vector.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         normal: Normal vector of the plane.
@@ -245,7 +245,7 @@ def sdf_segment_3d(co: array_like_type, a: array_like_type, b: array_like_type) 
     Line defined by its starting and ending points.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         a: Vector defining the starting point.
@@ -272,7 +272,7 @@ def sdf_cone(co: array_like_type, height: scalar_like_type, angle: scalar_like_t
     The base of the cone is moved down by: height - height_offset.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         height: Height of the cone.
@@ -306,7 +306,7 @@ def sdf_oriented_infinite_cone(co: array_like_type, angle: scalar_like_type) -> 
     Values of the SDF below the cone are negative.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         angle: Angle of the slope.
@@ -333,7 +333,7 @@ def sdf_infinite_cone(co: array_like_type, angle: scalar_like_type) -> jnp.ndarr
     Cone with infinite height defined by the angle of its slope. The tip of the cone is at the origin.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         angle: Angle of the slope.
@@ -359,7 +359,7 @@ def sdf_solid_angle(co: array_like_type,
     Solid angle defined by the radius of the globe and two angles.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         radius: Radius of the globe.
@@ -404,7 +404,7 @@ def sdf_triangle_3d(co: array_like_type, a: array_like_type, b: array_like_type,
     Triangle defined by its three vertices.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         a: Vector defining the position of the first vertex (D = 3).
@@ -454,7 +454,7 @@ def sdf_quad_3d(co: array_like_type,
      Quadrilateral defined by its four coplanar vertices.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         a: Vector defining the position of the first vertex.
@@ -509,7 +509,7 @@ def sdf_segmented_line_3d(co: array_like_type, points: array_like_type) -> jnp.n
     Segmented line connecting the provided points.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         points: Points to connect (D > 1, M).
@@ -534,7 +534,7 @@ def sdf_closed_segmented_line_3d(co: array_like_type, points: array_like_type) -
     Closed segmented line connecting the provided points.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D > 1),
             N is the number of coordinate points.
         points: Points to connect (D > 1, M).

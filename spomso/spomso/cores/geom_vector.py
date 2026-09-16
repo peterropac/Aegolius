@@ -17,8 +17,8 @@ from spomso.cores.vector_functions import from_sdf
 
 class CartesianVectorField(VectorField):
     """
-    Vector field defined by its components in the cartesian coordinate system (x, y, z).
-    The components of the output vector field are cartesian (x, y, z).
+    Vector field defined by its components in the Cartesian coordinate system (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
     """
     def __init__(self):
         VectorField.__init__(self, cartesian_define)
@@ -27,7 +27,7 @@ class CartesianVectorField(VectorField):
 class CylindricalVectorField(VectorField):
     """
     Vector field defined by its components in the cylindrical coordinate system (r, phi, z).
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
     """
     def __init__(self):
         VectorField.__init__(self, cylindrical_define)
@@ -36,7 +36,7 @@ class CylindricalVectorField(VectorField):
 class SphericalVectorField(VectorField):
     """
     Vector field defined by its components in the spherical coordinate system (r, phi, theta).
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
     """
     def __init__(self):
         VectorField.__init__(self, spherical_define)
@@ -46,7 +46,7 @@ class RadialSphericalVectorField(VectorField):
     """
     Vector field where all the vectors are pointing radially outwards from the origin.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
     """
     def __init__(self):
         VectorField.__init__(self, radial_vector_field_spherical)
@@ -56,7 +56,7 @@ class RadialCylindricalVectorField(VectorField):
     """
     Vector field where all the vectors are pointing radially outwards from the line x=0, y=0 (z-axis).
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
     """
     def __init__(self):
         VectorField.__init__(self, radial_vector_field_cylindrical)
@@ -66,7 +66,7 @@ class HyperbolicCylindricalVectorField(VectorField):
     """
     Hyperbolic vector field centered at the line x=0, y=0 (z-axis).
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
     """
     def __init__(self):
         VectorField.__init__(self, hyperbolic_vector_field_cylindrical)
@@ -76,7 +76,7 @@ class WindingCylindricalVectorField(VectorField):
     """
     Vector field where the vectors rotate around the line x=0, y=0, based on the winding number.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         gamma: winding number.
@@ -102,7 +102,7 @@ class AngledRadialCylindricalVectorField(VectorField):
     The vectors are at the specified angle with respect to the lines pointing outward from the line x=0, y=0.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
 
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         alpha: Angle between the vectors and the equidistant surfaces from the line x=0, y=0.
@@ -125,7 +125,7 @@ class VortexCylindricalVectorField(VectorField):
     """
     Vortex vector field centered at the line x=0, y=0.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
     """
     def __init__(self):
         VectorField.__init__(self, vortex_vector_field_cylindrical)
@@ -136,7 +136,7 @@ class AngledVortexCylindricalVectorField(VectorField):
     Modified vortex vector field centered at the line x=0, y=0.
     The vectors are at the specified angle with respect to the equidistant surfaces from the line x=0, y=0.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         alpha: Angle between the vectors and the equidistant surfaces from the line x=0, y=0.
@@ -157,9 +157,9 @@ class AngledVortexCylindricalVectorField(VectorField):
 
 class XVectorField(VectorField):
     """
-    Vector field where only the X component (cartesian coordinates) is non-zero.
+    Vector field where only the X component (Cartesian coordinates) is non-zero.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
     """
     def __init__(self):
         VectorField.__init__(self, x_vector_field)
@@ -167,9 +167,9 @@ class XVectorField(VectorField):
 
 class YVectorField(VectorField):
     """
-    Vector field where only the Y component (cartesian coordinates) is non-zero.
+    Vector field where only the Y component (Cartesian coordinates) is non-zero.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
     """
     def __init__(self):
         VectorField.__init__(self, y_vector_field)
@@ -177,9 +177,9 @@ class YVectorField(VectorField):
 
 class ZVectorField(VectorField):
     """
-    Vector field where only the Z component (cartesian coordinates) is non-zero.
+    Vector field where only the Z component (Cartesian coordinates) is non-zero.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
     """
     def __init__(self):
         VectorField.__init__(self, z_vector_field)
@@ -189,7 +189,7 @@ class VectorFieldFromSDF(VectorField):
     """
     Vector field constructed from an SDF.
     Point cloud specifying the value of the SDF is taken as an input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         grid_resolution: Number of points along each axis in the grid on which the SDF is evaluated.

@@ -33,10 +33,10 @@ class EuclideanTransform:
 
     @property
     def center(self) -> np.ndarray | tuple | list:
-        """Center of mass of the geometry.
+        """Origin point of the geometry.
 
         Returns:
-            Position vector of the center of mass of the geometry.
+            Position vector of the origin point of the geometry.
         """
         return self._center
 
@@ -288,10 +288,10 @@ class EuclideanTransformPoints:
 
     @property
     def center(self) -> np.ndarray | tuple | list:
-        """Center of mass of the point cloud.
+        """Origin point of the point cloud.
 
         Returns:
-            Position vector of the center of mass of the point cloud.
+            Position vector of the origin point of the point cloud.
         """
         return self._center
 

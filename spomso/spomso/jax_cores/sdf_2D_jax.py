@@ -19,7 +19,7 @@ def sdf_circle(co: array_like_type, radius: scalar_like_type) -> jnp.ndarray:
     Circle defined by its radius.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         radius: Radius of the circle.
@@ -38,7 +38,7 @@ def sdf_box_2d(co: array_like_type, size: array_like_type) -> jnp.ndarray:
     Rectangle defined by its side lengths.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         size: side lengths of the rectangle (a, b).
@@ -61,7 +61,7 @@ def sdf_segment_2d(co: array_like_type, a: array_like_type, b: array_like_type) 
     Line segment defined by its end points.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         a: Vector defining the position of the start point (D = 3,).
@@ -86,7 +86,7 @@ def sdf_rounded_box_2d(co: array_like_type, size: array_like_type, rounding: arr
     Rectangle defined by its side lengths and rounding radii for each vertex.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         size: side lengths of the rectangle (a, b).
@@ -119,7 +119,7 @@ def sdf_triangle_2d(co: array_like_type, p0: array_like_type, p1: array_like_typ
     Triangle defined by the three vertices.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         p0: Vector defining the position of the first vertex (D = 2, 3).
@@ -164,7 +164,7 @@ def sdf_arc(co: array_like_type,
     Arc defined by the radius and the angles of both ends.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         radius: Radius of the arc.
@@ -200,7 +200,7 @@ def sdf_sector(co: array_like_type,
     Sector defined by the radius of the circle and two angles.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         radius: Radius of the circle.
@@ -242,7 +242,7 @@ def sdf_inf_sector(co: array_like_type, angle_1: scalar_like_type, angle_2: scal
     Sector of infinite radius defined by two angles.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         angle_1: First angle defining the sector.
@@ -277,7 +277,7 @@ def sdf_ngon(co: array_like_type, radius: scalar_like_type, n: int) -> jnp.ndarr
     N-sided regular polygon, defined by the outer radius and the number of sides.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         radius: Outer radius of the regular polygon.
@@ -319,7 +319,7 @@ def sdf_segmented_line_2d(co: array_like_type, points: array_like_type) -> jnp.n
     Segmented line connecting the provided points.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         points: Points to connect (D = 3, M).
@@ -345,7 +345,7 @@ def sdf_closed_segmented_line_2d(co: array_like_type, points: array_like_type) -
     Closed segmented line connecting the provided points.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         points: Points to connect (D = 3, M).
@@ -373,7 +373,7 @@ def sdf_polygon_2d(co: array_like_type, points: array_like_type) -> jnp.ndarray:
     Convex polygon with vertices at the provided coordinate points.
 
     Args:
-        co: coordinates of points on which the SDF is evaluated.
+        co: Coordinates of points on which the SDF is evaluated.
             Shape must be (D, N), where D is the dimension of the coordinate system (D = 3),
             N is the number of coordinate points.
         points: Points to connect (D = 3, M).

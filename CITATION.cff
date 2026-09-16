@@ -16,8 +16,6 @@ abstract: >-
 repository-code: "https://github.com/peterropac/Aegolius"
 url: "https://github.com/peterropac/Aegolius"
 license: LGPL-3.0-or-later
-version: "1.5.0"
-date-released: "2026-08-02"
 doi: 10.5281/zenodo.8090670
 keywords:
   - signed distance function

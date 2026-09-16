@@ -7,8 +7,6 @@
 import numpy as np
 from typing import Callable
 from spomso.cores.geom import GenericGeometry
-from spomso.cores.transformations import EuclideanTransform
-from spomso.cores.modifications import ModifyObject
 from spomso.cores.sdf_2D import sdf_circle, sdf_neu_circle, sdf_box_2d, sdf_segment_2d, sdf_triangle_2d, sdf_rounded_box_2d
 from spomso.cores.sdf_2D import sdf_sector, sdf_inf_sector, sdf_ngon, sdf_arc
 from spomso.cores.sdf_2D import sdf_parametric_curve_2d, sdf_segmented_curve_2d

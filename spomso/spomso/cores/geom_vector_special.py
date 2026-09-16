@@ -16,11 +16,11 @@ class LCWG2D(VectorField):
         Vector field of a Liquid Crystal waveguide.
         The vector field is generated based on the distance field and size parameters of the waveguide.
         Point cloud specifying the values of the Signed Distance Function is taken as the input.
-        The vector field is independent of the z coordinate (cartesian coordinates).
-        The components of the output vector field are cartesian (x, y, z).
+        The vector field is independent of the z coordinate (Cartesian coordinates).
+        The components of the output vector field are Cartesian (x, y, z).
         :param parameters: Total width of the waveguide.
         :param co_resolution: Number of points along each axis in the grid on which the SDF is evaluated.
-        :param sign: array, float, int or None determining the sign of the normal coordinates in parts of the cartesian
+        :param sign: array, float, int or None determining the sign of the normal coordinates in parts of the Cartesian
          coordinate system.
          None - sign is calculated automatically,
          float - the value is used a threshold for automatic calculation of the sign (same as None)
@@ -44,10 +44,10 @@ class LCWG3Dm1(VectorField):
         M1 type vector field of a Liquid Crystal waveguide. Winding number in the yz plane is -1.
         The vector field is generated based on the distance field and size parameters of the waveguide.
         Point cloud specifying the values of the Signed Distance Function is taken as the input.
-        The components of the output vector field are cartesian (x, y, z).
+        The components of the output vector field are Cartesian (x, y, z).
         :param parameters: Total width of the waveguide, thickness of the waveguide.
         :param co_resolution: Number of points along each axis in the grid on which the SDF is evaluated.
-        :param sign: array, float, int or None determining the sign of the normal coordinates in parts of the cartesian
+        :param sign: array, float, int or None determining the sign of the normal coordinates in parts of the Cartesian
          coordinate system.
          None - sign is calculated automatically,
          float - the value is used a threshold for automatic calculation of the sign (same as None)
@@ -71,10 +71,10 @@ class LCWG3Dp1(VectorField):
         P1 type vector field of a Liquid Crystal waveguide. Winding number in the yz plane is +1.
         The vector field is generated based on the distance field and size parameters of the waveguide.
         Point cloud specifying the values of the Signed Distance Function is taken as the input.
-        The components of the output vector field are cartesian (x, y, z).
+        The components of the output vector field are Cartesian (x, y, z).
         :param parameters: Total width of the waveguide, thickness of the waveguide.
         :param co_resolution: Number of points along each axis in the grid on which the SDF is evaluated.
-        :param sign: array, float, int or None determining the sign of the normal coordinates in parts of the cartesian
+        :param sign: array, float, int or None determining the sign of the normal coordinates in parts of the Cartesian
          coordinate system.
          None - sign is calculated automatically,
          float - the value is used a threshold for automatic calculation of the sign (same as None)

@@ -21,8 +21,8 @@ scalar_like_type = float | int
 @jax.jit
 def cartesian_vector_field(p: array_like_type) -> jnp.ndarray:
     """
-    Vector field defined by its components in the cartesian coordinate system (x, y, z).
-    The components of the output vector field are cartesian (x, y, z).
+    Vector field defined by its components in the Cartesian coordinate system (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
     Args:
         p: Array of Cartesian components with shape (3, N), where N is the number of
             coordinate points. Rows are (u_x, u_y, u_z).
@@ -40,7 +40,7 @@ def cartesian_vector_field(p: array_like_type) -> jnp.ndarray:
 def spherical_vector_field(p: array_like_type) -> jnp.ndarray:
     """
     Vector field defined by its components in the spherical coordinate system (r, phi, theta).
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         p: Array of spherical components with shape (3, N), where N is the number of
@@ -65,7 +65,7 @@ def spherical_vector_field(p: array_like_type) -> jnp.ndarray:
 def cylindrical_vector_field(p: array_like_type) -> jnp.ndarray:
     """
     Vector field defined by its components in the cylindrical coordinate system (r, phi, z).
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         p: Array of cylindrical components with shape (3, N), where N is the number of
@@ -90,7 +90,7 @@ def radial_vector_field_spherical(r: array_like_type) -> jnp.ndarray:
     """
     Vector field where all the vectors are pointing radially outwards from the origin.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         r: Coordinates of points on which the vector field is evaluated.
@@ -108,7 +108,7 @@ def radial_vector_field_cylindrical(r: array_like_type) -> jnp.ndarray:
     """
     Vector field where all the vectors are pointing radially outwards from the line x=0, y=0 (z-axis).
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         r: Coordinates of points on which the vector field is evaluated.
@@ -127,7 +127,7 @@ def hyperbolic_vector_field_cylindrical(r: array_like_type) -> jnp.ndarray:
     """
     Hyperbolic vector field centered at the line x=0, y=0 (z-axis).
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         r: Coordinates of points on which the vector field is evaluated.
@@ -242,9 +242,9 @@ def aav_vector_field_cylindrical(r: array_like_type, alpha: scalar_like_type) ->
 @jax.jit
 def x_vector_field(r: array_like_type) -> jnp.ndarray:
     """
-    Vector field where only the X component (cartesian coordinates) is non-zero.
+    Vector field where only the X component (Cartesian coordinates) is non-zero.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         r: Coordinates of points on which the vector field is evaluated.
@@ -261,9 +261,9 @@ def x_vector_field(r: array_like_type) -> jnp.ndarray:
 @jax.jit
 def y_vector_field(r: array_like_type) -> jnp.ndarray:
     """
-    Vector field where only the Y component (cartesian coordinates) is non-zero.
+    Vector field where only the Y component (Cartesian coordinates) is non-zero.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         r: Coordinates of points on which the vector field is evaluated.
@@ -280,9 +280,9 @@ def y_vector_field(r: array_like_type) -> jnp.ndarray:
 @jax.jit
 def z_vector_field(r: array_like_type) -> jnp.ndarray:
     """
-    Vector field where only the Z component (cartesian coordinates) is non-zero.
+    Vector field where only the Z component (Cartesian coordinates) is non-zero.
     Point cloud specifying the positions of points at which the vector field is evaluated is taken as the input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         r: Coordinates of points on which the vector field is evaluated.
@@ -301,7 +301,7 @@ def from_sdf(sdf_: array_like_type,
     """
     Vector field constructed from an SDF.
     Point cloud specifying the value of the SDF is taken as an input.
-    The components of the output vector field are cartesian (x, y, z).
+    The components of the output vector field are Cartesian (x, y, z).
 
     Args:
         sdf_: Signed distance field evaluated on a rectilinear grid, flattened to
@@ -309,8 +309,7 @@ def from_sdf(sdf_: array_like_type,
         co_resolution: Number of points along each axis in the grid on which the SDF is evaluated.
 
     Returns:
-        Vector field with shape (D, N), unit-normalized. D is the number of
-        dimensions inferred from `co_resolution`.
+        Vector field with shape (D, N), unit-normalized. D is the number of dimensions inferred from `co_resolution`.
     """
     dimensions = jnp.asarray(co_resolution).shape[0]
     gsdf = smarter_reshape(sdf_, co_resolution)
