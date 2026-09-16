@@ -12,7 +12,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/spomso)](https://pypi.org/project/spomso/)
 [![License](https://img.shields.io/github/license/peterropac/Aegolius)](https://github.com/peterropac/Aegolius/blob/main/LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8090670.svg)](https://doi.org/10.5281/zenodo.8090670)
+[![DOI](assets/zenodo.8090670.svg)](https://doi.org/10.5281/zenodo.8090670)
 [![GitHub stars](https://img.shields.io/github/stars/peterropac/Aegolius)](https://github.com/peterropac/Aegolius/stargazers)
 
 ---
@@ -80,7 +80,7 @@ For more information, see the [Installation Guide](https://nbviewer.org/github/p
 
 If you use SPOMSO in your research, please cite the latest archived repository of Aegolius on Zenodo:
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8090670.svg)](https://doi.org/10.5281/zenodo.8090670)
+[![DOI](assets/zenodo.8090670.svg)](https://doi.org/10.5281/zenodo.8090670)
 
 ---
 
