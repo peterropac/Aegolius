@@ -6,7 +6,7 @@
 
 import numpy as np
 from spomso.cores.geom import GenericGeometry
-from typing import Callable
+from collections.abc import Callable
 
 
 def smoothmin_poly2(x, y, a):
@@ -29,8 +29,13 @@ def smoothmin_poly3(x, y, a):
 
 def smoothmax_boltz(x, y, a):
     # https: // en.wikipedia.org / wiki / Smooth_maximum
-    exp1 = np.exp(x / a)
-    exp2 = np.exp(y / a)
+    if a == 0.0:
+        return np.maximum(x, y)
+    # shift the exponents by their maximum so np.exp cannot overflow (inf/inf -> NaN)
+    u, v = x / a, y / a
+    m = np.maximum(u, v)
+    exp1 = np.exp(u - m)
+    exp2 = np.exp(v - m)
 
     return (x*exp1 + y*exp2)/(exp1 + exp2)
 
@@ -124,8 +129,9 @@ class CombineGeometry:
               New geometric object.
         """
         if self.operation_type not in self.operations.keys():
-            raise SyntaxError(f"{self.operation_type} is not an implemented non-parametric operation.",
-                              f"Possible operations are {self.operations.keys}")
+            raise ValueError(f"{self.operation_type} is not an implemented non-parametric operation. "
+                             f"Possible operations are {list(self.operations.keys())}."
+                             )
 
         def new_geo_object(co, *params):
             sdfs = []
@@ -149,8 +155,9 @@ class CombineGeometry:
               New geometric object.
         """
         if self.operation_type not in self.parametric_operations.keys():
-            raise SyntaxError(f"{self.operation_type} is not an implemented parametric operation.",
-                              f"Possible parametric operations are {self.parametric_operations.keys}")
+            raise ValueError(f"{self.operation_type} is not an implemented parametric operation. "
+                             f"Possible parametric operations are {list(self.parametric_operations.keys())}."
+                             )
 
         def new_geo_object(co, *params):
             sdfs = []

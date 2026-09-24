@@ -5,19 +5,15 @@
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-from typing import Callable
 
 # ----------------------------------------------------------------------------------------------------------------------
 # VECTOR MODIFICATION FUNCTIONS
 
 
 def batch_normalize(vec):
-
     m = np.linalg.norm(vec, axis=0)
-    mask = ~(m == 0)
-    vec[:, mask] = vec[:, mask]/m[mask]
-
-    return vec
+    safe_m = np.where(m == 0, 1.0, m)
+    return vec / safe_m
 
 
 def add_vectors(vec, add_vec):

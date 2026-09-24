@@ -5,7 +5,7 @@
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-from typing import Callable
+from collections.abc import Callable
 from spomso.cores.geom import GenericGeometry
 from spomso.cores.sdf_2D import sdf_circle, sdf_neu_circle, sdf_box_2d, sdf_segment_2d, sdf_triangle_2d, sdf_rounded_box_2d
 from spomso.cores.sdf_2D import sdf_sector, sdf_inf_sector, sdf_ngon, sdf_arc
@@ -14,6 +14,7 @@ from spomso.cores.sdf_2D import sdf_segmented_line_2d, sdf_closed_segmented_line
 from spomso.cores.sdf_2D import sdf_polygon_2d
 from spomso.cores.sdf_2D import sdf_point_cloud_2d
 from spomso.cores.triangulation_functions import interior_polygon
+from spomso.cores.helper_functions import as_point_array
 
 
 class Circle(GenericGeometry):
@@ -91,15 +92,16 @@ class Polygon(GenericGeometry):
     """
 
     def __init__(self, vertices: tuple | list | np.ndarray):
-        GenericGeometry.__init__(self, sdf_polygon_2d, vertices)
-        vertices = np.array(vertices)
-        if not (vertices.shape[1] >= 3 and vertices.shape[0] >= 3):
+        vertices = np.array(vertices, dtype=float)
+        if vertices.ndim != 2 or not (vertices.shape[1] >= 3 and vertices.shape[0] >= 3):
             raise ValueError("There must be at least 3 vertices defined by their coordinates in 3D space.")
         if 3 not in vertices.shape:
             raise ValueError("The coordinates of vertices should be defined in 3D space.")
         if not (vertices.shape[0] == 3):
             vertices = vertices.T
         self._vertices = vertices
+
+        GenericGeometry.__init__(self, sdf_polygon_2d, self._vertices)
 
     @property
     def n_sides(self) -> int:
@@ -452,9 +454,7 @@ class SegmentedParametricCurve(GenericGeometry):
     """
 
     def __init__(self, points: list | tuple | np.ndarray, t_range: tuple, closed: bool = False):
-        self._points = np.asarray(points)
-        if self._points.shape[1] < self._points.shape[0]:
-            self._points = self._points.T
+        self._points = as_point_array(points, dims=(2, 3), min_points=2)
         self._t_range = t_range
         self._closed = closed
 
@@ -547,9 +547,7 @@ class SegmentedLine(GenericGeometry):
     """
 
     def __init__(self, points: list | tuple | np.ndarray, closed: bool = False):
-        self._points = np.asarray(points)
-        if self._points.shape[1] < self._points.shape[0]:
-            self._points = self._points.T
+        self._points = as_point_array(points, dims=(2, 3), min_points=2)
         self._closed = closed
 
         GenericGeometry.__init__(self,
@@ -594,17 +592,15 @@ class PointCloud2D(GenericGeometry):
     SDF of the point cloud.
 
     Args:
-        points: Positions of the points in an array of shape (2, N-points).
+        points: Positions of the points in an array of shape (2, N).
     """
 
     def __init__(self, points: list | tuple | np.ndarray):
-        self._points = np.asarray(points)
-        if self._points.shape[1] < self._points.shape[0]:
-            self._points = self._points.T
+        self._points = as_point_array(points, dims=(2, 3), min_points=1)
 
         GenericGeometry.__init__(self, sdf_point_cloud_2d, self._points)
 
     @property
     def points(self) -> np.ndarray:
-        """Positions of the points in an array of shape (2, N-points)."""
+        """Positions of the points in an array of shape (2, N)."""
         return self._points

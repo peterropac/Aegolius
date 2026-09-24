@@ -4,9 +4,10 @@
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
+from collections.abc import Callable
+
 import numpy as np
 from scipy.interpolate import NearestNDInterpolator
-from typing import Callable
 
 from spomso.cores.vector_modification_functions import add_vectors, subtract_vectors, rescale_vectors
 from spomso.cores.vector_modification_functions import rotate_vectors_phi, rotate_vectors_theta

@@ -2,7 +2,6 @@ import inspect
 from time import process_time
 
 import numpy as np
-import jax.numpy as jnp
 
 from spomso.cores.helper_functions import generate_grid
 from spomso.cores import vector_modification_functions as vm
@@ -35,15 +34,15 @@ BASE_VEC = radial_vector_field_spherical(coor)
 # Modifications that take (vec, *extras) — the common case.
 PARAMS = {
     "batch_normalize":         (),
-    "add_vectors":             (jnp.array([1.0, 0.0, 0.0]),),
-    "subtract_vectors":        (jnp.array([1.0, 0.0, 0.0]),),
+    "add_vectors":             (np.array([1.0, 0.0, 0.0]),),
+    "subtract_vectors":        (np.array([1.0, 0.0, 0.0]),),
     "rescale_vectors":         (2.0,),
-    "rotate_vectors_phi":      (jnp.pi / 4,),
-    "rotate_vectors_theta":    (jnp.pi / 4,),
-    "rotate_vectors_x_axis":   (jnp.pi / 4,),
-    "rotate_vectors_y_axis":   (jnp.pi / 4,),
-    "rotate_vectors_z_axis":   (jnp.pi / 4,),
-    "rotate_vectors_axis":     (jnp.array([0.0, 0.0, 1.0]), jnp.pi / 4),
+    "rotate_vectors_phi":      (np.pi / 4,),
+    "rotate_vectors_theta":    (np.pi / 4,),
+    "rotate_vectors_x_axis":   (np.pi / 4,),
+    "rotate_vectors_y_axis":   (np.pi / 4,),
+    "rotate_vectors_z_axis":   (np.pi / 4,),
+    "rotate_vectors_axis":     (np.array([0.0, 0.0, 1.0]), np.pi / 4),
 }
 
 REVOLVE_FUNCS = {

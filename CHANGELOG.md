@@ -2,6 +2,69 @@
 # Changelog
 ---
 
+## [1.6.0.dev0] — 2026-09-24
+
+
+### Changed (breaking)
+
+- **Translation is no longer scaled.** Geometry transforms now follow scale → rotate → translate, with the
+  translation in world units: a geometry moved to `t` stays at `t` when scaled. Previously the translation
+  was multiplied by the scale factor, so `set_scale` also relocated moved objects. Applies to
+  `EuclideanTransform` and to the JAX `compound_euclidean_transform_sdf`. Results are unchanged when the
+  scale is 1.
+- **Point cloud transforms go in the stated direction.** `Points.move`, `rotate` and `set_location` now
+  apply the forward transform (rescale → rotate → translate). Previously point clouds received the inverse
+  transform, so they moved by `-R^T t` and rotated by the negative angle.
+
+### Fixes
+
+- **Clockwise concave polygons.** `interior_polygon` no longer crashes with an `IndexError` on simple
+  concave polygons given in clockwise order. Orientation is now decided by signed area.
+- **Polygon input.** `Polygon` now accepts nested lists and `(N, 3)` vertex arrays as documented, and
+  neither `Polygon` nor `interior_polygon` modifies the caller's vertex array.
+- `triangulate` raises a clear `ValueError` instead of an `IndexError` when no ear can be found.
+- **`smoothmax_boltz` overflow.** The Boltzmann smooth maximum (NumPy and JAX) no longer returns NaN
+  when `|sdf| / width` is large, which also removes NaN gradients in the JAX backend. `width = 0` now
+  returns the hard maximum. Results are unchanged wherever the previous formula was finite.
+- `rotate(matrix)` works again for geometry and point clouds (the matrix was wrapped to shape (1, 3, 3)).
+- `move` accepts 2-vectors, consistent with `set_location`.
+- Rotation angles and scale factors accept NumPy scalars (e.g. `np.float32`).
+- `smarter_reshape` (NumPy and JAX) raises `ValueError` for mismatched lengths in the 1D and 3D cases
+  instead of silently returning the input or failing inside `reshape`.
+- **Post-processing overflow.** `sigmoid_falloff`, `positive_sigmoid_falloff` and `capped_exponential`
+  (NumPy and JAX) no longer overflow far from the surface, which removes NaN gradients in the JAX
+  backend. In the minimum value of `width` is now clamped to $10^{-12}$.
+- **JAX reshaping under `jit`.** The JAX `smarter_reshape` (and everything built on it, including
+  `vector_smarter_reshape` and `from_sdf`) now works inside `jax.jit` when the resolution is passed as a
+  static argument. Previously it raised `ConcretizationTypeError` because the grid shape was computed with
+  `jnp`.
+- The `generate_grid`, `smarter_reshape`, `vector_smarter_reshape`, and `nd_vector_smarter_reshape` functions were simplified 
+  in both backends and have the same behaviour.
+- **Consistent point-array handling.** `Points`, `SegmentedLine`, `SegmentedParametricCurve`, `PointCloud2D`
+  and their 3D counterparts now share `as_point_array` (in `helper_functions`) to interpret their input.
+  Arrays are accepted as (D, N) or (N, D). When both readings are valid, the class's preferred dimension
+  wins. Specifically, 2 for the 2D classes and 3 for `Points` and the 3D classes. Clouds with 1 or 2 points were previously
+  transposed the wrong way. Inputs are copied and converted to float, too few points or invalid shapes
+  raise `ValueError`, `Points` pads 2D clouds with z = 0 and accepts an empty cloud as before.
+
+### Added
+
+- `from_sdf` (NumPy and JAX) takes an optional `co_size`, and `VectorFieldFromSDF` an optional
+  `grid_size`, so gradients use the physical grid spacing. Without it, directions are wrong whenever
+  the spacing differs between axes. The default behaviour is unchanged.
+- `grid_spacing(size, resolution)` in both `helper_functions` modules returns the physical spacing of a
+  grid created by `generate_grid`, and is used by `from_sdf`.
+
+### Examples
+
+- The notebook setup cell no longer raises `ModuleNotFoundError: No module named 'google'` when run
+  locally. It now checks for the `google` package before looking for `google.colab`.
+- Notebooks now have an "Open in Kaggle" badge next to the Colab badge, and the setup cell installs
+  SPOMSO on Kaggle or Colab.
+
+
+---
+
 ## [1.5.2.dev2] — 2026-09-16
 
 ### Documentation

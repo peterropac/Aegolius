@@ -1,4 +1,8 @@
 import numpy as np
+
+from jax import config
+config.update("jax_enable_x64", True)
+
 import jax.numpy as jnp
 from jax.scipy.spatial.transform import Rotation
 
@@ -351,17 +355,30 @@ results = {"2D": results_2d, "3D": results_3d, "VF": results_vf, "VFM": results_
            "MODS": results_mods, "COMBINES": results_combines}
 
 field = np.asarray([
-    diff
+    entry[1]
     for cat_results in results.values()
-    for _, diff in cat_results.values()
+    for entry in cat_results.values()
 ])
 
 # ----------------------------------------------------------------------------------------------------------------------
 # EVALUATE
+mismatches = []
 for name_s, val_s in results.items():
     print(f"\n{name_s}:")
-    for name, (ok, diff) in val_s.items():
+    for name, entry in val_s.items():
+        ok, diff = entry[0], entry[1]
+        reason = entry[2] if len(entry) > 2 else ""
         if not ok:
-            print(f"MISMATCH: {name}, max_diff={diff:.4e}")
+            print(f"MISMATCH: {name}, max_diff={diff:.4e}" + (f"  [{reason}]" if reason else ""))
+            mismatches.append(f"{name_s}/{name}" + (f" ({reason})" if reason else ""))
         else:
             print(f"OK: {name}, max_diff={diff:.4e}")
+
+# x64 is process-global and run_tests.py runs every script in one interpreter.
+config.update("jax_enable_x64", False)
+
+n_total = sum(len(v) for v in results.values())
+print(f"\nParity: {n_total - len(mismatches)} matched, {len(mismatches)} mismatched, {n_total} total")
+
+if mismatches:
+    raise AssertionError(f"{len(mismatches)} NumPy/JAX parity mismatch(es): " + "; ".join(mismatches))

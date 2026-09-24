@@ -4,11 +4,11 @@
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
+import jax
 import jax.numpy as jnp
 import numpy as np
-import jax
 
-from spomso.jax_cores.helper_functions import smarter_reshape
+from spomso.jax_cores.helper_functions import grid_spacing, smarter_reshape
 from spomso.jax_cores.vector_modifications_jax import batch_normalize
 
 array_like_type = jnp.ndarray | np.ndarray | list | tuple
@@ -297,7 +297,8 @@ def z_vector_field(r: array_like_type) -> jnp.ndarray:
 
 
 def from_sdf(sdf_: array_like_type,
-             co_resolution: tuple | list | array_like_type) -> jnp.ndarray:
+             co_resolution: tuple | list | array_like_type,
+             co_size: float | tuple | list | array_like_type | None = None) -> jnp.ndarray:
     """
     Vector field constructed from an SDF.
     Point cloud specifying the value of the SDF is taken as an input.
@@ -307,14 +308,20 @@ def from_sdf(sdf_: array_like_type,
         sdf_: Signed distance field evaluated on a rectilinear grid, flattened to
             shape (N,), where N is the total number of points.
         co_resolution: Number of points along each axis in the grid on which the SDF is evaluated.
+        co_size: Size of the grid along each axis (as passed to generate_grid). If given, the gradient
+            uses the physical grid spacing, which is required for correct directions when the spacing
+            differs between axes. If None, unit spacing is assumed (correct only for uniform spacing).
 
     Returns:
         Vector field with shape (D, N), unit-normalized. D is the number of dimensions inferred from `co_resolution`.
     """
-    dimensions = jnp.asarray(co_resolution).shape[0]
+    dimensions = np.asarray(co_resolution).shape[0]
     gsdf = smarter_reshape(sdf_, co_resolution)
 
-    vec = jnp.asarray(jnp.gradient(gsdf))
+    if co_size is None:
+        vec = jnp.asarray(jnp.gradient(gsdf))
+    else:
+        vec = jnp.asarray(jnp.gradient(gsdf, *grid_spacing(co_size, gsdf.shape)))
     vec = vec.reshape(dimensions, -1)
 
     return batch_normalize(vec)

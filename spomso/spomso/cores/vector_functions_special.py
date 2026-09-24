@@ -5,6 +5,7 @@
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
+
 from spomso.cores.helper_functions import smarter_reshape
 from spomso.cores.vector_modification_functions import batch_normalize
 from spomso.cores.vector_modification_functions import rotate_vectors_axis

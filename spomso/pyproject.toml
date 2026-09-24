@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "SPOMSO"
-version = "1.5.2.dev2"
+version = "1.6.0.dev0"
 authors = [
     { name = "Peter Ropač", email = "peter.ropac@fmf.uni-lj.si" }
 ]
@@ -15,7 +15,7 @@ description = "Python package for generating geometry and vector fields with SDF
 readme = "README.md"
 requires-python = ">=3.10"
 license = "LGPL-3.0-or-later"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "GNU_GPL_LICENSE", "COPYRIGHT", "LICENSE_NOTICE"]
 keywords = ["python",
     "geometry",
     "sdf",
@@ -40,6 +40,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",

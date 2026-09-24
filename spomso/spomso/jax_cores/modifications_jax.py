@@ -4,10 +4,12 @@
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
+
+from collections.abc import Callable
+
 import jax
 import jax.numpy as jnp
 import numpy as np
-from typing import Callable
 
 from spomso.jax_cores.post_processing_jax import sigmoid_falloff_jax, positive_sigmoid_falloff_jax
 from spomso.jax_cores.post_processing_jax import capped_exponential_jax
@@ -16,7 +18,6 @@ from spomso.jax_cores.post_processing_jax import relu_jax, smooth_relu_jax, slow
 from spomso.jax_cores.post_processing_jax import hard_binarization_jax
 from spomso.jax_cores.post_processing_jax import gaussian_boundary_jax, gaussian_falloff_jax
 from spomso.jax_cores.post_processing_jax import conv_multiple_jax, conv_edge_detection_jax
-
 from spomso.jax_cores.helper_functions import smarter_reshape
 
 
@@ -160,10 +161,9 @@ def define_volume(function_: function_like_type,
         interior_parameters: Parameters of the function defining the interior of the SDF.
 
     Returns:
-        Modified SDF.
+        Modified SDF (not JIT-compiled).
     """
 
-    @jax.jit
     def new_geo_object(co, *params):
         return function_(co, *params) * interior(co, *interior_parameters)
 
@@ -521,10 +521,9 @@ def displacement(function_: function_like_type,
         displacement_function_parameters: Parameters of the displacement function.
 
     Returns:
-        Modified SDF.
+        Modified SDF (not JIT-compiled).
     """
 
-    @jax.jit
     def new_geo_object(co, *params):
         return function_(co, *params) + displacement_function(co, *displacement_function_parameters)
 

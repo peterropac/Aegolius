@@ -11,7 +11,7 @@ from .combine_jax import smooth_intersect2_2o, smooth_intersect2_3o
 from .combine_jax import smooth_subtract2_2o, smooth_subtract2_3o
 from .combine_jax import smoothmin_poly2, smoothmin_poly3, smoothmax_boltz
 
-from .helper_functions import resolution_conversion, generate_grid
+from .helper_functions import resolution_conversion, generate_grid, grid_spacing
 from .helper_functions import smarter_reshape, vector_smarter_reshape, nd_vector_smarter_reshape
 
 from .post_processing_jax import sigmoid_falloff_jax, positive_sigmoid_falloff_jax, capped_exponential_jax

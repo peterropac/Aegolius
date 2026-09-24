@@ -37,13 +37,19 @@ print("Coverage tests directory: ", COVERAGE)
 # Optionally — which variable name in each example holds "the answer"
 OUTPUT_NAMES = ["sdf_values", "field", "result", "components"]
 
+# Snapshots are compared at rtol/atol 1e-5, so storing full float repr only makes the
+# files churn by an ulp whenever BLAS, NumPy or the CPU changes. Round on write.
+def _round(x):
+    return float(f"{float(x):.9g}")
+
+
 def summarize(arr):
     arr = np.asarray(arr)
     return {
         "shape": list(arr.shape),
-        "min": float(np.nanmin(arr)),
-        "max": float(np.nanmax(arr)),
-        "mean": float(np.nanmean(arr)),
+        "min": _round(np.nanmin(arr)),
+        "max": _round(np.nanmax(arr)),
+        "mean": _round(np.nanmean(arr)),
     }
 
 def find_examples(include_slow=False):
@@ -60,6 +66,10 @@ def find_jax_coverage_examples():
 def find_numpy_coverage_examples():
     out = sorted(p for p in COVERAGE.rglob("*.py") if p.name.startswith("test_all_"))
     return out
+
+def find_other_coverage_examples():
+    skip = ("test_all_", "jax_test_all_", "_")
+    return sorted(p for p in COVERAGE.rglob("*.py") if not p.name.startswith(skip))
 
 def run_one(path, update=False):
     rel = path.relative_to(EXAMPLES if path.is_relative_to(EXAMPLES) else COVERAGE)
@@ -83,6 +93,12 @@ def run_one(path, update=False):
     output = next((ns[n] for n in OUTPUT_NAMES if n in ns), None)
     if output is None:
         return ("OK-NO-SNAPSHOT", "ran cleanly, no recognised output var")
+
+    # summarize() uses nan-aware reductions, so a partially NaN field would otherwise
+    # compare equal to its snapshot.
+    n_nan = int(np.count_nonzero(~np.isfinite(np.asarray(output, dtype=float))))
+    if n_nan:
+        return ("FAIL", f"output contains {n_nan} non-finite value(s)")
 
     snap_path = SNAPSHOTS / rel.with_suffix('.json')
     summary = summarize(output)
@@ -120,6 +136,7 @@ def main():
     numpy_coverage_examples = find_numpy_coverage_examples()
     examples.extend(jax_coverage_examples)
     examples.extend(numpy_coverage_examples)
+    examples.extend(find_other_coverage_examples())
 
     results = []
 
@@ -132,7 +149,7 @@ def main():
         marker = markers[status]
         print(f"  {marker} {p.relative_to(p.parents[1])}  {msg}")
 
-    n_fail = sum(1 for _, s, _ in results if s in ("FAIL", "CRASH"))
+    n_fail = sum(1 for _, s, _ in results if s in ("FAIL", "CRASH", "NO-SNAPSHOT"))
     n_pass = len(results) - n_fail
     print(f"\n{n_pass} passed, {n_fail} failed, {len(results)} total")
     sys.exit(1 if n_fail else 0)

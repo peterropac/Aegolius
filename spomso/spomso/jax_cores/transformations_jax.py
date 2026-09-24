@@ -4,10 +4,12 @@
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
+
+from collections.abc import Callable
+
+import jax
 import jax.numpy as jnp
 import numpy as np
-import jax
-from typing import Callable
 
 array_like_type = jnp.ndarray | np.ndarray | list | tuple
 scalar_like_type = float | int
@@ -75,7 +77,7 @@ def rotate_sdf(function_: Callable[[array_like_type, tuple], array_like_type],
 
 
 def compound_euclidean_transform_sdf(function_: Callable[[array_like_type, tuple], array_like_type],
-                                     rotation_matrix: array_like_type,
+                                     rotation_matrix: np.ndarray | jnp.ndarray,
                                      move_vector: array_like_type,
                                      scale_factor: scalar_like_type) -> function_like_type:
     """
@@ -92,10 +94,9 @@ def compound_euclidean_transform_sdf(function_: Callable[[array_like_type, tuple
     """
     @jax.jit
     def transformed(co, *args):
-        rm = rotation_matrix.T
-        co = rm.dot(co)
+        co = jnp.subtract(co.T, move_vector).T
+        co = rotation_matrix.T.dot(co)
         co = co / scale_factor
-        co = jnp.subtract(co.T, rm.dot(move_vector)).T
 
         return scale_factor * function_(co, *args)
 

@@ -9,7 +9,7 @@ from .transformations import EuclideanTransform, EuclideanTransformPoints
 from .modifications import ModifyObject, ModifyVectorObject
 from .geom import GenericGeometry, Points, VectorField
 
-from .helper_functions import resolution_conversion, generate_grid
+from .helper_functions import resolution_conversion, generate_grid, grid_spacing, as_point_array
 from .helper_functions import smarter_reshape, vector_smarter_reshape, nd_vector_smarter_reshape
 
 from .post_processing import sigmoid_falloff, positive_sigmoid_falloff, capped_exponential

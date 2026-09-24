@@ -78,6 +78,20 @@ def is_ear(vs: np.ndarray, v3s: np.ndarray) -> bool:
     return convex_condition * (~inside_condition)
 
 
+def signed_area(vs: np.ndarray) -> float:
+    """
+    Signed area of a simple polygon (shoelace formula).
+
+    Args:
+        vs: Coordinates of the vertices with shape (D >= 2, N), where N is the number of vertices.
+    Returns:
+        Positive for counter-clockwise vertex order, negative for clockwise.
+    """
+
+    x, y = vs[0], vs[1]
+    return 0.5 * float(np.sum(x * np.roll(y, -1) - np.roll(x, -1) * y))
+
+
 def triangulate(vs: np.ndarray) -> np.ndarray:
     """
     Triangulates a polygon defined by its vertices using the Ear-Clipping triangulation method.
@@ -100,6 +114,9 @@ def triangulate(vs: np.ndarray) -> np.ndarray:
             c, i = c + 1, 0
         else:
             i += 1
+            if i >= points.shape[1]:
+                raise ValueError("Ear-clipping triangulation failed: no ear found. The polygon may be "
+                                 "self-intersecting or have duplicate/degenerate vertices.")
     out[:, :, -1] = points
 
     return out
@@ -189,7 +206,6 @@ def create_points_sets(vs, idata):
         for j in range(cross_ixs[i].size):
             g1 = [leading_ixs[i], int(intersection_ixs[c]), int(np.mod(cross_ixs[i][j] + 1, vs.shape[1]))]
             g2 = [int(cross_ixs[i][j]), int(intersection_ixs[c]), int(np.mod(leading_ixs[i] + 1, vs.shape[1]))]
-            print(c, g1, g2)
             groups.append(g1)
             groups.append(g2)
             c += 1
@@ -217,7 +233,7 @@ def create_points_sets(vs, idata):
             c7 = len(group) == 3 and len(groups[g]) == 3
             c8 = group[0] in leading_ixs
             c9 = (group[2] not in intersection_ixs) and (group[0] not in intersection_ixs)
-            c11 = group[1] is not groups[g][1]
+            c11 = group[1] != groups[g][1]
 
 
             if c4*c5*c7*c10:
@@ -374,6 +390,7 @@ def interior_polygon(co: np.ndarray, points: np.ndarray) -> np.ndarray:
         Map of the interior and exterior of the polygon (N,).
     """
 
+    points = np.array(points, dtype=float, copy=True)
     interior = np.ones(co.shape[1])
 
     convexity = check_convex_all(points)
@@ -381,7 +398,7 @@ def interior_polygon(co: np.ndarray, points: np.ndarray) -> np.ndarray:
         sp = interior_convex(co, points)
         interior[sp <= 0] = -1
     elif np.all(convexity <= 0):
-        points[:, :] = points[:, ::-1]
+        points = points[:, ::-1]
         sp = interior_convex(co, points)
         interior[sp <= 0] = -1
     else:
@@ -392,7 +409,7 @@ def interior_polygon(co: np.ndarray, points: np.ndarray) -> np.ndarray:
                 new_interior = interior_polygon(co, new_points)
                 interior[new_interior <= 0] = -1
         else:
-            if np.count_nonzero(convexity >= 0) < points.shape[0]//2:
+            if signed_area(points) < 0:
                 points = points[:, ::-1]
             triangles = triangulate(points)
             for i in range(points.shape[1] - 2):

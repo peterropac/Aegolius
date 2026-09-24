@@ -5,8 +5,9 @@
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
+
 from spomso.cores.vector_modification_functions import batch_normalize
-from spomso.cores.helper_functions import smarter_reshape
+from spomso.cores.helper_functions import smarter_reshape, grid_spacing
 
 # ----------------------------------------------------------------------------------------------------------------------
 # VECTOR INITIALIZATION FUNCTIONS
@@ -132,12 +133,15 @@ def z_vector_field(r, *p):
     return vec
 
 
-def from_sdf(sdf_, co_resolution):
+def from_sdf(sdf_, co_resolution, co_size=None):
 
     dimensions = np.asarray(co_resolution).shape[0]
     gsdf = smarter_reshape(sdf_, co_resolution)
 
-    vec = np.asarray(np.gradient(gsdf))
+    if co_size is None:
+        vec = np.asarray(np.gradient(gsdf))
+    else:
+        vec = np.asarray(np.gradient(gsdf, *grid_spacing(co_size, gsdf.shape)))
     vec = vec.reshape(dimensions, -1)
 
     v = batch_normalize(vec)

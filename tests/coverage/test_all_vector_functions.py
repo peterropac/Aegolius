@@ -2,7 +2,6 @@ import inspect
 from time import process_time
 
 import numpy as np
-import jax.numpy as np
 
 from spomso.cores.helper_functions import generate_grid
 from spomso.cores import vector_functions as vf

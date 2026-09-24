@@ -6,6 +6,7 @@
 
 import numpy as np
 from scipy.spatial import KDTree
+
 from spomso.cores.triangulation_functions import interior_polygon
 
 

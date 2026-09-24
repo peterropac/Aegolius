@@ -5,7 +5,7 @@
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-from typing import Callable
+from collections.abc import Callable
 from spomso.cores.geom import GenericGeometry
 from spomso.cores.sdf_2D import sdf_circle
 from spomso.cores.sdf_3D import sdf_sphere, sdf_cylinder, sdf_box, sdf_torus, sdf_arc_3d, sdf_chainlink, sdf_braid
@@ -16,6 +16,7 @@ from spomso.cores.sdf_3D import sdf_parametric_curve_3d, sdf_segmented_curve_3d
 from spomso.cores.sdf_3D import sdf_segmented_line_3d, sdf_closed_segmented_line_3d
 from spomso.cores.sdf_3D import sdf_x, sdf_y, sdf_z
 from spomso.cores.sdf_3D import sdf_point_cloud_3d
+from spomso.cores.helper_functions import as_point_array
 
 
 class X(GenericGeometry):
@@ -646,9 +647,7 @@ class SegmentedParametricCurve3D(GenericGeometry):
     """
 
     def __init__(self, points: list | tuple | np.ndarray, t_range: tuple, closed: bool = False):
-        self._points = np.asarray(points)
-        if self._points.shape[1] < self._points.shape[0]:
-            self._points = self._points.T
+        self._points = as_point_array(points, dims=(3,), min_points=2)
         self._t_range = t_range
         self._closed = closed
 
@@ -711,9 +710,7 @@ class SegmentedLine3D(GenericGeometry):
     """
 
     def __init__(self, points: list | tuple | np.ndarray, closed: bool = False):
-        self._points = np.asarray(points)
-        if self._points.shape[1] < self._points.shape[0]:
-            self._points = self._points.T
+        self._points = as_point_array(points, dims=(3,), min_points=2)
         self._closed = closed
 
         GenericGeometry.__init__(self,
@@ -731,19 +728,17 @@ class PointCloud3D(GenericGeometry):
     SDF of the point cloud.
 
     Args:
-        points: Positions of the points in an array of shape (3, N-points).
+        points: Positions of the points in an array of shape (3, N).
     """
 
     def __init__(self, points: list | tuple | np.ndarray):
-        self._points = np.asarray(points)
-        if self._points.shape[1] < self._points.shape[0]:
-            self._points = self._points.T
+        self._points = as_point_array(points, dims=(3,), min_points=2)
 
         GenericGeometry.__init__(self, sdf_point_cloud_3d, self._points)
 
     @property
     def points(self) -> np.ndarray:
-        """Positions of the points in an array of shape (2, N-points)."""
+        """Positions of the points in an array of shape (3, N)."""
         return self._points
 
 

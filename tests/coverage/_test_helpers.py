@@ -315,7 +315,7 @@ def batch_compare_modifications(coor, make_np_base, jax_base_fn, jax_base_params
 
             results[name] = compare_fields(a, b, atol=1e-5, rtol=1e-5)
         except Exception as e:
-            results[name] = (False, float("nan"))
+            results[name] = (False, float("nan"), f"{type(e).__name__}: {e}")
     return results
 
 
@@ -346,8 +346,8 @@ def batch_compare_combines(coor, np_pair_builder, jax_pre_evaluated,
             b = np.asarray(jax_fn(b1, b2, width)).reshape(-1) if l else np.asarray(jax_fn(b1, b2)).reshape(-1)
 
             results[np_op] = compare_fields(a, b, atol=1e-5, rtol=1e-5)
-        except Exception:
-            results[np_op] = (False, float("nan"))
+        except Exception as e:
+            results[np_op] = (False, float("nan"), f"{type(e).__name__}: {e}")
 
     return results
 

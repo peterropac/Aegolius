@@ -4,13 +4,14 @@
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
-import numpy as np
-import jax.numpy as jnp
-from jax.scipy.signal import convolve
-from jax.lax import fori_loop
-import jax
+
 from functools import partial
 
+import jax
+import jax.numpy as jnp
+import numpy as np
+from jax.lax import fori_loop
+from jax.scipy.signal import convolve
 
 array_like_type = np.ndarray | jnp.ndarray
 scalar_like_type = float | int
@@ -24,14 +25,13 @@ def sigmoid_falloff_jax(u: array_like_type, amplitude: scalar_like_type, width: 
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field.
-        width: Width of the sigmoid.
+        width: Width of the sigmoid (width > 0).
 
     Returns:
         Transformed scalar field.
     """
-    e = jnp.exp(4 * u / width)
-
-    return amplitude * (1 / (1 + e))
+    width = jnp.maximum(width, 1e-12)
+    return amplitude * jax.nn.sigmoid(-4 * u / width)
 
 
 @jax.jit
@@ -43,14 +43,13 @@ def positive_sigmoid_falloff_jax(u: array_like_type, amplitude: scalar_like_type
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field.
-        width: Width of the sigmoid.
+        width: Width of the sigmoid (width > 0).
 
     Returns:
         Transformed scalar field.
     """
-    e = jnp.exp(4 * (u - width) / width)
-
-    return amplitude * (1 / (1 + e))
+    width = jnp.maximum(width, 1e-12)
+    return amplitude * jax.nn.sigmoid(-4 * (u - width) / width)
 
 
 @jax.jit
@@ -61,14 +60,13 @@ def capped_exponential_jax(u: array_like_type, amplitude: scalar_like_type, widt
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field.
-        width: Range at which the value of the transformed scalar field drops to almost zero.
+        width: Range at which the value of the transformed scalar field drops to almost zero (width > 0).
 
     Returns:
         Transformed scalar field.
     """
-    e = jnp.exp(- 4 * u / width)
-
-    return amplitude * jnp.minimum(e, 1)
+    width = jnp.maximum(width, 1e-12)
+    return amplitude * jnp.exp(-4 * jnp.maximum(u, 0) / width)
 
 
 @jax.jit
@@ -96,13 +94,13 @@ def linear_falloff_jax(u: array_like_type, amplitude: scalar_like_type, width: s
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field.
-        width: Range at which the value of the transformed scalar field drops to zero.
+        width: Range at which the value of the transformed scalar field drops to zero (width > 0).
 
     Returns:
         Transformed scalar field.
     """
+    width = jnp.maximum(width, 1e-12)
     out = 1 - u / width
-
     return jnp.clip(out, 0, 1) * amplitude
 
 
@@ -113,11 +111,12 @@ def relu_jax(u: array_like_type, width: scalar_like_type = 1) -> jnp.ndarray:
 
     Args:
         u: Signed Distance field or any scalar field.
-        width: Range at which the value of the transformed field reaches one.
+        width: Range at which the value of the transformed field reaches one (width > 0).
 
     Returns:
         Transformed scalar field.
     """
+    width = jnp.maximum(width, 1e-12)
     return jnp.maximum(u / width, 0)
 
 
@@ -132,7 +131,7 @@ def smooth_relu_jax(u: array_like_type, smooth_width: scalar_like_type,
         u: Signed Distance field or any scalar field.
         smooth_width: Distance from the origin at which the Smooth ReLU function
             is greater than ReLU for less than the value of the threshold parameter.
-        width: Range at which the value of the transformed field reaches one.
+        width: Range at which the value of the transformed field reaches one (width > 0).
         threshold: At smooth_width distance from the origin the value of the Smooth ReLU function is greater
             than ReLU for the value of the threshold parameter.
             at smooth_width distance from the origin.
@@ -140,6 +139,7 @@ def smooth_relu_jax(u: array_like_type, smooth_width: scalar_like_type,
     Returns:
         Transformed scalar field.
     """
+    width = jnp.maximum(width, 1e-12)
     b = (smooth_width + threshold) * 4 * threshold
     v = u / width
     return (v + jnp.sqrt(v ** 2 + b)) / 2
@@ -157,7 +157,7 @@ def slowstart_jax(u: array_like_type,
         u: Signed Distance field or any scalar field.
         smooth_width: Distance from the origin at which the SlowStart function
             is greater than ReLU for less than the value of the threshold parameter.
-        width: Range at which the value of the transformed field reaches one.
+        width: Range at which the value of the transformed field reaches one (width > 0).
         threshold: At smooth_width distance from the origin the value of the SlowStart function is greater
             than ReLU for the value of the threshold parameter.
         ground: if True the value of the function is zero at zero.
@@ -165,6 +165,7 @@ def slowstart_jax(u: array_like_type,
     Returns:
         Transformed scalar field.
     """
+    width = jnp.maximum(width, 1e-12)
     b = (2 * smooth_width + threshold) * threshold
     return jnp.sqrt(jnp.maximum(u / width, 0) ** 2 + b / width) - jnp.sqrt(b / width) * ground
 
@@ -177,13 +178,13 @@ def gaussian_boundary_jax(u: array_like_type, amplitude: scalar_like_type, width
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field.
-        width: Range at which the value of the transformed scalar field drops to almost zero.
+        width: Range at which the value of the transformed scalar field drops to almost zero (width > 0).
 
     Returns:
         Transformed scalar field.
     """
+    width = jnp.maximum(width, 1e-12)
     out = jnp.exp(-4 * (u / width) ** 2)
-
     return amplitude * out
 
 
@@ -195,14 +196,14 @@ def gaussian_falloff_jax(u: array_like_type, amplitude: scalar_like_type, width:
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field (and points at which the scalar field was < 0).
-        width: Range at which the value of the transformed scalar field drops to almost zero.
+        width: Range at which the value of the transformed scalar field drops to almost zero (width > 0).
 
     Returns:
         Transformed scalar field.
     """
+    width = jnp.maximum(width, 1e-12)
     u = jnp.maximum(u, 0)
     out = jnp.exp(-4 * (u / width) ** 2)
-
     return amplitude * out
 
 

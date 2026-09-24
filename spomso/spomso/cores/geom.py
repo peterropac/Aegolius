@@ -4,14 +4,15 @@
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
+import inspect
+from collections.abc import Callable
+
 import numpy as np
 
-from spomso.cores.transformations import EuclideanTransform, EuclideanTransformPoints
-from spomso.cores.modifications import ModifyObject, ModifyVectorObject
 from spomso.cores.helper_functions import resolution_conversion
-
-from typing import Callable
-import inspect
+from spomso.cores.modifications import ModifyObject, ModifyVectorObject
+from spomso.cores.transformations import EuclideanTransform, EuclideanTransformPoints
+from spomso.cores.helper_functions import as_point_array
 
 
 class GenericGeometry(EuclideanTransform, ModifyObject):
@@ -121,10 +122,7 @@ class Points(EuclideanTransformPoints):
 
     def __init__(self, points: np.ndarray | list | tuple):
         EuclideanTransformPoints.__init__(self)
-        self._points = np.asarray(points)
-        if self._points.size > 0:
-            if self._points.shape[1] < self._points.shape[0]:
-                self._points = self._points.T
+        self._points = as_point_array(points, dims=(3, 2), pad_to=3, min_points=0)
 
     def __repr__(self):
         if self._points.size <= 6:

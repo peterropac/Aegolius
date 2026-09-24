@@ -193,12 +193,13 @@ class VectorFieldFromSDF(VectorField):
 
     Args:
         grid_resolution: Number of points along each axis in the grid on which the SDF is evaluated.
+        grid_size: Size of the grid along each axis. Needed to compute the correct gradients. Defaults to None (unit spacing).
     """
-    def __init__(self, grid_resolution: tuple | list | np.ndarray):
+    def __init__(self, grid_resolution: tuple | list | np.ndarray,
+                 grid_size: float | tuple | list | np.ndarray | None = None):
         self._grid_resolution = grid_resolution
-        VectorField.__init__(self, from_sdf,  grid_resolution)
-
-
+        self._grid_size = grid_size
+        VectorField.__init__(self, from_sdf,  grid_resolution, grid_size)
 
 
 

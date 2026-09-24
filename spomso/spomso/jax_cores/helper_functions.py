@@ -4,9 +4,11 @@
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
+from math import prod as mprod
+
+import jax
 import jax.numpy as jnp
 import numpy as np
-import jax
 
 
 @jax.jit
@@ -22,6 +24,46 @@ def resolution_conversion(resolution: int) -> int:
     """
     c = resolution % 2 == 1
     return (resolution * c + (1 - c) * (resolution + 1)).astype(int)
+
+
+def _symmetric_axis(size: float | int, n: int) -> jnp.ndarray:
+    """
+    Axis of n (odd) points spanning [-size/2, size/2] and exactly symmetric about zero.
+    See the NumPy implementation for why linspace is not used directly.
+    """
+    half = jnp.linspace(0.0, size / 2, n // 2 + 1)
+    return jnp.concatenate((-half[:0:-1], half))
+
+
+def grid_spacing(size: int | float | tuple | list | jnp.ndarray,
+                 resolution: int | tuple | list | jnp.ndarray) -> tuple:
+    """
+    Physical distance between neighbouring points along each axis of a grid
+    created by generate_grid(size, resolution).
+
+    Args:
+        size: Size of the grid along each dimension. A single value applies to every dimension.
+        resolution: Number of grid points along each dimension (converted to odd, as in generate_grid).
+            A single value applies to every dimension.
+
+    Returns:
+        Tuple with the grid spacing along each dimension.
+    """
+
+    size = np.asarray(size, dtype=float).ravel()
+    resolution = np.asarray(resolution).ravel()
+
+    ndim = max(size.size, resolution.size)
+    if size.size == 1:
+        size = np.repeat(size, ndim)
+    if resolution.size == 1:
+        resolution = np.repeat(resolution, ndim)
+    if size.size != resolution.size:
+        raise ValueError(f"size has {size.size} elements but resolution has {resolution.size}.")
+
+    points = [int(r) if int(r) % 2 == 1 else int(r) + 1 for r in resolution]
+    return tuple(float(s) / (n - 1) for s, n in zip(size, points))
+
 
 def generate_grid(size: int | float | tuple | list | jnp.ndarray,
                   resolution: int | tuple | list | jnp.ndarray) -> (jnp.ndarray, tuple):
@@ -39,51 +81,29 @@ def generate_grid(size: int | float | tuple | list | jnp.ndarray,
         Converted resolution of the grid, containing the number of points along each axis.
     """
 
-    resolution = jnp.squeeze(jnp.asarray(resolution))
-    if resolution.size == 1:
-        co_res_0 = resolution_conversion(int(resolution))
-        co_res_1 = co_res_0
-        co_res_2 = co_res_0
+    resolution = np.atleast_1d(np.squeeze(np.asarray(resolution)))
+    if resolution.size not in (1, 2, 3):
+        raise ValueError(
+            f"Resolution must have 1, 2 or 3 elements, got {resolution.size}."
+        )
+    size = jnp.atleast_1d(jnp.squeeze(jnp.asarray(size)))
+    if size.size not in (1, 2, 3):
+        raise ValueError(f"Size must have 1, 2 or 3 elements, got {size.size}.")
 
-    if resolution.size == 2:
-        co_res_0 = resolution_conversion(int(resolution[0]))
-        co_res_1 = resolution_conversion(int(resolution[1]))
-        co_res_2 = co_res_0
+    padded = list(resolution) + [resolution[0]] * (3 - resolution.size)
+    co_res = tuple(resolution_conversion(int(r)).item() for r in padded)
 
-    if resolution.size == 3:
-        co_res_0 = resolution_conversion(int(resolution[0]))
-        co_res_1 = resolution_conversion(int(resolution[1]))
-        co_res_2 = resolution_conversion(int(resolution[2]))
+    axes = [_symmetric_axis(size[i], co_res[i]) for i in range(size.size)]
+    co = jnp.stack(jnp.meshgrid(*axes, indexing="ij")).reshape(len(axes), -1)
+    coor = jnp.concatenate((co, jnp.zeros((3 - len(axes), co.shape[1]))))
 
-    size = jnp.squeeze(jnp.asarray(size))
-    if size.size == 1:
-        x = jnp.linspace(-size / 2, size / 2, co_res_0)
-        coor = jnp.zeros((3, co_res_0))
-        coor = coor.at[0].set(x)
-
-    if size.size == 2:
-        x = jnp.linspace(-size[0] / 2, size[0] / 2, co_res_0)
-        y = jnp.linspace(-size[1] / 2, size[1] / 2, co_res_1)
-
-        co = jnp.asarray(jnp.meshgrid(x, y, indexing="ij"))
-        co = co.reshape(2, -1)
-        coor = jnp.zeros((3, co.shape[1]))
-        coor = coor.at[:2].set(co)
-
-    if size.size == 3:
-        x = jnp.linspace(-size[0] / 2, size[0] / 2, co_res_0)
-        y = jnp.linspace(-size[1] / 2, size[1] / 2, co_res_1)
-        z = jnp.linspace(-size[2] / 2, size[2] / 2, co_res_2)
-
-        co = jnp.asarray(jnp.meshgrid(x, y, z, indexing="ij"))
-        coor = co.reshape(3, -1)
-
-    return coor, (co_res_0.item(), co_res_1.item(), co_res_2.item())
+    return coor, co_res
 
 
 def smarter_reshape(pattern: jnp.ndarray, resolution: tuple | list | jnp.ndarray | np.ndarray) -> jnp.ndarray:
     """
     Converts the Signed Distance field point cloud into a grid.
+    Can be used inside jax.jit as long as the resolution is static.
 
     Args:
         pattern: Signed Distance field
@@ -94,46 +114,25 @@ def smarter_reshape(pattern: jnp.ndarray, resolution: tuple | list | jnp.ndarray
     """
 
     n_ele = pattern.shape[0]
-    resolution = jnp.asarray(resolution)
+    res = tuple(
+        int(r) if int(r) % 2 == 1 else int(r) + 1
+        for r in np.asarray(resolution).ravel()
+    )
 
-    if resolution.size == 1:
-        res = resolution_conversion(resolution)
-        if n_ele//res == 1:
-            return pattern
-        elif n_ele//(res**2) == 1:
-            return pattern.reshape(res, res)
-        elif n_ele//(res**3) == 1:
-            return pattern.reshape(res, res, res)
-        else:
-            raise ValueError(f"Cannot reshape the pattern with shape {pattern.shape}")
+    if len(res) == 1:
+        candidates = [res * k for k in (1, 2, 3)]
+    elif len(res) == 2:
+        k, rem = divmod(n_ele, res[0] * res[1])  # optional trailing axis of length k
+        candidates = [res + ((k,) if k > 1 else ())] if rem == 0 else []
+    elif len(res) == 3:
+        candidates = [res]
+    else:
+        raise ValueError(f"Resolution must have 1, 2 or 3 elements, got {len(res)}.")
 
-    if resolution.size == 2:
-        res0 = resolution_conversion(resolution[0])
-        res1 = resolution_conversion(resolution[1])
-
-        div = n_ele//(res0*res1)
-        if div == 1:
-            return pattern.reshape(res0, res1)
-
-        elif not div == 1:
-            if not div%1 == 0:
-                raise ValueError(f"Cannot reshape the pattern with shape {pattern.shape}")
-            else:
-                return pattern.reshape(res0, res1, int(div))
-
-        else:
-            raise ValueError(f"Cannot reshape the pattern with shape {pattern.shape}")
-
-    if resolution.size == 3:
-        res0 = resolution_conversion(resolution[0])
-        res1 = resolution_conversion(resolution[1])
-        res2 = resolution_conversion(resolution[2])
-
-        div = n_ele // (res0 * res1 * res2)
-        if div==1:
-            return pattern.reshape(res0, res1, res2)
-        else:
-            raise ValueError(f"Cannot reshape the pattern with shape {pattern.shape}")
+    for shape in candidates:
+        if mprod(shape) == n_ele:
+            return pattern.reshape(shape)
+    raise ValueError(f"Cannot reshape the pattern with shape {pattern.shape}")
 
 
 def vector_smarter_reshape(pattern: jnp.ndarray, resolution: tuple | list | jnp.ndarray | np.ndarray) -> jnp.ndarray:
@@ -148,11 +147,7 @@ def vector_smarter_reshape(pattern: jnp.ndarray, resolution: tuple | list | jnp.
         Vector field on a rectilinear grid of shape (3, resolution[0], resolution[1], resolution[2]).
     """
 
-    x = smarter_reshape(pattern[0], resolution)
-    y = smarter_reshape(pattern[1], resolution)
-    z = smarter_reshape(pattern[2], resolution)
-
-    return jnp.asarray([x, y, z])
+    return nd_vector_smarter_reshape(pattern[:3], resolution)
 
 
 def nd_vector_smarter_reshape(pattern: jnp.ndarray, resolution: tuple | list | np.ndarray | jnp.ndarray) -> jnp.ndarray:
@@ -167,13 +162,7 @@ def nd_vector_smarter_reshape(pattern: jnp.ndarray, resolution: tuple | list | n
         Vector field on a rectilinear grid of shape (ND, resolution[0], resolution[1], resolution[2]).
     """
 
-    c = smarter_reshape(pattern[0], resolution)
-    out = jnp.zeros((pattern.shape[0], *c.shape))
-    out = out.at[0].set(c)
-
-    for i in range(1, pattern.shape[0]):
-      out = out.at[i].set(smarter_reshape(pattern[i], resolution))
-
-    return out
+    grid_shape = smarter_reshape(pattern[0], resolution).shape
+    return pattern.reshape(pattern.shape[0], *grid_shape)
 
 

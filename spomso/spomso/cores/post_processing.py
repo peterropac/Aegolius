@@ -4,9 +4,12 @@
 # SPOMSO is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
+from collections.abc import Callable
+
 import numpy as np
 from scipy.ndimage import convolve
-from typing import Callable
+from scipy.special import expit
+
 from spomso.cores.helper_functions import smarter_reshape
 
 
@@ -384,14 +387,13 @@ def sigmoid_falloff(u: np.ndarray, amplitude: float | int, width: float | int) -
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field.
-        width: Width of the sigmoid.
+        width: Width of the sigmoid (width > 0).
     
     Returns:
         Transformed scalar field.
     """
-    e = np.exp(4 * u / width)
-
-    return amplitude*(1/(1 + e))
+    width = np.maximum(width, 1e-12)
+    return amplitude * expit(-4 * u / width)
 
 
 def positive_sigmoid_falloff(u: np.ndarray, amplitude: float | int, width: float | int) -> np.ndarray:
@@ -402,14 +404,13 @@ def positive_sigmoid_falloff(u: np.ndarray, amplitude: float | int, width: float
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field.
-        width: Width of the sigmoid.
+        width: Width of the sigmoid (width > 0).
     
     Returns:
         Transformed scalar field.
     """
-    e = np.exp(4 * (u - width) / width)
-
-    return amplitude*(1/(1 + e))
+    width = np.maximum(width, 1e-12)
+    return amplitude * expit(-4 * (u - width) / width)
 
 
 def capped_exponential(u: np.ndarray, amplitude: float | int, width: float | int) -> np.ndarray:
@@ -419,14 +420,13 @@ def capped_exponential(u: np.ndarray, amplitude: float | int, width: float | int
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field.
-        width: Range at which the value of the transformed scalar field drops to almost zero.
+        width: Range at which the value of the transformed scalar field drops to almost zero (width > 0).
     
     Returns:
         Transformed scalar field.
     """
-    e = np.exp(- 4 * u / width)
-
-    return amplitude * np.minimum(e, 1)
+    width = np.maximum(width, 1e-12)
+    return amplitude * np.exp(-4 * np.maximum(u, 0) / width)
 
 
 def hard_binarization(u: np.ndarray, threshold: float) -> np.ndarray:
@@ -453,13 +453,13 @@ def linear_falloff(u: np.ndarray, amplitude: float | int, width: float | int) ->
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field.
-        width: Range at which the value of the transformed scalar field drops to zero.
+        width: Range at which the value of the transformed scalar field drops to zero (width > 0).
     
     Returns:
         Transformed scalar field.
     """
+    width = np.maximum(width, 1e-12)
     out = 1 - u/width
-
     return np.clip(out, 0, 1)*amplitude
 
 
@@ -469,11 +469,12 @@ def relu(u: np.ndarray, width: float | int = 1) -> np.ndarray:
     
     Args:
         u: Signed Distance field or any scalar field.
-        width: Range at which the value of the transformed field reaches one.
+        width: Range at which the value of the transformed field reaches one (width > 0).
     
     Returns:
         Transformed scalar field.
     """
+    width = np.maximum(width, 1e-12)
     return np.maximum(u/width, 0)
 
 
@@ -487,7 +488,7 @@ def smooth_relu(u: np.ndarray, smooth_width: float | int,
         u: Signed Distance field or any scalar field.
         smooth_width: Distance from the origin at which the Smooth ReLU function
             is greater than ReLU for less than the value of the threshold parameter.
-        width: Range at which the value of the transformed field reaches one.
+        width: Range at which the value of the transformed field reaches one (width > 0).
         threshold: At smooth_width distance from the origin the value of the Smooth ReLU function is greater
             than ReLU for the value of the threshold parameter.
             at smooth_width distance from the origin.
@@ -495,6 +496,7 @@ def smooth_relu(u: np.ndarray, smooth_width: float | int,
     Returns:
         Transformed scalar field.
     """
+    width = np.maximum(width, 1e-12)
     b = (smooth_width + threshold)*4*threshold
     v = u/width
     return (v + np.sqrt(v**2 + b))/2
@@ -511,7 +513,7 @@ def slowstart(u: np.ndarray,
         u: Signed Distance field or any scalar field.
         smooth_width: Distance from the origin at which the SlowStart function
             is greater than ReLU for less than the value of the threshold parameter.
-        width: Range at which the value of the transformed field reaches one.
+        width: Range at which the value of the transformed field reaches one (width > 0).
         threshold: At smooth_width distance from the origin the value of the SlowStart function is greater
             than ReLU for the value of the threshold parameter.
         ground: if True the value of the function is zero at zero.
@@ -519,6 +521,7 @@ def slowstart(u: np.ndarray,
     Returns:
         Transformed scalar field.
     """
+    width = np.maximum(width, 1e-12)
     b = (2*smooth_width + threshold)*threshold
     return np.sqrt(np.maximum(u / width, 0)**2 + b/width) - np.sqrt(b/width)*ground
 
@@ -530,11 +533,12 @@ def gaussian_boundary(u: np.ndarray, amplitude: float | int, width: float | int)
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field.
-        width: Range at which the value of the transformed scalar field drops to almost zero.
+        width: Range at which the value of the transformed scalar field drops to almost zero (width > 0).
     
     Returns:
         Transformed scalar field.
     """
+    width = np.maximum(width, 1e-12)
     out = np.exp(-4*(u/width)**2)
 
     return amplitude*out
@@ -547,11 +551,12 @@ def gaussian_falloff(u: np.ndarray, amplitude: float | int, width: float | int) 
     Args:
         u: Signed Distance field or any scalar field.
         amplitude: Maximum value of the transformed scalar field (and points at which the scalar field was < 0).
-        width: Range at which the value of the transformed scalar field drops to almost zero.
+        width: Range at which the value of the transformed scalar field drops to almost zero (width > 0).
     
     Returns:
         Transformed scalar field.
     """
+    width = np.maximum(width, 1e-12)
     u = np.maximum(u, 0)
     out = np.exp(-4*(u/width)**2)
 

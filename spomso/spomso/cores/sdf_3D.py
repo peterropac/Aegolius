@@ -5,8 +5,6 @@
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-from scipy.interpolate import NearestNDInterpolator
-from scipy.spatial.distance import cdist
 from scipy.spatial import KDTree
 
 

@@ -5,10 +5,11 @@
 # You should have received a copy of the GNU Lesser General Public License along with SPOMSO. If not, see <https://www.gnu.org/licenses/>.
 
 
+from collections.abc import Callable
+
+import jax
 import jax.numpy as jnp
 import numpy as np
-import jax
-from typing import Callable
 
 array_like_type = jnp.ndarray | np.ndarray | list | tuple
 scalar_like_type = float | int
@@ -168,10 +169,15 @@ def smoothmax_boltz(x: array_like_type | scalar_like_type, y: array_like_type | 
     Returns:
         Smooth maximum between x and y, based on parameter a.
     """
-    exp1 = jnp.exp(x/a)
-    exp2 = jnp.exp(y/a)
 
-    return (x*exp1 + y*exp2)/(exp1 + exp2)
+    safe_a = jnp.where(a == 0, 1.0, a)
+    u, v = x / safe_a, y / safe_a
+    m = jax.lax.stop_gradient(jnp.maximum(u, v))
+    exp1 = jnp.exp(u - m)
+    exp2 = jnp.exp(v - m)
+
+    out = (x*exp1 + y*exp2)/(exp1 + exp2)
+    return jnp.where(a == 0, jnp.maximum(x, y), out)
 
 
 @jax.jit
