@@ -21,7 +21,7 @@ from .post_processing import custom_post_process
 from .post_processing import PostProcess
 
 from .triangulation_functions import interior_triangle, interior_convex, interior_polygon
-from .triangulation_functions import check_convex, check_convex_all, is_inside_triangle, is_ear, triangulate
+from .triangulation_functions import cross2d, check_convex, check_convex_all, is_inside_triangle, is_ear, triangulate
 
 from .sdf_2D import sdf_circle, sdf_segment_2d, sdf_box_2d, sdf_rounded_box_2d, sdf_triangle_2d
 from .sdf_2D import sdf_arc, sdf_sector, sdf_inf_sector, sdf_ngon, sdf_polygon_2d

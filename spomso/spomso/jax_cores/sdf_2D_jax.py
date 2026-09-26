@@ -417,8 +417,9 @@ def check_convex_all(vs: jnp.ndarray) -> jnp.ndarray:
 
     v1s = vs[:2, 1:-1] - vs[:2, :-2]
     v2s = vs[:2, 2:] - vs[:2, 1:-1]
-    c = jnp.cross(v1s.T, v2s.T)
-    c_last = jnp.cross(vs[:2, 0] - vs[:2, -1], vs[:2, 1] - vs[:2, 0])
+    c = v1s[0] * v2s[1] - v1s[1] * v2s[0]
+    e1, e2 = vs[:2, 0] - vs[:2, -1], vs[:2, 1] - vs[:2, 0]
+    c_last = e1[0] * e2[1] - e1[1] * e2[0]
     c = jnp.concatenate((c, jnp.expand_dims(c_last, axis=0)), axis=0)
     return c
 

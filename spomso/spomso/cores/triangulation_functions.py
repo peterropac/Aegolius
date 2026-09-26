@@ -7,6 +7,19 @@
 import numpy as np
 
 
+def cross2d(a: np.ndarray, b: np.ndarray) -> np.ndarray | float:
+    """
+    z-component of the cross product of 2D vectors, a_x * b_y - a_y * b_x.
+
+    Args:
+        a: 2D vector(s) with the components along the last axis, shape (..., 2).
+        b: 2D vector(s) with the components along the last axis, shape (..., 2).
+    Returns:
+        z-component of the cross product, shape (...).
+    """
+    return a[..., 0] * b[..., 1] - a[..., 1] * b[..., 0]
+
+
 def check_convex(v3s: np.ndarray) -> np.ndarray:
     """
     Checks if 3 vertices are convex.
@@ -19,7 +32,7 @@ def check_convex(v3s: np.ndarray) -> np.ndarray:
 
     v1 = v3s[:2, 1] - v3s[:2, 0]
     v2 = v3s[:2, 2] - v3s[:2, 1]
-    c = np.cross(v1, v2)
+    c = cross2d(v1, v2)
     return c > 0
 
 
@@ -35,8 +48,8 @@ def check_convex_all(vs: np.ndarray) -> np.ndarray:
 
     v1s = vs[:2, 1:-1] - vs[:2, :-2]
     v2s = vs[:2, 2:] - vs[:2, 1:-1]
-    c = np.cross(v1s.T, v2s.T)
-    c_last = np.cross(vs[:2, 0] - vs[:2, -1], vs[:2, 1] - vs[:2, 0])
+    c = cross2d(v1s.T, v2s.T)
+    c_last = cross2d(vs[:2, 0] - vs[:2, -1], vs[:2, 1] - vs[:2, 0])
     c = np.concatenate((c, [c_last]), axis=0)
     return c
 

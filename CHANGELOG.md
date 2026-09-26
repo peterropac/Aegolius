@@ -2,7 +2,7 @@
 # Changelog
 ---
 
-## [1.6.0.dev1] — 2026-09-24
+## [1.6.0.dev3] — 2026-09-26
 
 
 ### Changed (breaking)
@@ -18,6 +18,10 @@
 
 ### Fixes
 
+- **Polygons with newer NumPy.** Polygon triangulation and convexity checks (NumPy and JAX) no longer
+  use `np.cross` / `jnp.cross` on 2-component vectors. NumPy deprecated this in 2.0 and newer releases
+  raise an error, which broke `Polygon` on Python 3.12+ and JAX removes it in 0.12.0. The 2D cross product
+  is now computed directly (new `cross2d` helper in `triangulation_functions`).
 - **Clockwise concave polygons.** `interior_polygon` no longer crashes with an `IndexError` on simple
   concave polygons given in clockwise order. Orientation is now decided by signed area.
 - **Polygon input.** `Polygon` now accepts nested lists and `(N, 3)` vertex arrays as documented, and

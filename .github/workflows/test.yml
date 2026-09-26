@@ -16,4 +16,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e spomso[all]
+      - name: Show versions
+        run: |
+          python -c "import sys; print('Python', sys.version.split()[0])"
+          pip list | grep -iE "^(numpy|scipy|jax|jaxlib|optax|matplotlib|plotly) "
       - run: python tests/run_tests.py
+        env:
+          PYTHONWARNINGS: error::DeprecationWarning
