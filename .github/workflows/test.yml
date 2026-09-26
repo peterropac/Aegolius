@@ -16,4 +16,4 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e spomso[all]
-      - run: python tests/run_tests.py --slow
+      - run: python tests/run_tests.py

@@ -9,6 +9,59 @@ from math import prod as mprod
 import numpy as np
 
 
+def as_real(value, name: str, positive: bool = False) -> float:
+    """
+    Validates a real scalar parameter and returns it as a Python float.
+
+    Accepts Python and NumPy numbers and 0-d arrays; rejects booleans, complex numbers,
+    strings and arrays with more than one element.
+
+    Args:
+        value: The value to validate.
+        name: Parameter name used in error messages.
+        positive: If True, the value must be greater than zero.
+
+    Returns:
+        The value as a float.
+    """
+    if isinstance(value, (bool, np.bool_, str, bytes)) or np.ndim(value) != 0:
+        raise TypeError(f"{name} must be a real scalar, got {value!r}.")
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        raise TypeError(f"{name} must be a real scalar, got {value!r}.") from None
+    if not np.isfinite(value):
+        raise ValueError(f"{name} must be finite, got {value}.")
+    if positive and value <= 0:
+        raise ValueError(f"{name} must be positive, got {value}.")
+    return value
+
+
+def as_vector(value, name: str, max_size: int = 3) -> np.ndarray:
+    """
+    Validates a vector parameter with 1 to max_size finite components.
+
+    Args:
+        value: The value to validate (scalar, list, tuple or array).
+        name: Parameter name used in error messages.
+        max_size: Maximum number of components.
+
+    Returns:
+        A new 1D float array with the components.
+    """
+    if isinstance(value, (str, bytes)):
+        raise TypeError(f"{name} must be a numeric vector, got {value!r}.")
+    try:
+        arr = np.array(value, dtype=float)
+    except (TypeError, ValueError):
+        raise TypeError(f"{name} must be a numeric vector, got {value!r}.") from None
+    if arr.ndim > 1 or not 1 <= arr.size <= max_size:
+        raise ValueError(f"{name} must have 1 to {max_size} components, got shape {arr.shape}.")
+    if not np.all(np.isfinite(arr)):
+        raise ValueError(f"{name} must be finite, got {arr}.")
+    return arr.ravel()
+
+
 def as_point_array(points: np.ndarray | list | tuple,
                    dims: tuple = (2, 3),
                    pad_to: int | None = None,
@@ -31,7 +84,7 @@ def as_point_array(points: np.ndarray | list | tuple,
         A new float array of shape (D, N).
     """
     dims = tuple(dims)
-    arr = np.asarray(points, dtype=float)
+    arr = np.array(points, dtype=float)
     input_shape = arr.shape
 
     if arr.size == 0:

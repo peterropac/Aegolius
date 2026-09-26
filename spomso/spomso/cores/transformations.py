@@ -9,6 +9,8 @@ from collections.abc import Callable
 import numpy as np
 from scipy.spatial.transform import Rotation as srot
 
+from spomso.cores.helper_functions import as_real, as_vector
+
 
 class EuclideanTransform:
     """
@@ -18,9 +20,9 @@ class EuclideanTransform:
     def __init__(self):
         self._et: list = []
         self._center: np.ndarray | tuple | list = np.asarray((0.0,0.0,0.0))
-        self._scale: float | int = 1.0
+        self._scale: float = 1.0
         self._rot_matrix: np.ndarray = np.eye(3)
-        self._angle: float | int = 0.0
+        self._angle: float = 0.0
         self._axis: np.ndarray | tuple | list = np.asarray((0.0, 0.0, 1.0))
 
     @property
@@ -42,7 +44,7 @@ class EuclideanTransform:
         return self._center
 
     @property
-    def scale(self) -> float | list:
+    def scale(self) -> float:
         """Scale factor of the geometry.
 
         Returns:
@@ -69,7 +71,7 @@ class EuclideanTransform:
         return self._axis
 
     @property
-    def rotation_angle(self) -> float | int:
+    def rotation_angle(self) -> float:
         """Angle by which the geometry is rotated around the axis of rotation.
 
         Returns:
@@ -83,11 +85,8 @@ class EuclideanTransform:
         Args:
             center: 3vector which defines the new position of the geometry.
         """
-        center = np.asarray(center)
-        if center.size <= 3:
-            self._center[:center.size] = center
-        else:
-            raise ValueError(f"Array {center} is of incorrect size!")
+        center = as_vector(center, "center")
+        self._center[:center.size] = center
 
         self._et.append("set_location")
 
@@ -98,44 +97,35 @@ class EuclideanTransform:
         Args:
             move_vector: 3vector by which the geometry is moved.
         """
-        vector = np.asarray(move_vector)
-        if vector.size <= 3:
-            self._center[:vector.size] += vector
-        else:
-            raise ValueError(f"Array {vector} is of incorrect size!")
+        vector = as_vector(move_vector, "move_vector")
+        self._center[:vector.size] += vector
 
         self._et.append("move")
 
-    def set_scale(self, scale: float | int):
+    def set_scale(self, scale: float):
         """
         Sets the scaling of the geometry.
         
         Args:
             scale: Scaling factor.
         """
-        if any(isinstance(scale, type_) for type_ in [float, int]):
-            self._scale = scale
-        else:
-            raise TypeError("Scale must be a float or an int")
+        self._scale = as_real(scale, "scale", positive=True)
 
         self._et.append("set_scale")
 
-    def rescale(self, scale: float | int):
+    def rescale(self, scale: float):
         """
         Multiplies the existing scaling of the geometry by the scale factor.
         
         Args:
             scale: Scale factor.
         """
-        if any(isinstance(scale, type_) for type_ in [float, int]):
-            self._scale *= scale
-        else:
-            raise TypeError("Scale must be a float or an int")
+        self._scale *= as_real(scale, "scale", positive=True)
 
         self._et.append("rescale")
 
     @staticmethod
-    def get_rotation_matrix(angle: float | int, axis: np.ndarray | tuple | list) -> tuple:
+    def get_rotation_matrix(angle: float, axis: np.ndarray | tuple | list) -> tuple:
         """
         Get the rotation matrix from the rotation angle and axis of rotation.
         
@@ -146,22 +136,15 @@ class EuclideanTransform:
         Returns:
             Rotation matrix (3, 3).
         """
-        axis = np.asarray(axis)
-        if axis.size <= 3:
-            axis_ = np.zeros(3)
-            axis_[:axis.size] = axis
-        else:
-            raise ValueError(f"Array {axis} is of incorrect size!")
-
-        if any(isinstance(angle, type_) for type_ in [float, int]):
-            angle_ = angle
-        else:
-            raise TypeError("Rotation angle must be a float or an int")
+        axis = as_vector(axis, "axis")
+        axis_ = np.zeros(3)
+        axis_[:axis.size] = axis
+        angle_ = as_real(angle, "angle")
 
         r = srot.from_rotvec(angle_ * axis_)
         return r.as_matrix(), angle_, axis_
 
-    def set_rotation(self, angle: float | int, axis: np.ndarray | tuple | list):
+    def set_rotation(self, angle: float, axis: np.ndarray | tuple | list):
         """
         Sets the rotation matrix from the rotation angle and axis.
         
@@ -173,7 +156,7 @@ class EuclideanTransform:
 
         self._et.append("set_rotation")
 
-    def rotate_rotvec(self, angle: float | int, axis: np.ndarray | tuple | list):
+    def rotate_rotvec(self, angle: float, axis: np.ndarray | tuple | list):
         """
         Multiplies the previous existing rotation matrix by a rotation matrix calculated
         from the angle and axis of rotation.
@@ -182,8 +165,8 @@ class EuclideanTransform:
             angle: Angle of rotation.
             axis: Axis of rotation.
         """
-        de = np.array_equal(axis, np.zeros(3)[:axis.size])
-        if de:
+        axis = as_vector(axis, "axis")
+        if not np.any(axis):
             raise ValueError("Axis cannot be zero!")
 
         axis = axis/np.linalg.norm(axis)
@@ -202,7 +185,7 @@ class EuclideanTransform:
 
         r = srot.from_matrix(self._rot_matrix)
         rot_vec_ = r.as_rotvec()
-        self._angle = np.linalg.norm(rot_vec_)
+        self._angle = float(np.linalg.norm(rot_vec_))
         if not self._angle == 0:
             self._axis = rot_vec_ / self._angle
         else:
@@ -232,7 +215,7 @@ class EuclideanTransform:
     def apply_ec_transforms(function_: Callable[[np.ndarray, tuple], np.ndarray],
                             co_: np.ndarray,
                             params_: tuple,
-                            rm: np.ndarray, tm: np.ndarray, sm: float | int) -> np.ndarray:
+                            rm: np.ndarray, tm: np.ndarray, sm: float) -> np.ndarray:
         co = np.subtract(co_.T, tm).T
         co = rm.T.dot(co)
         co = co / sm
@@ -262,6 +245,16 @@ class EuclideanTransform:
                                         self.scale)
 
 
+def _scale_vector(scale) -> np.ndarray:
+    # a scalar scales every axis; a vector with 1-3 components scales the given axes (the rest stay 1)
+    if np.ndim(scale) == 0:
+        return as_real(scale, "scale") * np.ones(3)
+    factors = np.ones(3)
+    values = as_vector(scale, "scale")
+    factors[:values.size] = values
+    return factors
+
+
 class EuclideanTransformPoints:
     """
     Class containing the Euclidean transforms which can be applied to a point cloud.
@@ -270,9 +263,9 @@ class EuclideanTransformPoints:
     def __init__(self):
         self._et: list = []
         self._center: np.ndarray | tuple | list = np.asarray((0.0, 0.0, 0.0))
-        self._scale: np.ndarray | tuple | list | float | int = 1.0
+        self._scale: np.ndarray = np.ones(3)
         self._rot_matrix: np.ndarray = np.eye(3)
-        self._angle: float | int = 0.0
+        self._angle: float = 0.0
         self._axis: np.ndarray | tuple | list = np.asarray((0.0, 0.0, 1.0))
 
     @property
@@ -294,7 +287,7 @@ class EuclideanTransformPoints:
         return self._center
 
     @property
-    def scale(self) -> np.ndarray | tuple | list | float | int:
+    def scale(self) -> np.ndarray:
         """Scale factors of the point cloud.
 
         Returns:
@@ -321,7 +314,7 @@ class EuclideanTransformPoints:
         return self._axis
 
     @property
-    def rotation_angle(self) -> float | int:
+    def rotation_angle(self) -> float:
         """Angle by which the point cloud is rotated around the axis of rotation.
 
         Returns:
@@ -335,11 +328,8 @@ class EuclideanTransformPoints:
         Args:
             center: 3vector which defines the new position of the point cloud.
         """
-        center = np.asarray(center)
-        if center.size <= 3:
-            self._center[:center.size] = center
-        else:
-            raise ValueError(f"Array {center} is of incorrect size!")
+        center = as_vector(center, "center")
+        self._center[:center.size] = center
 
         self._et.append("set_location")
 
@@ -350,51 +340,35 @@ class EuclideanTransformPoints:
         Args:
             move_vector: 3vector by which the point cloud is moved.
         """
-        vector = np.asarray(move_vector)
-        if vector.size <= 3:
-            self._center += vector
-        else:
-            raise ValueError(f"Array {vector} is of incorrect size!")
+        vector = as_vector(move_vector, "move_vector")
+        self._center[:vector.size] += vector
 
         self._et.append("move")
 
-    def set_scale(self, scale: np.ndarray | tuple | list | float | int):
+    def set_scale(self, scale: np.ndarray | tuple | list | float):
         """
         Sets the scaling of the point cloud.
         
         Args:
             scale: Scaling factors.
         """
-        if any(isinstance(scale, type_) for type_ in [float, int]):
-            self._scale = scale*np.ones(3)
-        elif any(isinstance(scale, type_) for type_ in [np.ndarray, tuple, list]):
-            scale_ = np.ones(3)
-            scale = np.asarray(scale)
-            scale_[:scale.size] = scale
-            self._scale = scale_
-        else:
-            raise TypeError("Wrong data type, try a 3vector (np.ndarray, tuple, list) or a scalar.")
+        self._scale = _scale_vector(scale)
 
         self._et.append("set_scale")
 
-    def rescale(self, scale: np.ndarray | tuple | list | float | int):
+    def rescale(self, scale: np.ndarray | tuple | list | float):
         """
         Multiplies the existing scaling of the point cloud by the scale factors.
         
         Args:
             scale: Scale factors.
         """
-        if any(isinstance(scale, type_) for type_ in [float, int]):
-            self._scale *= scale*np.ones(3)
-        elif any(isinstance(scale, type_) for type_ in [np.ndarray, tuple, list]):
-            self._scale = np.multiply(self._scale, scale)
-        else:
-            raise TypeError("Wrong data type, try a 3vector (np.ndarray, tuple, list) or a scalar.")
+        self._scale = self._scale * _scale_vector(scale)
 
         self._et.append("rescale")
 
     @staticmethod
-    def get_rotation_matrix(angle: float | int, axis: np.ndarray | tuple | list) -> tuple:
+    def get_rotation_matrix(angle: float, axis: np.ndarray | tuple | list) -> tuple:
         """
         Get the rotation matrix from the rotation angle and axis of rotation.
         
@@ -405,22 +379,15 @@ class EuclideanTransformPoints:
         Returns:
             Rotation matrix (3, 3).
         """
-        axis = np.asarray(axis)
-        if axis.size <= 3:
-            axis_ = np.zeros(3)
-            axis_[:axis.size] = axis
-        else:
-            raise ValueError(f"Array {axis} is of incorrect size!")
-
-        if any(isinstance(angle, type_) for type_ in [float, int]):
-            angle_ = angle
-        else:
-            raise TypeError("Rotation angle must be a float or an int.")
+        axis = as_vector(axis, "axis")
+        axis_ = np.zeros(3)
+        axis_[:axis.size] = axis
+        angle_ = as_real(angle, "angle")
 
         r = srot.from_rotvec(angle_ * axis_)
         return r.as_matrix(), angle_, axis_
 
-    def set_rotation(self, angle: float | int, axis: np.ndarray | tuple | list):
+    def set_rotation(self, angle: float, axis: np.ndarray | tuple | list):
         """
         Sets the rotation matrix from the rotation angle and axis.
         
@@ -432,7 +399,7 @@ class EuclideanTransformPoints:
 
         self._et.append("set_rotation")
 
-    def rotate_rotvec(self, angle: float | int, axis: np.ndarray | tuple | list):
+    def rotate_rotvec(self, angle: float, axis: np.ndarray | tuple | list):
         """
         Multiplies the previous existing rotation matrix by a rotation matrix calculated
         from the rotation angle and axis of rotation.
@@ -441,8 +408,8 @@ class EuclideanTransformPoints:
             angle: Angle of rotation.
             axis: Axis of rotation.
         """
-        de = np.array_equal(axis, np.zeros(3)[:axis.size])
-        if de:
+        axis = as_vector(axis, "axis")
+        if not np.any(axis):
             raise ValueError("Axis cannot be zero!")
 
         axis = axis/np.linalg.norm(axis)
@@ -461,7 +428,7 @@ class EuclideanTransformPoints:
 
         r = srot.from_matrix(self._rot_matrix)
         rot_vec_ = r.as_rotvec()
-        self._angle = np.linalg.norm(rot_vec_)
+        self._angle = float(np.linalg.norm(rot_vec_))
         if not self._angle == 0:
             self._axis = rot_vec_ / self._angle
         else:

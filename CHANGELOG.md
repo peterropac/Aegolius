@@ -2,7 +2,7 @@
 # Changelog
 ---
 
-## [1.6.0.dev0] — 2026-09-24
+## [1.6.0.dev1] — 2026-09-24
 
 
 ### Changed (breaking)
@@ -28,7 +28,12 @@
   returns the hard maximum. Results are unchanged wherever the previous formula was finite.
 - `rotate(matrix)` works again for geometry and point clouds (the matrix was wrapped to shape (1, 3, 3)).
 - `move` accepts 2-vectors, consistent with `set_location`.
-- Rotation angles and scale factors accept NumPy scalars (e.g. `np.float32`).
+- **Consistent parameter validation for transformations.** All transformation setters (`set_location`,
+  `move`, `set_scale`, `rescale`, `rotate`, ...) now validate their input through the new
+  `as_real` and `as_vector` helpers in `helper_functions`. NumPy scalars and 0-d arrays are accepted;
+  booleans, strings, complex numbers, NaN and infinite values raise a `TypeError` or `ValueError`.
+  Geometry scale factors must be positive, since a negative scale inverts the inside and outside of an
+  SDF. `Points.move` and `Points.rescale` also accept 2-vectors, like the other setters.
 - `smarter_reshape` (NumPy and JAX) raises `ValueError` for mismatched lengths in the 1D and 3D cases
   instead of silently returning the input or failing inside `reshape`.
 - **Post-processing overflow.** `sigmoid_falloff`, `positive_sigmoid_falloff` and `capped_exponential`
